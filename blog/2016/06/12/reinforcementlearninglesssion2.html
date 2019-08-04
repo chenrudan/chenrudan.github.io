@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之二】马尔可夫决策过程MDP">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_2.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_3.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_4.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_5.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_6.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.149Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之二】马尔可夫决策过程MDP">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之二】马尔可夫决策过程MDP | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之二】马尔可夫决策过程MDP</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-12T11:20:36+08:00">
+                2016-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=lfHX2hHRMVQ&list=PL5X3mDkKaJrL42i_jhE4N-p6E2Ol62Ofa&index=2" target="_blank" rel="noopener">RL Course by David Silver - Lecture 2: Markov Decision Process</a>。</p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MDP.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MDP.pdf</a>。</p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-基础概念"><a href="#1-基础概念" class="headerlink" title="1.基础概念"></a>1.基础概念</h4><p>状态集合S: 有限状态state集合，s表示某个特定状态</p>
+<p>动作集合A: 有限动作action集合，a表示某个特定动作</p>
+<p>状态转移矩阵P: 矩阵每一项是从S中一个状态s转移到另一个状态{s’}的概率$P_{ss’} = P[S_{t+1}=s’|S_t=s]$以及执行动作a后从一个状态转移到另一个概率为$P_{ss’}^a = P[S_{t+1}=s’ | S_t=s, A_t=a]$。这里的状态转移矩阵决定了马尔可夫性质，即未来状态只与当前状态有关而与过去状态无关。矩阵一行之和为1。</p>
+<p>策略$\pi$: 状态s下执行动作a的概率，$\pi(a|s) = P[A_t=a|S_t=s]$</p>
+<p>reward函数ER: 这个函数是immediate reward的期望，即在时刻t的时候，agent执行某个action后下一个时刻立即能得到的reward $R_{t+1}$的期望，它由当前的状态决定。状态s下immediate reward期望为$ER_s = E[R_{t+1}|S_t = s]$，状态s下执行动作a后immediate reward期望为$ER_s^a = E[R_{t+1}|S_t=s, A_t=a]$</p>
+<p>Return $G_t$与discount $\gamma$: $G_t$是t时刻之后未来执行一组action能够获得的reward，即t+1、t+2、t+3…未来所有时刻reward之和，是未来时刻reward在当前时刻的体现，但是越往后的时刻它能反馈回来的reward需要乘以一个discount系数，系数$\gamma \in [0,1]$会产生一个打折的效果，这是因为并没有一个完美的模型能拟合出未来会发生什么，未来具有不确定性，同时这样计算会方便，避免了产生状态的无限循环，在某些情况下，即时产生的reward即$R_{t+1}$会比未来时刻更值得关注，符合人的直觉。因此$G_t = R_{t+1}+\gamma R_{t+2}+…=\sum_{k=0}^{\infty}\gamma^kR_{t+k+1}$</p>
+<p>状态值函数$v(s)$: 即基于t时刻的状态s能获得的return的期望，$v(s)=E[G_t|S_t=s]$，这里是仅按照状态转移矩阵选择执行何种动作，如果加入动作选择策略，那么函数就变成了$v_{\pi}(s) = E_{\pi}[G_t|S_t=s]$</p>
+<p>动作值函数$q_{\pi}(s,a)$: 基于t时刻的状态s，选择特定的一个action后能获得的return期望，这里的选择过程就隐含加入了策略。$q_{\pi}(s,a)= E_{\pi}[G_t|S_t=s, A_t=a]$</p>
+<h4 id="2-MDP与实例分析"><a href="#2-MDP与实例分析" class="headerlink" title="2. MDP与实例分析"></a>2. MDP与实例分析</h4><p><strong>马尔可夫链/过程(Markov Chain/Process)</strong>，是具有markov性质的随机状态s1,s2,…序列。由$[S,P]$组成。如下图1圆圈内是状态，箭头上的值是状态之间的转移概率。class是指上第几堂课，facebook指看facebook网页，pub指去酒吧，pass指通过考试，sleep指睡觉。例如处于class1有0.5的概率转移到class2，或者0.5的概率转移到facebook。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_1.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图1 Markov Process Example(图片来源[1])</center></font></p>
+<p>从而可以产生非常多的随机序列，例如C1 C2 C3 Pass Sleep或者C1 FB FB C1 C2 C3 Pub C1 FB FB FB C1 C2 C3 Pub C2 Sleep等。这些随机状态的序列就是马尔可夫过程。这里可以看到有一些状态发生了循环。</p>
+<p><strong>马尔可夫奖赏过程(Markov Reward Process)</strong>，即马尔可夫过程加上value judgement，value judegment即判断一个像上面一个特定的随机序列有多少累积reward，也就是计算出$v(s)$。它由$[S,P,R,\gamma]$组成，示意图如下。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_2.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图2 Markov Reward Process Example(图片来源[1])</center></font></p>
+<p>可以看出比图1多了红色部分即R，但是R的取值只决定了immediate reward，在实际过程中肯定是需要考虑到后面步骤的reward才能确定当前的选择是否正确。而实际上$v(s)$由两部分组成，一个是immediate reward，一个是后续状态产生的discounted reward，推导如下(这里我觉得视频里似乎把$ER_s$与$R_{t+1}$的取值当成一样的了)，推导出来的这个式子称为Bellman方程。</p>
+<p>$$<br>\begin{split}<br>v(s) = &amp;E[G_t|S_t=s] \<br>       = &amp;E[R_{t+1} + \gamma (R_{t+2}+\gamma R_{t+3}+…) | S_t=s] \<br>        = &amp;E[R_{t+1} + \gamma G_{t+1} | S_t=s] \<br>        = &amp;ER_s + \gamma \sum_{s’\in S}P_{ss’}v(s’)<br>\end{split} ::::: (1)<br>$$</p>
+<p>那么每一个状态下能得到的状态值函数取值或者说累积reward如下所示，即原来写着class、sleep状态的地方替换成了数字(这里假设$\gamma = 1$)。可以从sleep状态出发，推导出每个状态的状态值函数取值，如右上角红色公式所示。最右的-23与-13，列出二元一次方程组即可求出。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_3.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图3 State Value Function Example(图片来源[1])</center></font></p>
+<p>将Bellman方程表达成矩阵形式，变成了$v = ER + \gamma Pv$，是个线性等式，直接求解得到$v = (I - \gamma P)^{-1}ER$。而这样求解的话计算复杂度是$O(n^3)$，所以一般通过动态规划、蒙特卡洛估计与Temporal-Difference learning这些迭代的方式求解。</p>
+<p><strong>马尔可夫决策过程(Markov Decision Process)</strong>，它是拥有决策能力的马尔可夫奖赏过程，个人理解是MRP是将所有情况都遍历，而MDP则是选择性的遍历某些情况。它由$[S,A,P,R_s^a,\gamma,\pi(a|s)]$组成，并且拥有两个值函数$v_{\pi(s)}$和$q_{\pi}(s,a)$。根据这两个值函数的定义，它们之间的关系表示为$v_{\pi}(s) = \sum_{a\in A}\pi(a|s)q_{\pi}(s,a)$以及$q_{\pi}(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^av_{\pi}(s’)$。第二个式子是说当选择一个action之后，转移到不同状态下之后获取的reward之和是多少。将两个式子互相代入，可以得到如下的Bellman期望方程。</p>
+<p>$$<br>v_{\pi}(s) = \sum_{a\in A}\pi(a|s)(R_s^a + \gamma \sum_{s’\in S}P_{ss’}^av_{\pi}(s’))  ::::: (2)<br>$$</p>
+<p>$$<br>q_{\pi}(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a\sum_{a’\in A}\pi(a’|s’)q_{\pi}(s’,a’)  ::::: (3)<br>$$</p>
+<p>下图是一个MDP的例子，箭头上的单词表示action，与MRP不同的是，这里给出的immediate reward是同时在某个状态s和某个动作a条件下，所以图中R不是只取决于s，而是取决于s和a。右上角的等式表达出了这一个状态的状态值函数求解过程。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_4.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图4 Markov Decision Processes Example(图片来源[1])</center></font></p>
+<p>由于策略$\pi(a|s)$是可以改变的，因此两个值函数的取值不像MRP一样是固定的，那么就能从不同的取值中找到一个最大值即最优值函数(这节课没有讲如何求解)。例如下面两个图就是上面的例子能找到的最优状态值函数$v_*(s)$与最优动作值函数$q_*(s,a)$。如果知道了$q_*(s,a)$，那么也就知道了在每一步选择过程中应该选择什么样的动作。也就是说MDP需要解决的问题并不是每一步到底会获得多少累积reward，而是找到一个最优的解决方案。这两个最优值函数同样存在着一定关系，$v_*(s) = \underset{a}{max}:q_*(s,a)$，从而可以推出$q_*(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a \underset{a’}{max}: q_*(s’, a’)$，这个等式称为Bellman优化方程，它不是一个线性等式，没有闭式解。通常通过值迭代、策略迭代、Q-learning、Sarsa等方法求解。</p>
+<p>$$<br> v_*(s) = \underset{a}{max}: q_*(s,a) ::::: (4)<br>$$</p>
+<p>$$<br>q_*(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a \underset{a’}{max}: q_*(s’, a’)  ::::: (5)<br>$$</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_5.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图5 Optimal State-Value Function Example(图片来源[1])</center></font></p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_6.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图6 Optimal Action-Value Function Example(图片来源[1])</center></font></p>
+<p>实际上一定存在这样的一个最优策略$\pi_*$。可以通过最大化$q_*(s,a)$获得。针对任意的MDP问题，总是存在一个最优的deterministic policy。</p>
+<p>以上是第二课的主要内容，从MP开始到MRP再到MDP，了解值函数的具体概念与reward有什么联系，重点是介绍MDP面对的问题，暂时没有提到如何解决。结合课程的例子对各个概念有比较直观的了解。但是这一课有个概念是“MDP描述了强化学习的environment，且是fully Observable的”，这个意思我暂时没明白。如果MDP是environment，那么它为什么有policy，为什么需要最大化policy，个人觉得MDP应该是fully Observable的强化学习，也就是说MDP本身描述的就是一个强化学习问题，它的状态转移矩阵和reward function就是environment，它的目标就是找到最优的动作值函数或者最优Policy。</p>
+<p>[1] <a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MDP.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MDP.pdf</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/06/06/reinforcementlearninglesssion1.html" rel="next" title="【David Silver强化学习公开课之一】强化学习入门">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之一】强化学习入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/06/17/reinforcementlearninglesssion3.html" rel="prev" title="【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题">
+                【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-基础概念"><span class="nav-number">1.</span> <span class="nav-text">1.基础概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-MDP与实例分析"><span class="nav-number">2.</span> <span class="nav-text">2. MDP与实例分析</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

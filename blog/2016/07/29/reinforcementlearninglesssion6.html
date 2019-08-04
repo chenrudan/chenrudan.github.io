@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之六】求解近似值函数">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/07/29/reinforcementlearninglesssion6.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_6_1.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.149Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之六】求解近似值函数">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/07/29/reinforcementlearninglesssion6.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之六】求解近似值函数 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/07/29/reinforcementlearninglesssion6.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之六】求解近似值函数</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-07-29T11:20:36+08:00">
+                2016-07-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=UoPei5o4fps" target="_blank" rel="noopener">RL Course by David Silver - Lecture 6: Value Function Approximation</a></p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/FA.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/FA.pdf</a></p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>前面的课大致上讲解了解决各种情况下的MDP问题，目的就是为了从某个状态开始选择最好的执行方法一直运行到终止状态，要么是求在某个状态$S$下的value function，要么是求在某个状态下$S$执行某个动作$A$的action-value function，但现实中有不少问题的状态$S$的取值和动作$A$非常多，例如围棋的361个点位，每个点位会出现黑白空三种情况，那么就有$3^{361} \approx 10^{170}$种状态，如果算出每种状态下的真实value function既没有足够的内存也没有足够的计算能力，此外比较接近的状态它们的值函数取值应该是很相似的，这是一种泛化能力。</p>
+<p>也就是说需要算法来求解近似的$V(S)$和$Q(S,A)$，并且针对未知的状态有比较强的泛化能力。这种近似算法称之为function approximation，用$\hat{v}(s,w)$来近似真实值函数，用$\hat{q}(s,a,w)$来近似真实动作值函数，其中$w$是近似函数的更新参数，例如神经网络的权重。近似的方法有特征线性组合、神经网络、决策树、最近邻等等。以神经网络为例，输入是状态$S$，那么输出就是$\hat{v}(s,w)$，即把近似值函数用神经网络实现出来。</p>
+<h4 id="2-随机梯度下降"><a href="#2-随机梯度下降" class="headerlink" title="2.随机梯度下降"></a>2.随机梯度下降</h4><p>假设近似值函数对$w$是可微的，最简单的就是用梯度下降，假设输入状态用特征向量$x(S) = (x_1(S), x_2(S), …, x_n(S))^T$，例如机器人的行走状态，第一个特征是距离横向基准位置多远，第二个特征是距离纵向基准位置多远等等。目标函数是$J(w) = E_{\pi}[(v_{\pi}(S) - \hat{v}(S,w))^2]$。从而随机梯度下降求得权重改变量为$\Delta w = \alpha(v_{\pi}(S) - \hat{v}(S,w)) \bigtriangledown_w \hat{v}(S,w) = \alpha(v_{\pi}(S) - \hat{v}(S,w))x(S)$。</p>
+<p>但是在强化学习中，$v_{\pi}(S)$是未知的，无法用来当做监督信息，因此要用别的东西来代替，从而可以根据Monte-Carlo Learning和Temporal Difference Learning两种方法来考虑。</p>
+<p>Monte-Carlo Learning中针对某个状态叠加每个episode中在这个状态上产生的return，因为每个episode是走到了终止状态的，所以可以向初始状态的方向将return传播回来。而实际上值函数就是return的期望，所以基于MC方法就是用$G_t$代替$v_{\pi}(S)$</p>
+<p>Temporal Difference Learning中针对某个状态估计下一个时刻可能获得的return，由immdiate reward和上一次更新的值函数构成，也称为TD target，从而更新当前时刻的值函数，因此用$R_{t+1} + \gamma \hat{v}(S_{t+1},w)$来替换$v_{\pi}(S)$。替换后发现括号内的这一项就是TD error。同样的TD($\lambda$)也是替换成第四课的公式即可。</p>
+<p>而动作值函数也是差不多的，就是替换，这里就不提了，参考[1]。</p>
+<p>在强化学习中，有个比较经典的例子就是汽车爬山[2]，车会在凹的山谷中来回启动，不同的高度上汽车需要学会利用势能来到达对面的山顶，这个问题中的状态就是汽车所处的位置和当前的速度(个人觉得当前的速度应该是action，在不同的位置人控制不同的速度，但是David课中说action是选择加速还是不加速)，曲面的起伏代表了value function。通过图中多执行多个episode得到了值函数的表达形式。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_6_1.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图1 Mountain Car Example(图片来源[1])</center></font></p>
+<h4 id="3-DQN"><a href="#3-DQN" class="headerlink" title="3. DQN"></a>3. DQN</h4><p>此处讲batch methods说”梯度下降的方法针对一个sample，只利用一次，更新一次梯度之后就不再使用了，并没有挖掘出这个sample所有信息，因此需要用batch methods来重复的利用sample并找到最佳拟合值函数，拟合所有看到过的sample” ，这个意思我觉得并不重要，如果用神经网络来学习参数必然会多次迭代sample，所以直接介绍DQN。</p>
+<p>Deep Q-Networks，是DeepMind团队提出的一种深度强化学习方法，具体算法如下:</p>
+<ul>
+<li>根据$\epsilon-$greedy policy选择一个动作$a_t$(这里没具体说policy是哪个，根据Q-Learning，这里应该是behaviour policy)。</li>
+<li>选择完$a_t$后会产生下个时刻的状态和奖赏，将多个转移序列$(s_t, a_t, r_{t+1}, s_{t+1})$保存在称为reply memory的集合D中</li>
+<li>从D中随机选择一些转移序列$(s,a,r,s’)$，基于这些和固定参数$w^-$计算Q-Learning的target即$r + \gamma \underset{a’}{max}Q(s’,a’;w^-)$</li>
+<li>通过随机梯度下降方法来优化Q-Leanring的target和近似函数$Q(s,a;w)$的均方差。其中近似函数也称为Q-network。</li>
+</ul>
+<p>最后十分钟讲了一下如何结合最小二乘法与MC/TD，令导数等于0再推导，流程跟梯度下降一样，这里就不提了，经过这几课大致可以看出强化学习要求解的核心就是policy和值函数，这一课可以看出值函数的具体形式可以用神经网络表示出来，即把状态变换成一个特征向量当做输入，经过神经网络得到值函数输出。</p>
+<p>[1] <a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/FA.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/FA.pdf</a></p>
+<p>[2] <a href="https://en.wikipedia.org/wiki/Mountain_Car" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Mountain_Car</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/07/26/reinforcementlearninglesssion5.html" rel="next" title="【David Silver强化学习公开课之五】Model-Free Control(解决未知Environment下的Control问题)">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之五】Model-Free Control(解决未知Environment下的Control问题)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/08/03/reinforcementlearninglesssion7.html" rel="prev" title="【David Silver强化学习公开课之七】Policy Gradient">
+                【David Silver强化学习公开课之七】Policy Gradient <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内容回顾"><span class="nav-number">1.</span> <span class="nav-text">1.内容回顾</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-随机梯度下降"><span class="nav-number">2.</span> <span class="nav-text">2.随机梯度下降</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-DQN"><span class="nav-number">3.</span> <span class="nav-text">3. DQN</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

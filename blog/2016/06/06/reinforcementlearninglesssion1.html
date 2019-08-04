@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第一课的总结笔记。第一课主要解释了强化学习在多领域的体现，主要解决什么问题，与监督学习算法的区别，完整的算法流程由哪几部分组成，其中的agent又包含什么内容，以及解释了强化学习涉及到的一些概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之一】强化学习入门">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/06/06/reinforcementlearninglesssion1.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第一课的总结笔记。第一课主要解释了强化学习在多领域的体现，主要解决什么问题，与监督学习算法的区别，完整的算法流程由哪几部分组成，其中的agent又包含什么内容，以及解释了强化学习涉及到的一些概念。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_1_1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_1_2.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.154Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之一】强化学习入门">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第一课的总结笔记。第一课主要解释了强化学习在多领域的体现，主要解决什么问题，与监督学习算法的区别，完整的算法流程由哪几部分组成，其中的agent又包含什么内容，以及解释了强化学习涉及到的一些概念。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/06/06/reinforcementlearninglesssion1.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之一】强化学习入门 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/06/06/reinforcementlearninglesssion1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之一】强化学习入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-06T11:20:36+08:00">
+                2016-06-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第一课的总结笔记。第一课主要解释了强化学习在多领域的体现，主要解决什么问题，与监督学习算法的区别，完整的算法流程由哪几部分组成，其中的agent又包含什么内容，以及解释了强化学习涉及到的一些概念。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第一课的总结笔记。第一课主要解释了强化学习在多领域的体现，主要解决什么问题，与监督学习算法的区别，完整的算法流程由哪几部分组成，其中的agent又包含什么内容，以及解释了强化学习涉及到的一些概念。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=2pWv7GOvuf0&index=1&list=PL5X3mDkKaJrL42i_jhE4N-p6E2Ol62Ofa" target="_blank" rel="noopener">RL Course by David Silver - Lecture 1: Introduction to Reinforcement Learning</a>。</p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/intro_RL.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/intro_RL.pdf</a>。</p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-强化学习是什么"><a href="#1-强化学习是什么" class="headerlink" title="1. 强化学习是什么"></a>1. 强化学习是什么</h4><p>强化学习是多学科多领域交叉的一个产物，它的本质就是解决“decision making”问题，即学会自动进行决策。在computer science领域体现为机器学习算法。在Engineering领域体现在决定the sequence of actions来得到最好的结果。在Neuroscience领域体现在理解人类大脑如何做出决策，主要的研究是reward system。在Psychology领域，研究动物如何做出决策，动物的行为是由什么导致的。在Economics领域体现在博弈论的研究。这所有的问题最终都归结为一个问题，人为什么能够并且如何做出最优决策。</p>
+<p>强化学习是一个Sequential Decision Making问题，它需要连续选择一些行为，从而这些行为完成后得到最大的收益最好的结果。它在没有任何label告诉算法应该怎么做的情况下，通过先尝试做出一些行为得到一个结果，通过判断这个结果是对还是错来对之前的行为进行反馈，然后由这个反馈来调整之前的行为，通过不断的调整，算法能够学习到在什么样的情况下选择什么样的行为可以得到最好的结果。</p>
+<p>强化学习与监督学习有着不少区别，首先监督学习是有一个label的，这个label告诉算法什么样的输入对应着什么样的输出，而强化学习没有label告诉它在某种情况下应该做出什么样的行为，只有一个做出一系列行为后最终反馈回来的reward signal，这个signal能判断当前选择的行为是好是坏。其次强化学习的结果反馈有延时，有时候可能需要走了很多步以后才知道以前的某一步的选择是好还是坏，而监督学习做了比较坏的选择会立刻反馈给算法。强化学习面对的输入总是在变化，输入不像监督学习是独立同分布的。而每当算法做出一个行为，它影响了下一次决策的输入。</p>
+<h4 id="2-强化学习组成"><a href="#2-强化学习组成" class="headerlink" title="2. 强化学习组成"></a>2. 强化学习组成</h4><img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_1_1.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图1 强化学习组成部分(图片来源[1])</center></font></p>
+<p>强化学习决策流程见上图。需要构造出一个agent(图中的大脑部分)，agent能够执行某个action，例如决定机器人超哪个方向走，围棋棋子下在哪个位置。agent能够接收当前环境的一个observation，例如当前机器人的摄像头拍摄到场景。agent还能接收当它执行某个action后的reward，即在第t步agent的工作流程是执行一个动作$A_t$，获得该动作之后的环境观测状况$O_t$，以及获得这个动作的反馈奖赏$R_t$。而环境environment则是agent交互的对象，它是一个行为不可控制的对象，agent一开始不知道环境会对不同action做出什么样的反应，而环境会通过observation告诉agent当前的环境状态，同时环境能够根据可能的最终结果反馈给agent一个reward，例如围棋棋面就是一个environment，它可以根据当前的棋面状况估计一下黑白双方输赢的比例。因而在第t步，environment的工作流程是接收一个$A_t$，对这个动作做出反应之后传递环境状况和评估的reward给agent。reward奖赏$R_t$，是一个反馈标量值，它表明了在第t步agent做出的决策有多好或者有多不好，整个强化学习优化的目标就是最大化累积reward。例如在射击游戏中，击中敌方的一架飞机，最后的得分会增加，那么这一步的reward就是正值。</p>
+<h4 id="3-一些变量"><a href="#3-一些变量" class="headerlink" title="3. 一些变量"></a>3. 一些变量</h4><p>history是所有动作、状态、奖赏的序列，$H_t=A_1, O_1, R_1,…,A_t, O_t,R_t$</p>
+<p>environment state，$S_t^e$，环境当前的状态，它反应了环境发生什么改变。这里需要明白的一点是环境自身的状态和环境反馈给agent的状态并不一定是相同的，例如机器人在走路时，当前的environment状态是一个确定的位置，但是它的camera只能拍到周围的景象，无法告诉agent具体的位置，而拍摄到的照片可以认为是对环境的一个observation，也就是说agent并不是总能知道环境是如何发生改变的，只能看到改变后的一个结果展示。</p>
+<p>agent state，$S_t^a$，是agent的现在所处状态的表示，它可以是history的任何函数。</p>
+<p>information(Markov) state，它包含了history的所有有用信息。一个状态$S_t$有马尔可夫性质是指下一个时刻的状态仅由当前状态决定，与过去状态无关。这里定义可以看出environment state是有马尔可夫性质的(这个概念不明白可以暂时不管)。</p>
+<p>如果说environment是Fully Observable的，那么就是说agent能够直接看到环境当前的状态，在这种情况下agent state与environment state是相等的。而如果说environment是Partially Observable Environments，那么就是上面机器人的那个例子，agent能获取到的不是直接的环境状态。</p>
+<h4 id="4-Agent的组成"><a href="#4-Agent的组成" class="headerlink" title="4. Agent的组成"></a>4. Agent的组成</h4><p>一个agent由三部分组成Policy、Value function、Model，但这三部分不是必须同时存在的。</p>
+<p>Policy，它根据当前看到的observation来决定action，是从state到action的映射。有两种表达形式，一种是Deterministic policy即$a=\pi(s)$，在某种状态s下，一定会执行某个动作a。一种是Stochastic policy即$\pi(a|s)=p[A_t = a | S_t=s]$，它是在某种状态下执行某个动作的概率。</p>
+<p>Value function，它预测了当前状态下未来可能获得的reward的期望。$V_{\pi}(s)=E_{\pi}[R_{t+1}+rR_{t+2}+…|S_t=s]$。用于衡量当前状态的好坏。</p>
+<p>Model，预测environment下一步会做出什么样的改变，从而预测agent接收到的状态或者reward是什么。因而有两种类型的model，一种是预测下一个state的transition model即$P_{ss’}^a=p[S_{t+1}=s’|S_t = s,A_t=a]$，一种是预测下一次reward的reward model即$R_s^a=E[R_{t+1}|S_t=s, A_t=a]$</p>
+<p>因而根据是否选取这三个部分agent可分为下图中红色字体标出来的五种类型(这里有一个迷宫的例子很好，建议看原视频1:08:10起)。Model Free是指不需要去猜测environment的工作方式，而Model based则是需要学习environment的工作方式。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_1_2.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图2 Agent的分类(图片来源[1])</center></font></p>
+<h4 id="5-探索和利用"><a href="#5-探索和利用" class="headerlink" title="5. 探索和利用"></a>5. 探索和利用</h4><p>强化学习是一种试错(trial-and-error)的学习方式，一开始不清楚environment的工作方式，不清楚执行什么样的行为是对的，什么样是错的。因而agent需要从不断尝试的经验中发现一个好的policy，从而在这个过程中获取更多的reward。</p>
+<p>在这样的学习过程中，就会有一个在Exploration和Exploitation之间的权衡，前者是说会放弃一些已知的reward信息，而去尝试一些新的选择，即在某种状态下，算法也许已经学习到选择什么action让reward比较大，但是并不能每次都做出同样的选择，也许另外一个没有尝试过的选择会让reward更大，即Exploration希望能够探索更多关于environment的信息。而后者是指根据已知的信息最大化reward。例如，在选择一个餐馆时，Exploitation会选择你最喜欢的餐馆，而Exploration会尝试选择一个新的餐馆。</p>
+<p>以上是第一课的一些相关内容，主要是介绍了一些基础概念，从而对强化学习有一个基础的认识。</p>
+<h4 id="6-引用"><a href="#6-引用" class="headerlink" title="6. 引用"></a>6. 引用</h4><ol>
+<li><a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/intro_RL.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/intro_RL.pdf</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/04/23/pythonmemorycontrol.html" rel="next" title="[Python]内存管理">
+                <i class="fa fa-chevron-left"></i> [Python]内存管理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/06/12/reinforcementlearninglesssion2.html" rel="prev" title="【David Silver强化学习公开课之二】马尔可夫决策过程MDP">
+                【David Silver强化学习公开课之二】马尔可夫决策过程MDP <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-强化学习是什么"><span class="nav-number">1.</span> <span class="nav-text">1. 强化学习是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-强化学习组成"><span class="nav-number">2.</span> <span class="nav-text">2. 强化学习组成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-一些变量"><span class="nav-number">3.</span> <span class="nav-text">3. 一些变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Agent的组成"><span class="nav-number">4.</span> <span class="nav-text">4. Agent的组成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-探索和利用"><span class="nav-number">5.</span> <span class="nav-text">5. 探索和利用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-引用"><span class="nav-number">6.</span> <span class="nav-text">6. 引用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

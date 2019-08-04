@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题)">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_3.jpg">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_4.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.137Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题)">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题) | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-07-11T11:20:36+08:00">
+                2016-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=PnHCvfgC_ZA&index=4&list=PL5X3mDkKaJrL42i_jhE4N-p6E2Ol62Ofa" target="_blank" rel="noopener">RL Course by David Silver - Lecture 4: Model-Free Prediction</a>。</p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MC-TD.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MC-TD.pdf</a>。</p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>上节课中通过动态规划能够解决已知environment的MDP问题，也就是已知$S,A,P,R,\gamma$，其中根据是否已知policy将问题又划分成了prediction和control问题，本质上来说这种known MDP问题已知environment即转移矩阵与reward函数，但是很多问题中environment是未知的，不清楚做出了某个action之后会变到哪一个state也不知道这个action好还是不好，也就是说不清楚environment体现的model是什么，在这种情况下需要解决的prediction和control问题就是Model-free prediction和Model-free control。显然这种新的问题只能从与environment的交互得到的experience中获取信息。</p>
+<p>这节课要解决的问题是Model-free prediction，即未知environment的Policy evaluation，在给定的policy下，每个state的value function是多少。</p>
+<p>将从某个起始状态开始执行到终止状态的一次遍历$S_1,A_1,R_2,…,S_k$称为episode。已知很多的episodes。</p>
+<h4 id="2-Monte-Carlo-Reinforcement-Learning"><a href="#2-Monte-Carlo-Reinforcement-Learning" class="headerlink" title="2.Monte-Carlo Reinforcement Learning"></a>2.Monte-Carlo Reinforcement Learning</h4><p>蒙特卡洛强化学习是假设每个state的value function取值等于多个episodes的return $G_t$的平均值，它需要每个episode是完整的流程，即一定要执行到终止状态。由第二课中知道值函数的表达式为$v_{\pi}(s)=E_{\pi}[G_t|S_t=s]$，即每个state的value function是return的期望值，而在Monte-Carlo policy evaluation的假设下，值函数的取值从期望简化成了均值。</p>
+<p>因此在本算法中，需要记录两个值，状态s被访问到的次数$N(s) = N(s)+1$以及每次访问时return之和$S(s) = S(s) + G_t$，遍历完所有的episodes之后，得到状态s下值函数取值为$V(s)=S(s)/N(s)$。而这里有两种访问次数的记录方式，一种是在一个episode中只记录第一次访问到的s，一种是一个episode中每次访问到s都记录下来。从而针对一次新的访问，先次数加1$N(S_t)=N(S_t)+1$，然后更新$V(S_t) = V(S_t)+\frac{1}{N(S_t)}(G_t-V(S_t))$。在一些方法中也会将$\frac{1}{N(S_t)}$设置成一个常数$\alpha$，不随着访问次数增加，即</p>
+<p>$$<br>V(S_t) = V(S_t)+\alpha(G_t-V(S_t))::::(1)<br>$$</p>
+<h4 id="3-Temporal-Difference-Learning"><a href="#3-Temporal-Difference-Learning" class="headerlink" title="3.Temporal-Difference Learning"></a>3.Temporal-Difference Learning</h4><p>时序差分学习则是基于Bootstrapping思想，即在中间状态中会估计当前可能获得的return，并且更新之前状态能获得的return。因此它不需要走完一个episode的全部流程才能获得return。在最简单的TD算法TD(0)中这个估计return为$R_{t+1}+\gamma V(S_{t+1})$称之为TD target，代入上面公式2替代掉$G_t$就能得到TD算法的value function更新公式。</p>
+<p>$$<br>V(S_t) = V(S_t)+\alpha(R_{t+1}+\gamma V(S_{t+1})-V(S_t))::::(2)<br>$$</p>
+<p>$\delta_t = R_{t+1}+\gamma V(S_{t+1})-V(S_t)$称之为TD error。它代表了估计之前和估计之后的return差值。</p>
+<p>TD(0)是指在某个状态s下执行某个动作后转移到下一个状态$s’$时，估计$s’$的return再更新s，假如s之后执行两次动作转移到$s’’$时再反回来更新s的值函数，那么就是另一种形式，从而根据step的长度n可以扩展TD到不同的形式，当step长度到达当前episode终点时就变成了MC。从而得到统一公式如下</p>
+<p>$$<br>G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + … + \gamma ^{n-1}R_{t+n}+\gamma ^nV(S_{t+n}) :::: (3)<br>$$</p>
+<p>$$<br>V(S_t) = V(S_t) + \alpha(G_t^{(n)} - V(S_t)) ::::(4)<br>$$</p>
+<p>又如果将不同的n对应的return平均一下，这样能够获得更加robust的结果，而为了有效的将不同return合起来，对每个n的return都赋了一个权重$1-\lambda, (1-\lambda)\lambda,…,(1-\lambda)\lambda^n$，参数是$\lambda$，这样又能得到一组更新value function的公式。</p>
+<p>$$<br>G_t^{\lambda} = (1-\lambda)\sum_{n=1}^{\infty }\lambda^{n-1}G_t^{(n)} :::: (5)<br>$$</p>
+<p>$$<br>V(S_t) = V(S_t) + \alpha(G_t^{\lambda} - V(S_t)) ::::(6)<br>$$</p>
+<p>下面左图是一个从办公室驾驶回家的路上花费时间的例子，第一列表示当前状态，例如下雨，离开高速等等，第二列表示当前花费时间，第三列表示估计还有多久能到家，第四列是前两列之和，表示估计要花费的总时间。要求的value function是当前状态下要到家的总时间，针对这个问题，MC和TD算法都给出了自己的解决结果，即右图中的虚线。可以明显看出来蒙特卡洛方法是根据整个流程走完了之后，根据最后的结果更新了前面每个state的value function都是43，而TD则是走完一步，发现当前花费总时间发生了变化，就更新上一个状态所需的时间，因此第一个状态的value function取值是40，第二个状态value function取值是35等等。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_3.jpg" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图1 驾驶例子(图片来源[1])</center></font></p>
+<h4 id="4-Monte-Carlo-VS-Temporal-Difference"><a href="#4-Monte-Carlo-VS-Temporal-Difference" class="headerlink" title="4.Monte-Carlo VS. Temporal Difference"></a>4.Monte-Carlo VS. Temporal Difference</h4><p>在谈两种算法的优劣前，先谈谈Bias/Variance tradeoff的问题。平衡Bias/Variance是机器学习比较经典的一个问题，bias是指预测结果与真实结果的差值，variance是指训练集每次预测结果之间的差值，bias过大会导致欠拟合它衡量了模型是否准确，variance过大会导致过拟合衡量了模型是否稳定。如果$G_t$和$R_{t+1}+\gamma v_{\pi}(S_{t+1})$跟真实值一样，那么就是无偏差估计。因为在MC算法中，它是将最终获得的reward返回到了前面的状态，因此是真实值，但是它采样的episode并不能代表所有的情况，所以会导致比较大的variance。而TD的$R_{t+1}+\gamma V(S_{t+1})$跟真实值是有偏差的，在计算的过程基于随机的状态、转移概率、reward等等，涵盖了一些随机的采样，因此variance比较小。</p>
+<p>此外，MC方法中没有计算状态转移概率，也不考虑状态转移，它的目标是最小化均方误差，这样的行为实际上并不符合马尔可夫性质，而TD方法会找出拟合数据转移概率和reward函数，还是在解决MDP问题。</p>
+<table>
+<thead>
+<tr>
+<th align="center">Monte-Carlo</th>
+<th align="center">Temporal Difference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">要等到episode结束才能获得return</td>
+<td align="center">每一步执行完都能获得一个return</td>
+</tr>
+<tr>
+<td align="center">只能使用完整的episode</td>
+<td align="center">可以使用不完整的episode</td>
+</tr>
+<tr>
+<td align="center">高variance，零bias</td>
+<td align="center">低variance，有bias</td>
+</tr>
+<tr>
+<td align="center">没有体现出马尔可夫性质</td>
+<td align="center">体现出了马尔可夫性质</td>
+</tr>
+</tbody></table>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_4.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图2 Policy Evaluation相关算法(图片来源[1])</center></font></p>
+<p>上面的图是用Policy Evaluation解决强化学习问题的一些算法的区别与相关性，最左边的竖线表示如果考虑了所有的可能发生的情况那么就是动态规划，如果只考虑了部分采样那么就是时序差分。下面的横线表示如果考虑了一次episode中全部的动作就是Monte-Carlo，如果只考虑部分动作就是时序差分。如果又考虑全部情况又考虑每一种情况的全部动作就是穷举。</p>
+<p>[1] <a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MC-TD.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MC-TD.pdf</a>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/06/17/reinforcementlearninglesssion3.html" rel="next" title="【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/07/26/reinforcementlearninglesssion5.html" rel="prev" title="【David Silver强化学习公开课之五】Model-Free Control(解决未知Environment下的Control问题)">
+                【David Silver强化学习公开课之五】Model-Free Control(解决未知Environment下的Control问题) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内容回顾"><span class="nav-number">1.</span> <span class="nav-text">1.内容回顾</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Monte-Carlo-Reinforcement-Learning"><span class="nav-number">2.</span> <span class="nav-text">2.Monte-Carlo Reinforcement Learning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Temporal-Difference-Learning"><span class="nav-number">3.</span> <span class="nav-text">3.Temporal-Difference Learning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-Monte-Carlo-VS-Temporal-Difference"><span class="nav-number">4.</span> <span class="nav-text">4.Monte-Carlo VS. Temporal Difference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

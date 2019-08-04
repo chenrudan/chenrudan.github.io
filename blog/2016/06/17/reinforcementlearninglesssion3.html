@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_2.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_3.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.133Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-17T11:20:36+08:00">
+                2016-06-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=lfHX2hHRMVQ&list=PL5X3mDkKaJrL42i_jhE4N-p6E2Ol62Ofa&index=2" target="_blank" rel="noopener">RL Course by David Silver - Lecture 3: Planning by Dynamic Programming</a>。</p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/DP.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/DP.pdf</a>。</p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>前两节课我忽略了一些内容，这节课用到了，所以先回顾一下。首先是Planning的概念，在第一节课提到过强化学习是一种Sequential Decision Making问题，它是一种试错(trial-and-error)的学习方式，一开始不清楚environment的工作方式，不清楚执行什么样的行为是对的，什么样是错的，因而agent需要从不断尝试的经验中发现一个好的policy。而Planning也属于Sequential Decision Making问题，不同的是它的environment是已知的，例如游戏的规则是已知的，所以agent不需要通过与environment的交互来获取下一个状态，而是知道自己执行某个action之后状态是什么，再优化自己的policy。因此这两者之间是有联系的，假如强化学习学习出来environment的模型，知道了environment是如何work的，强化学习要解决的问题就是Planning了。</p>
+<p>在第二课中，推导出了几个Bellman方程，回顾一下。</p>
+<table>
+<thead>
+<tr>
+<th align="center">Bellman方程</th>
+<th align="center">形式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Bellman Expectation Equation</td>
+<td align="center">$v_{\pi}(s) = \sum_{a\in A}\pi(a\s)q_{\pi}(s,a) =\sum_{a\in A}\pi(a\s)(R_s^a + \gamma \sum_{s’\in S}P_{ss’}^av_{\pi}(s’))$</td>
+</tr>
+<tr>
+<td align="center">Bellman Expectation Equation</td>
+<td align="center">$q_{\pi}(s,a) = R_s^{a} + \gamma \sum_{s’ \in S}P_{ss’}^av_\pi(s’)=R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a\sum_{a’\in A}\pi(a’\s’)q_{\pi}(s’,a’)$</td>
+</tr>
+<tr>
+<td align="center">Bellman Optimality Equation</td>
+<td align="center">$v_*(s) = \underset{a}{max}q_*(s,a) = \underset{a}{max} R_s^{a} + \gamma \sum_{s’ \in S}P_{ss’}^av_*(s’)$</td>
+</tr>
+<tr>
+<td align="center">Bellman Optimality Equation</td>
+<td align="center">$q^*(s,a) = R_s^{a} + \gamma \sum_{s’ \in S}P_{ss’}^av_*(s’) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a \underset{a’}    {max}q^*(s’, a’)$</td>
+</tr>
+</tbody></table>
+<h4 id="2-动态规划与Planning"><a href="#2-动态规划与Planning" class="headerlink" title="2. 动态规划与Planning"></a>2. 动态规划与Planning</h4><p>动态规划是这样一种方法，它将一个复杂的问题切分成一系列简单的子问题，一旦解决了这些简单的子问题，再将这些子问题的解结合起来变成复杂问题的解，同时将它们的解保存起来，如果下一次遇到了相同的子问题那么就不用再重新计算子问题的解[1]。其中“动态”是指某个问题是由序列化状态组成，状态step-by-step的改变，从而可以step-by-step的来解这个问题，“规划”即优化子问题。而MDP有Bellman方程能够被递归的切分成子问题，同时它有值函数，保存了每一个子问题的解，因此它能通过动态规划来求解。针对MDP，切分成的子问题就是在每个状态下应该选择的action是什么，MDP的子问题是以一种递归的方式存在，这一时刻的子问题取决于上一时刻的子问题选择了哪个action。</p>
+<p>MDP需要解决的问题有两种，第一种是prediction，它已知MDP的$S,A,P,R,\gamma$以及policy，目标是算出在每个状态下的value function，即处于每个状态下能够获得的reward是多少。而第二种是control，它已知MDP的$S,A,P,R,\gamma$但是policy未知，因此它的目标不仅是计算出最优的value function而且要给出最优的Policy。</p>
+<p>当已知MDP的状态转移矩阵时，environment的模型就已知了，此时可以看成Planning问题，动态规划则是用来解决MDP的Planning问题，主要解决途径有两种，Policy Iteration和Value Iteration。</p>
+<h4 id="3-Policy-Iteration"><a href="#3-Policy-Iteration" class="headerlink" title="3. Policy Iteration"></a>3. Policy Iteration</h4><p>这个解决途径主要分为两步，示意图见图1:</p>
+<ul>
+<li>Policy Evaluation:基于当前的Policy计算出每个状态的value function</li>
+<li>Policy Improvment:基于当前的value function，采用贪心算法来找到当前最优的Policy</li>
+</ul>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_1.png" alt="1" height="15%" width="15%" hspace="370">
+
+<p><font size="2"><center>图1 Policy Iteration过程图(图片来源[2])</center></font></p>
+<p>这里的Policy Evaluation要求的$v(s)$是通过计算第一个Bellman Expectation Equation得到的。下图是一个叫Small Gridworld的例子，左上角和右下角是终点，$\gamma = 1$，移动一步reward减少1，起始的random policy是朝每个能走的方向概率相同，先单独看左边一列，它表示在第k次迭代每个state上value function的值，这一列始终采用了random policy，这里的value function就是通过Bellman Expectation Equation得到的，考虑k=2的情况，-1.7 = -1.0 + 2*(1/3.0)*(-1)，-2.0 = -1.0 + 4*(1/4.0)*(-1)。而右边一列就是在当前的value function情况下通过greedy算法找到当前朝哪个方向走更好。</p>
+<p>Policy Iteration会一直迭代到收敛，具体证明过程可以去看视频(46:09起)。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_2.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图2 Policy Iteration实例(图片来源[2])</center></font></p>
+<h4 id="3-Value-Iteration"><a href="#3-Value-Iteration" class="headerlink" title="3. Value Iteration"></a>3. Value Iteration</h4><p>最优化原理:当且仅当任何从s能达到的$s’$能在当前policy下获取最优的value即$v_{\pi}(s’) = v_{*}(s’)$，那么状态s也能在当前policy下获得最优value$v_{\pi}(s) = v_{*}(s)$。</p>
+<p>从上面原理出发，如果已知子问题的最优值$v_{*}s’$，那么就能通过第一个Bellman Optimality Equation将$v_{*}(s)$也推出来。因此从终点开始向起点推就能把全部状态最优值推出来。Value Iteration通过迭代的方法，通过这一步的$v_k(s’)$更新下一步的$v_{k+1}(s)$不断迭代，最终收敛到最优的$v_{*}$，需要注意的是中间生成的value function的值不对应着任何policy。</p>
+<p>考虑下面这个Shortest Path例子，左上角是终点，要求的是剩下每一个格子距离终点的最短距离，每走一步，reward减少1，根据Value Iteration计算Bellman Optimality Equation就能得到后面的每一个正方形格子取值。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_3.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图3 Value Iteration实例(图片来源[2])</center></font></p>
+<p>因此，针对MDP要解决的两个问题，有如下几种方式来解决。针对prediction，因为它的目标是在已知的Policy下得到收敛的value function，因此针对问题不断迭代计算Bellman Expectation Equation就够了，但是control则需要同时获得最优的policy，那么在Iterative Policy Evaluation的基础上加入一个选择Policy的过程就行了，也就是上面的Policy Iteration，另外Value Iteration虽然在迭代的过程中没有显式计算出policy，但是在得到最优的value function之后就能推导出最优的policy，因此也能用做解决control问题。</p>
+<table>
+<thead>
+<tr>
+<th align="center">问题</th>
+<th align="center">使用到的Bellman Equation</th>
+<th align="center">解决算法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Prediction</td>
+<td align="center">Bellman Expectation Equation</td>
+<td align="center">Iterative Policy Evaluation</td>
+</tr>
+<tr>
+<td align="center">Control</td>
+<td align="center">Bellman Expectation Equation + Greedy Policy Improvement</td>
+<td align="center">Policy Iteration</td>
+</tr>
+<tr>
+<td align="center">control</td>
+<td align="center">Bellman Optimality Equation</td>
+<td align="center">Value Iteration</td>
+</tr>
+</tbody></table>
+<p>以上是本课主要内容，后面还提了一下异步动态规划，并且提到了以上动态规划的解法适合状态个数百万级别的问题。总之，这节课需要搞懂的问题是动态规划能解决什么样的MDP问题以及具体怎样通过Policy Iteration和Value Iteration做到的。</p>
+<p>[1] <a href="https://en.wikipedia.org/wiki/Dynamic_programming" target="_blank" rel="noopener">Dynamic programming</a></p>
+<p>[2] <a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/DP.pdf" target="_blank" rel="noopener">Planning by Dynamic Programming</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/06/12/reinforcementlearninglesssion2.html" rel="next" title="【David Silver强化学习公开课之二】马尔可夫决策过程MDP">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之二】马尔可夫决策过程MDP
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/07/11/reinforcementlearninglesssion4.html" rel="prev" title="【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题)">
+                【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内容回顾"><span class="nav-number">1.</span> <span class="nav-text">1.内容回顾</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-动态规划与Planning"><span class="nav-number">2.</span> <span class="nav-text">2. 动态规划与Planning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Policy-Iteration"><span class="nav-number">3.</span> <span class="nav-text">3. Policy Iteration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Value-Iteration"><span class="nav-number">4.</span> <span class="nav-text">3. Value Iteration</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

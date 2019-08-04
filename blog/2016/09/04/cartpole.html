@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法，并且提供了不少可以解决的问题来练手。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Policy Gradient实现CartPole">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/09/04/cartpole.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法，并且提供了不少可以解决的问题来练手。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cp_1.gif">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cp_2.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.153Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于Policy Gradient实现CartPole">
+<meta name="twitter:description" content="8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法，并且提供了不少可以解决的问题来练手。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/09/04/cartpole.html">
+
+
+
+
+
+  <title>基于Policy Gradient实现CartPole | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/09/04/cartpole.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于Policy Gradient实现CartPole</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-04T11:20:36+08:00">
+                2016-09-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/code/" itemprop="url" rel="index">
+                    <span itemprop="name">code</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法，并且提供了不少可以解决的问题来练手。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法(<a href="http://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2651982287&idx=1&sn=b06a85cb8a0a3ba026fa51f739f827ab&scene=0#wechat_redirect" target="_blank" rel="noopener">新智元OpenAI简介</a>[1])，并且提供了不少可以解决的问题来练手<a href="https://openai.com/requests-for-research/" target="_blank" rel="noopener">https://openai.com/requests-for-research/</a>。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。这里强烈推荐一下官网的教程<a href="http://kvfrans.com/simple-algoritms-for-solving-cartpole/" target="_blank" rel="noopener">http://kvfrans.com/simple-algoritms-for-solving-cartpole/</a>，因为这个作者只是个高中生T^T…</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-Gym库"><a href="#1-Gym库" class="headerlink" title="1. Gym库"></a>1. Gym库</h4><p>它提供了一些函数接口，模拟了强化学习问题中environment，当向它传递一个动作，它相应会返回执行这个动作后的状态、奖赏等。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#启动某种环境</span></span><br><span class="line">env = gym.make(<span class="string">'CartPole-v0'</span>) </span><br><span class="line"><span class="comment">#针对传进来的动作返回状态observation等</span></span><br><span class="line">observation, reward, done, info = env.step(action)</span><br></pre></td></tr></table></figure>
+
+<p>执行pip install gym即可安装，<a href="https://gym.openai.com/docs" target="_blank" rel="noopener">https://gym.openai.com/docs</a>中有实例，复制代码运行即可检查是否安装成功。此外提供了env.monitor来记录下算法执行过程，它会保存为.mp4文件，然后上传到OpenAI网站上可以检查执行效率，上传可以通过执行代码中加入api_key(鉴别用户)，我是直接把api_key写入了~/.bashrc文件中即”export OPENAI_GYM_API_KEY=”。</p>
+<h4 id="2-CartPole问题"><a href="#2-CartPole问题" class="headerlink" title="2. CartPole问题"></a>2. CartPole问题</h4><p>CartPole的玩法如下动图所示，目标就是保持一根杆一直竖直朝上，杆由于重力原因会一直倾斜，当杆倾斜到一定程度就会倒下，此时需要朝左或者右移动杆保证它不会倒下来。我们执行一个动作，动作取值为0或1，代表向左或向右移动，返回的observation是一个四维向量，reward值一直是1，当杆倒下时done的取值为False，其他为True，info是调试信息打印为空具体使用暂时不清楚。如果杆竖直向上的时间越长，得到reward的次数就越多。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#从动作空间中采样一个动作</span></span><br><span class="line">action = env.action_space.sample()</span><br><span class="line">observation, reward, done, info = env.step(action)</span><br><span class="line"><span class="keyword">print</span> observation</span><br></pre></td></tr></table></figure>
+
+<p>结果是[-0.061586   -0.75893141  0.05793238  1.15547541]。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/cp_1.gif" alt="1" height="30%" width="30%" hspace="200">
+
+<p><font size="2"><center>图1 CartPole示意图</center></font></p>
+<h4 id="3-三种解法"><a href="#3-三种解法" class="headerlink" title="3. 三种解法"></a>3. 三种解法</h4><p>目的是在不同状态下执行出合适的action，代码中要做的就是替换掉采样这一行，用policy来决定执行什么动作。也就是说此处需要决定policy的形式，官网给出了两种思路，已知policy的输入是当前所处的状态observation，输出是action的取值即0 or 1，observation是一个四维向量，如果对这个向量求它的加权和，就可以得到一个值，那么就可以根据加权和的符号来决定action，同样可以用sigmoid函数当成二分类问题。基于这两种policy可以得到下面三种解法，核心就在于通过改变加权的权重值就能改变policy。</p>
+<h5 id="3-1-Random-Guessing-Algorithm-amp-Hill-Climbing-Algorithm"><a href="#3-1-Random-Guessing-Algorithm-amp-Hill-Climbing-Algorithm" class="headerlink" title="3.1 Random Guessing Algorithm &amp; Hill Climbing Algorithm"></a>3.1 Random Guessing Algorithm &amp; Hill Climbing Algorithm</h5><p>由于policy中权重也是一个四维向量，如果随机给四维向量赋值，有机会得到比较好的policy。首先先实现一个函数用来衡量给定的某组权重效果如何，函数返回值是这组权重下得到的奖赏，意义是杆维持了多长时间未倒下，代码如下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate_given_parameter_by_sign</span><span class="params">(env, weight)</span>:</span></span><br><span class="line">    <span class="comment">#启动初始状态</span></span><br><span class="line">    observation = env.reset()</span><br><span class="line">    <span class="comment">#这组参数返回的总reward</span></span><br><span class="line">    total_reward = <span class="number">0.</span></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> range(<span class="number">1000</span>):</span><br><span class="line">        <span class="comment">#这个渲染函数就是实时展示图1，如果隐藏，代码正常执行，但是不会显示图1了</span></span><br><span class="line">        env.render()</span><br><span class="line">        weighted_sum = np.dot(weight, observation)</span><br><span class="line">        <span class="comment">#根据符号policy选出action</span></span><br><span class="line">        <span class="keyword">if</span> weighted_sum &gt;= <span class="number">0</span>:</span><br><span class="line">            action = <span class="number">1</span> </span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            action = <span class="number">0</span> </span><br><span class="line">    </span><br><span class="line">        observation, reward, done, info = env.step(action)</span><br><span class="line">        total_reward += reward</span><br><span class="line">        <span class="keyword">if</span> done:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> total_reward</span><br></pre></td></tr></table></figure>
+
+<p>然后要改变权重，这里试验了两种方法，一种是random guess，即随机给四维权重weight赋值，一种是hill climbing，即给当前最好的权重加上一组随机值，如果加上这组值持续时间变长了那么就更新最好的权重，如果没有变的更好就不更新。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">random_guess</span><span class="params">()</span>:</span></span><br><span class="line">    env = gym.make(<span class="string">'CartPole-v0'</span>)</span><br><span class="line">    np.random.seed(<span class="number">10</span>)</span><br><span class="line">    best_reward = <span class="number">-100.0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> iiter <span class="keyword">in</span> xrange(<span class="number">1000</span>):</span><br><span class="line">        <span class="comment">#####random guess随机初始化权重weight####</span></span><br><span class="line">        weight = np.random.rand(<span class="number">4</span>)</span><br><span class="line">        <span class="comment">#####</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">####hill climbing给best weight加随机值</span></span><br><span class="line">        weight = best_weight + np.random.normal(<span class="number">0</span>, <span class="number">0.01</span>, <span class="number">4</span>)</span><br><span class="line">        <span class="comment">#####</span></span><br><span class="line"></span><br><span class="line">        cur_reward = evaluate_given_parameter_by_sign(env, weight)</span><br><span class="line">        <span class="keyword">if</span> cur_reward &gt; best_reward:</span><br><span class="line">            best_reward = cur_reward</span><br><span class="line">            best_weight = weight</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> best_reward == <span class="number">1000</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        </span><br><span class="line">    print(<span class="string">"XXX algorithm best reward"</span>, best_reward)</span><br><span class="line">    print(<span class="string">"XXX algorithm best weight"</span>, best_weight)</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-2-Policy-Gradient"><a href="#3-2-Policy-Gradient" class="headerlink" title="3.2 Policy Gradient"></a>3.2 Policy Gradient</h5><p>上面的两种方法都是在随机的改变权重，针对这种参数非常少的情况确实能得到不错的效果，但是一旦参数数目增多，这种方式耗时非常大，一点也不实用。而第七课[2]讲解了两种Policy Gradient的方法，分别是Monte-Carlo Policy Gradient和Actor-Critic Policy Gradient。我们知道衡量policy好坏有三种方法，一是在某个状态下和该policy作用下能获得的值函数值，一是该policy作用下能获得的所有状态的期望值函数，一是在该policy作用下能获得的所有状态的期望immdiate reward，并且推导出了这三种方法的统一导数形式，即衡量policy的目标函数导数为$\bigtriangledown _{\theta}J(\theta) = E_{\pi_{\theta}}[\bigtriangledown _{\theta}log\pi_{\theta}(s,a)Q^{\pi_{\theta}(s,a)}]$，这个式子也就是policy gradient。</p>
+<p>根据题目的意思，此处的policy换成逻辑回归，即$\pi_{\theta}(s,a) = \frac{1}{1 + e^{-wx}}$那么式子中$\bigtriangledown _{\theta}log\pi_{\theta}(s,a) = (1-pi)*(-x)$。在第一种方法中用直接用immdiate reward代替$Q{\pi_{\theta}(s,a)}$，所以在本例中就是直接取1。</p>
+<p>首先定义一下选择action的函数，也就是利用sigmoid函数进行二分类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">choose_action</span><span class="params">(weight, observation)</span>:</span></span><br><span class="line">    weighted_sum = np.dot(weight, observation)</span><br><span class="line">    pi = <span class="number">1</span> / (<span class="number">1</span> + np.exp(-weighted_sum))</span><br><span class="line">    <span class="keyword">if</span> pi &gt; <span class="number">0.5</span>:</span><br><span class="line">        action = <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        action = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> pi, action</span><br></pre></td></tr></table></figure>
+
+<p>由于Monte-Carlo方法中需要先基于某组参数算出一个episode，再基于这个episode来更新policy的参数，所以需要实现一个函数产生一个episode。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_episode</span><span class="params">(env, weight)</span>:</span></span><br><span class="line">    episode = []</span><br><span class="line">    pre_observation = env.reset()</span><br><span class="line"></span><br><span class="line">    t = <span class="number">0</span></span><br><span class="line">    <span class="comment">#generate 1 episodes for training.</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="comment">#env.render()</span></span><br><span class="line">        pi, action = choose_action(weight, pre_observation)</span><br><span class="line">    </span><br><span class="line">        observation, reward, done, info = env.step(action)</span><br><span class="line">        <span class="comment">#将这个episode的每一步产生的数据保存下来</span></span><br><span class="line">        episode.append([pre_observation, action, pi, reward])</span><br><span class="line">        pre_observation = observation</span><br><span class="line">    </span><br><span class="line">        t += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> done <span class="keyword">or</span> t &gt; <span class="number">1000</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> episode</span><br></pre></td></tr></table></figure>
+
+<p>从而可以实现第七课中Monte-Carlo的更新方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">monte_carlo_policy_gradient</span><span class="params">(env)</span>:</span></span><br><span class="line"></span><br><span class="line">    learning_rate = <span class="number">-0.0001</span></span><br><span class="line">    best_reward = <span class="number">-100.0</span></span><br><span class="line"></span><br><span class="line">    weight = np.random.rand(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> iiter <span class="keyword">in</span> xrange(<span class="number">1000</span>):</span><br><span class="line"></span><br><span class="line">        cur_episode = generate_episode(env, weight)</span><br><span class="line">        <span class="keyword">for</span> t <span class="keyword">in</span> range(len(cur_episode)):</span><br><span class="line">             </span><br><span class="line">            observation, action, pi, reward = cur_episode[t]</span><br><span class="line"></span><br><span class="line">            <span class="comment">#根据第七课的更新公式</span></span><br><span class="line">            weight += learning_rate*(<span class="number">1</span>-pi)*np.transpose(-observation)*reward</span><br><span class="line"></span><br><span class="line">    <span class="comment">#衡量算出来的weight表现如何</span></span><br><span class="line">    cur_reward = evaluate_given_parameter_sigmoid(env, weight)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'Monte-Carlo policy gradient get reward'</span>, cur_reward</span><br></pre></td></tr></table></figure>
+
+<p>而针对Actor critic的方法，则是把值函数$Q{\pi_{\theta}(s,a)}$也当成observation的含参函数，且直接把observation的加权和当成值函数的取值，那么也就能由第七课的更新公式来同时更新值函数和policy的参数。代码如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">actor_critic_policy_gradient</span><span class="params">(env)</span>:</span></span><br><span class="line">    gamma = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    p_weight = np.random.rand(<span class="number">4</span>)</span><br><span class="line">        </span><br><span class="line">    <span class="comment">#值函数的权重</span></span><br><span class="line">    v_weight = np.random.rand(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">    p_learning_rate = <span class="number">-0.0001</span></span><br><span class="line">    v_learning_rate = <span class="number">-0.0001</span></span><br><span class="line"></span><br><span class="line">    done = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> iiter <span class="keyword">in</span> xrange(<span class="number">1000</span>):</span><br><span class="line"></span><br><span class="line">        t = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">if</span> done:</span><br><span class="line">                <span class="keyword">print</span> <span class="string">'start new training...'</span></span><br><span class="line">                <span class="keyword">print</span> <span class="string">'p_weight'</span>, p_weight</span><br><span class="line">                <span class="keyword">print</span> <span class="string">'v_weight'</span>, v_weight</span><br><span class="line"></span><br><span class="line">                pre_observation = env.reset()</span><br><span class="line">                pre_pi, pre_action = choose_action(p_weight, pre_observation)</span><br><span class="line">        </span><br><span class="line">                pre_phi = pre_observation</span><br><span class="line">                pre_q = np.dot(v_weight, pre_phi)</span><br><span class="line"></span><br><span class="line">            <span class="comment">#env.render()</span></span><br><span class="line"></span><br><span class="line">            observation, reward, done, info = env.step(pre_action)</span><br><span class="line"></span><br><span class="line">            pi, action = choose_action(p_weight, observation)</span><br><span class="line">            </span><br><span class="line">            phi = observation</span><br><span class="line">            q = np.dot(v_weight, phi)</span><br><span class="line"></span><br><span class="line">            delta = reward + gamma*q - pre_q</span><br><span class="line"></span><br><span class="line">            p_weight += p_learning_rate*(<span class="number">1</span>-pre_pi)*np.transpose(-pre_observation)*pre_q</span><br><span class="line"></span><br><span class="line">            v_weight += v_learning_rate*delta*np.transpose(pre_phi)</span><br><span class="line"></span><br><span class="line">            pre_pi = pi</span><br><span class="line">            pre_observation = observation</span><br><span class="line">            pre_q = q</span><br><span class="line">            pre_phi = phi</span><br><span class="line">            pre_action = action</span><br><span class="line"></span><br><span class="line">            t += <span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> done:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    cur_reward = evaluate_given_parameter_sigmoid(env, p_weight)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">'Actor critic policy gradient get reward'</span>, cur_reward</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-提交到OpenAI"><a href="#4-提交到OpenAI" class="headerlink" title="4.提交到OpenAI"></a>4.提交到OpenAI</h4><p>上面的代码实现以后，就能够提交到OpenAI的网站上去评估效果如何，首先加上两行代码，变成下面的样子。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">env = gym.make(<span class="string">'CartPole-v0'</span>)</span><br><span class="line">env.monitor.start(<span class="string">'cartpole-hill/'</span>, force=<span class="literal">True</span>)</span><br><span class="line">actor_critic_policy_gradient(env)</span><br><span class="line">env.monitor.close()</span><br></pre></td></tr></table></figure>
+
+<p>这会将训练过程记录下来生成.mp4文件，如果像我这样将api_key写入~/.bashrc，就可以直接执行下面代码提交给OpenAI。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gym.upload(<span class="string">'cartpole-hill'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>最后在网站上就能看到如下的结果。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/cp_2.png" alt="1" height="60%" width="60%" hspace="200">
+
+<p><font size="2"><center>图2 结果提交成功图</center></font></p>
+<h4 id="5-小结"><a href="#5-小结" class="headerlink" title="5.小结"></a>5.小结</h4><p>我的policy gradient是完全按照第七课的内容实现的，但是实际上效果还不够好，并且非常依赖初始值，初始值好就很快收敛，不好就会一直恶性循环。总之感觉这个网站还是很有意思的，值得去玩一玩，文中的代码在<a href="https://github.com/chenrudan/deep-learning/tree/master/rl/cartpole" target="_blank" rel="noopener">这里</a>。 </p>
+<p>[1] <a href="http://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2651982287&idx=1&sn=b06a85cb8a0a3ba026fa51f739f827ab&scene=0#wechat_redirect" target="_blank" rel="noopener">【重磅】马斯克的AI野心——OpenAI Gym系统深度解析</a></p>
+<p>[2] <a href="http://chenrudan.github.io/blog/2016/08/03/reinforcementlearninglesssion7.html">【David Silver强化学习公开课之七】Policy Gradient</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/08/05/reinforcementlearninglesssion9.html" rel="next" title="【David Silver强化学习公开课之九】探索与利用">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之九】探索与利用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/11/12/gan.html" rel="prev" title="简述生成式对抗网络">
+                简述生成式对抗网络 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Gym库"><span class="nav-number">1.</span> <span class="nav-text">1. Gym库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-CartPole问题"><span class="nav-number">2.</span> <span class="nav-text">2. CartPole问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-三种解法"><span class="nav-number">3.</span> <span class="nav-text">3. 三种解法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-Random-Guessing-Algorithm-amp-Hill-Climbing-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 Random Guessing Algorithm &amp; Hill Climbing Algorithm</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-Policy-Gradient"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 Policy Gradient</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-提交到OpenAI"><span class="nav-number">4.</span> <span class="nav-text">4.提交到OpenAI</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-小结"><span class="nav-number">5.</span> <span class="nav-text">5.小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

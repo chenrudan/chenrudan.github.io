@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文从定位、框架使用、分布式构成三个方面比较了TensorFlow、MXNet、PaddlePaddle三个框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TensorFlow、MXNet、PaddlePaddle三个开源库对比">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文从定位、框架使用、分布式构成三个方面比较了TensorFlow、MXNet、PaddlePaddle三个框架。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_2.jpg">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_3.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_8.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_5.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_6.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.139Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TensorFlow、MXNet、PaddlePaddle三个开源库对比">
+<meta name="twitter:description" content="本文从定位、框架使用、分布式构成三个方面比较了TensorFlow、MXNet、PaddlePaddle三个框架。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd.html">
+
+
+
+
+
+  <title>TensorFlow、MXNet、PaddlePaddle三个开源库对比 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">TensorFlow、MXNet、PaddlePaddle三个开源库对比</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-25T11:20:36+08:00">
+                2017-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/algorithm/" itemprop="url" rel="index">
+                    <span itemprop="name">algorithm</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文从定位、框架使用、分布式构成三个方面比较了TensorFlow、MXNet、PaddlePaddle三个框架。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<ul>
+<li><a href="#1">1. 定位</a></li>
+<li><a href="#2">2. 使用构成</a></li>
+<li><a href="#3">3. 分布式实现</a></li>
+<li><a href="#4">4. 小结</a></li>
+<li><a href="#5">5. 参考文献</a></li>
+</ul>
+<p>从深度学习开始流行，到深度学习框架的迭代，到各类实际应用的出现，不过短短几年时间。TensorFlow刚出的那段时间，简单对比过TensorFlow、MXNet、caffe三个框架，有些看法可能也不够准确，到了今天，TensorFlow、MXNet作为国内风头很盛的框架迭代了多个版本， caffe几乎没怎么更新了， 因此就不再讨论caffe了，而是看看百度推出的开源框架PaddlePaddle，本文主要对比一下TensorFlow[1]、MXNet[2]、PaddlePaddle[3]在用户实现上的一些异同。先从三个框架的定位开始。</p>
+<h3 id="1">1. 定位</h3>
+
+<p>其实发展到现在，各个框架对自己的定位都不相同，硬要说哪个框架最好没什么必要，结合自身需求找到合适的用就够了(实验室的服务器不太方便拿来折腾，本文就不比较运算速度了，可以参考[4][5])。而框架的定位从它们的网站标题中就完全可以看出来。</p>
+<p><font face="arial"><center><strong>TensorFlow：  An open-source software library for Machine Intelligence</strong></center></font></p>
+<p>TensorFlow想做的是人工智能的算法引擎，它不仅提供了深度学习的基本元件例如卷积、pooling、lstm等，提供很多基本计算操作，在这一年还围绕着算法开发推出了TensorFlow Serving用于将算法动态部署到线上[6]、想取代scikit-learn的tf.contrib.learn[7]、将不同尺寸的输入处理成相同规模用于批处理的TensorFlow Fold[8]、在移动平台上跑算法[9]、支持Java/Go语言的接口、分布式实例等等。这些都可以看出TensorFlow在不断扩张版图，它不只是一个框架提供一些API供用户调用，也同时在围绕着算法推出各种配套服务。也许由于TensorFlow的扩张，做优化的人不够多，导致现在运行效率就算是分布式版本都比其他框架都要慢[4]，而且版本间有时候函数接口还老不兼容。最新的1.0的版本说Inception v3神经网络的训练速度提升了58倍[10]，个人觉得tf底层实现不会大改，如果要提速可能需要针对各个网络单独设计优化版本。</p>
+<p><font face="arial"><center><strong>MXNet： Flexible and Efficient Library for Deep Learning</strong></center></font></p>
+<p>MXNet对自己的定位是一个flexible和efficient的深度学习框架，它的重点放在了深度学习算法上面，而针对两个特性，前者是说它支持命令式和声明式两种编程方式[11]，比如说做一道菜，TensorFlow就必须按照规定好的步骤热锅、放油、放菜、放盐等一步步执行，而MXNet则能在中间过程做点别的事情，假如味道淡了再放点调味料，假如又想加别的菜了也可以加进去，所以说它更灵活，其次还体现在支持多种语言，从最早的R/Julia到现在增加了对Go/Matlab/Scala/Javascript的支持。高效性则是指MXNet的分布式并行计算性能好、程序节省内存，在[4][5]中可以看到在多GPU上表现非常好，几乎能做到线性加速。内存方面比较能说明问题的是这个框架一推出的时候就支持在移动设备上运行神经网络[12]。TensorFlow开始横向拓展服务时，MXNet仍旧继续优化技术，提供更多的operators、优化内存相关操作、提高并行效率等[13]。并且去年十月份提出了NNVM[14]，将代码实现和硬件执行两个部分隔离开，使得不同的框架不同语言实现的代码可以无差别执行在不同硬件之上。但这一年MXNet都没有产生一个大的社区，有同学说遇到问题还需要自己去查阅修改源码，导致使用门槛还是有一些高。但是16年11月份亚马逊将MXNet选为了官方框架，后续估计会提供非常简洁的云计算服务，用户只需要提交网络配置文件和数据就够了，使用会成为一件简便的事情。</p>
+<p><font face="arial"><center><strong>PaddlePaddle： Open and Easy-to-Use Deep Learning Platform for Enterprise and Research</strong></center></font></p>
+<p>PaddlePaddle是16年9月份开源的，它对自己的定位是easy to use，这点做的很好，它将一些算法封装的很好，如果仅仅只需要使用现成的算法(VGG、ResNet、LSTM、GRU等等)，源码都不用读，按照官网的示例执行命令，替换掉数据、修改修改参数就能跑了，特别是NLP相关的一些问题，使用这个库比较合适，并且没有向用户暴露过多的python接口。它的中文文档相对友好，但是中英文文档数量都有点少，主程序是个c++程序，所以源码阅读还挺方便，但是由于像caffe一样按照功能来构造整个框架，二次开发要从c++底层写起，使用已有的算法没问题，但想做一些新功能会麻烦一些。做科研的话这个库可能不是很合适，它的文档比较注重怎么用它已经实现好的网络，而不是怎么写网络，比较适合需要成熟稳定的模型来处理新数据的情况。它的分布式部署做的很好，目前是唯一支持Kubernetes的深度学习库(感兴趣可以参考[15])。</p>
+<h3 id="2">2. 使用构成</h3>
+
+<p>这个部分简单谈谈从我们用户角度来看各个框架是怎么设计和使用的。</p>
+<p>tensorflow出发点是将一个算法表示成一张有向计算图，并提供了TensorBoard这样一个工具用于可视化算法[16]，如下图的节点和连线，包括了计算、数据以及控制关系。算法中涉及到的任何计算都抽象成符号operation，例如图中的conv、concat、add等椭圆形的计算节点，而算法涉及到的数据则是tensor，它在节点之间流动，连线上还展示了这个tensor的shape，有向图中还有一种数据节点variable，它表示的是某个变量(权重或者输入输出)，可以通过它来控制tensor的读写，它能像tensor一样作为计算节点的输入。tensor的流动通过连接有向图的实线表示，控制依赖control dependencies通过虚线箭头表示，箭头的起始节点执行完毕才执行结束节点，session控制tensor流动到何处停止。因此使用TensorFlow需要先定义计算图，然后再把数据往里传得到输出。它没有一个严格的前向传输后向传输的概念，求解梯度通过optimizer来控制，如果数据flow到了optimizer的位置，会对前面需要求导的变量自动求导并更新。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_1.png" height="60%" width="60%" hspace="310">
+
+<p><font size="2"><center>图1 TensorFlow计算图(图片来源[17])</center></font></p>
+<p>MXNet也是将算法表达成了有向计算图，将数据和计算表达成有向图中的节点，与TensorFlow不同的是，MXNet将计算图中每一个节点，包括数据节点variable、基本计算floor、神经网络操作pooling都封装在symbol里面，而TensorFlow将数据节点、基本计算、神经网络操作封装成了不同的类，所以它们之间流通需要通过tensor，而MXNet计算图的节点输出类型统一是symbol，通过outputs访问symbol中的NDarray数据。当构建好计算图的节点、连接方式，就通过executor来启动计算，包括计算图的前向计算输出和反向计算导数。MXNet为训练深度学习实现了Model/Module两个类，Model在executor上又封装了一层，实现了feedforward功能，将forward和backward整合在了一起，用户直接调用feedforward.fit即可完成训练、更新参数。而Module的接口好像也差不多，官网说Model只是为了提供一个接口方便训练，Module是为了更高一层的封装。</p>
+<p>paddle的架构挺像caffe的，基于神经网络中的功能层来开发的，一个层包括了许多复杂的操作，例如图1中右边展开的所有操作合起来可以作为这里的一个卷积层。它将数据读取DataProvider、功能层Layers、优化方式Optimizer、训练Evaluators这几个分别实现成类，组合层构成整个网络，但是只能一层一层的累加还不够实用，为了提高灵活性，额外设置了mixed_layer用来组合不同的输入，如下图2所示。但是这种比较粗粒度的划分就算能组合不同输入也不会像上面的灵活，比如add和conv这种操作在上面两种框架中是属于同一层面的，而在pd中则会是conv里面包含add。看得出paddle在尽可能简化构造神经网络的过程，它甚至帮用户封装好了networks类，里面是一些可能需要的组合，例如卷积+batchNorm+pooling。它希望提供更简便的使用方式，用户不需要更改什么主体文件，直接换数据用命令行跑。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_2.jpg" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图2 PaddlePaddle功能层(图片来源[18])</center></font></p>
+<h3 id="3">3. 分布式实现</h3>
+
+<p>首先说说深度学习算法实现分布式需要干什么，分布式就是将一个参数巨多、数据居多的神经网络分成一些小任务放在多个机器多个显卡上面执行，针对这两个特性有两种解决方案，参数多就把网络切分放在不同设备上，数据量大就多台机器同时执行相同代码处理不同数据，前者称为模型并行后者称为数据并行[19]。神经网络相对其他分布式问题的特殊之处在于，不同机器上的网络参数在训练时都会独立的求导更新，然而这些参数在新的迭代开始之前要保证相对一致(由于可以异步更新，不同机器之间可以不完全一样，但肯定不能差别过大)，因此就出现了Parameter Server[20]，它保存了神经网络的权重等参数，决定了何时接收对这些数据的修改，决定了何时将修改后的数据发放到不同机器的计算节点上。假设需要训练图3中的神经网络，其中节点b和e是网络参数，machine 0和machine 1构成了模型并行，machine01和machine23构成了数据并行，中间的是参数服务器，用于收发参数。目前三个框架都说支持模型并行和数据并行，从用户实现上来看还是各有不同。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_3.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图3 分布式神经网络</center></font></p>
+<p>tf不同的功能以job划分，例如运行整个computation graph是一个功能，作为parameter server存储更新交换参数是一个功能。job由一系列task组成，每个task是一个进程，它完成指定的工作，计算、传输、读写等等。在tf的分布式实现中，用户要实现的分布式程序主要是两个部分，分别是graph的配置和集群的配置，client需要定义computation graph的结构，节点放在哪个job/task上，并且创建session，通过session请求graph计算到什么地方，一个client对应一个computation graph，如果采用了数据并行，那么就会产生多个graph。集群配置确定了有多少台机器，哪台机器执行哪个task。具体的代码实现参考[21]。</p>
+<p>tf没有专门实现paramter server，而是实现了server，server对象负责交换数据，但不是只交换网络的参数，只要涉及到不同设备间要交换的数据都是由server管理，例如下图中machine0的device 0和device 1之间交换网络的输入输出，因此，在实现神经网络时一般需要将网络参数放在称为ps的job中，从而在网络运行时自动的更新参数。一个task会实例化一个server对象，不同机器之间交换数据的协议有多种，例如gRPC、RDMA等。然后手动在不同的机器上分别执行程序，如下图所示。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_8.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图4 TensorFlow各台机器涉及到的内容</center></font></p>
+<p>MXNet通过kvstore实现parameter server从而实现多机运行程序，设备之间传输是通过确定数据所在的context后相互交换NDArray。从15年推出的时候就已经支持分布式了，它将网络分布式训练的过程已经封装好，用户只需要确定网络的配置，哪些操作放在哪个GPU之上，开放给用户的接口是Module类的fit函数，这个函数内部会自动创建kvstore对象，在训练的时候梯度和权重会自己push/pull。启动分布式程序也不需要自己手动在多台机器上执行命令，MXNet封装好了launch.py，传入机器个数、主机ip等就能在一台机器上启动多台机器运行程序。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_5.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图5 MXNet各台机器涉及到的内容</center></font></p>
+<p>PaddlePaddle的分布式结构主要有两个部分，trainer和parameter server。前者是配置网络，功能层、优化算法的python接口封装在了trainer_config_helpers类中，用户可以使用这些接口配置自己的网络，后者没有将接口放出来给用户使用，而是在c++程序中实现的，再通过python来调用c++程序。pd给的例子中通过fabric库来启动分布式程序，可以做到在一台机器上启动多台机器。在parameter server的使用上，pd针对一个网络可以拥有多个参数服务器ps，每个ps负责一部分的网络参数，与所有的trainers进行交换数据，如下图所示。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_6.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图5 PaddlePaddle分布式结构(图片来源[22])</center></font></p>
+<h3 id="4">4. 小结</h3>
+
+<p>零零碎碎聊了一些各个框架中我比较关注的内容，作为Caffe的真爱粉，这三个框架我没有什么偏好，各有各的优点各有各的缺点，都有很多值得学习的地方。写之前对PaddlePaddle的印象还挺不错的，没想到文档资料并不多，github上面的star虽然有4400+，但是感觉用的人好少，官方的文件对这个框架本身的东西介绍也少，重心放在了怎么使用上面。就使用上来看，周围的同学反而用Keras的比较多，有条件的话其实都下载试一试才能确定哪个更适合自己。</p>
+<p>个人理解有限，如果文章有不对的地方，欢迎批评指正。</p>
+<h3 id="5">5. 参考文献</h3>
+
+<p>[1] <a href="https://www.tensorflow.org/" target="_blank" rel="noopener">TensorFlow</a></p>
+<p>[2] <a href="http://mxnet.io/index.html" target="_blank" rel="noopener">MXNet</a></p>
+<p>[3] <a href="http://www.paddlepaddle.org/" target="_blank" rel="noopener">PaddlePaddle</a></p>
+<p>[4] <a href="https://arxiv.org/pdf/1608.07249.pdf" target="_blank" rel="noopener">Benchmarking State-of-the-Art Deep Learning Software Tools</a></p>
+<p>[5] <a href="https://arxiv.org/pdf/1511.06435.pdf" target="_blank" rel="noopener">Comparative Study of Deep Learning Software Frameworks</a></p>
+<p>[6] <a href="https://tensorflow.github.io/serving/" target="_blank" rel="noopener">TensorFlow Serving</a></p>
+<p>[7] <a href="https://www.tensorflow.org/api_guides/python/contrib.learn" target="_blank" rel="noopener">Learn (contrib)</a></p>
+<p>[8] <a href="http://www.jiqizhixin.com/article/2253" target="_blank" rel="noopener">谷歌发布深度学习库TensorFlow Fold，支持动态计算图</a></p>
+<p>[9] <a href="https://www.tensorflow.org/mobile/" target="_blank" rel="noopener">TensorFlow Mobile</a></p>
+<p>[10] <a href="http://developers.googleblog.cn/2017/02/tensorflow-10.html" target="_blank" rel="noopener">宣布 TensorFlow 1.0</a></p>
+<p>[11] <a href="http://mxnet.io/zh/overview.html" target="_blank" rel="noopener">MXNet设计和实现简介</a></p>
+<p>[12] <a href="http://mxnet.io/how_to/smart_device.html" target="_blank" rel="noopener">Deep Learning in a Single File for Smart Devices</a></p>
+<p>[13] <a href="https://github.com/dmlc/mxnet/issues/3509" target="_blank" rel="noopener">[RELEASE] Announcing v0.9 Release Candidate 1</a></p>
+<p>[14] <a href="http://mt.sohu.com/20161001/n469488261.shtml" target="_blank" rel="noopener">MXNet专栏 | 陈天奇：NNVM打造模块化深度学习系统</a></p>
+<p>[15] <a href="http://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&mid=2650995509&idx=1&sn=495eea059600f127f0e6ca0305438c7d" target="_blank" rel="noopener">跑在Kubernetes上的开源深度学习，百度这次带来了哪些技术看点？</a></p>
+<p>[16] <a href="http://wiki.jikexueyuan.com/project/tensorflow-zh/how_tos/graph_viz.html" target="_blank" rel="noopener">TensorBoard: 图表可视化</a></p>
+<p>[17] <a href="https://kratzert.github.io/kratzert.github.io/2017/02/24/finetuning-alexnet-with-tensorflow.html" target="_blank" rel="noopener">Finetuning AlexNet with TensorFlow</a></p>
+<p>[18] <a href="http://www.paddlepaddle.org/doc/demo/sentiment_analysis/sentiment_analysis.html" target="_blank" rel="noopener">Sentiment Analysis Tutorial</a></p>
+<p>[19] <a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/large_deep_networks_nips2012.pdf" target="_blank" rel="noopener">Large Scale Distributed Deep Networks</a></p>
+<p>[20] <a href="https://www.cs.cmu.edu/~muli/file/parameter_server_osdi14.pdf" target="_blank" rel="noopener">Scaling Distributed Machine Learning with the Parameter Server</a></p>
+<p>[21] <a href="http://weibo.com/ttarticle/p/show?id=2309403988813608274928" target="_blank" rel="noopener">理解和实现分布式TensorFlow集群完整教程</a></p>
+<p>[22] <a href="http://blog.kubernetes.io/2017/02/run-deep-learning-with-paddlepaddle-on-kubernetes.html" target="_blank" rel="noopener">Run Deep Learning with PaddlePaddle on Kubernetes</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/11/12/gan.html" rel="next" title="简述生成式对抗网络">
+                <i class="fa fa-chevron-left"></i> 简述生成式对抗网络
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/05/10/assignments1and2.html" rel="prev" title="Assignment 1 & 2">
+                Assignment 1 & 2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1"><span class="nav-number">1.</span> <span class="nav-text">1. 定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2"><span class="nav-number">2.</span> <span class="nav-text">2. 使用构成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3"><span class="nav-number">3.</span> <span class="nav-text">3. 分布式实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4"><span class="nav-number">4.</span> <span class="nav-text">4. 小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5"><span class="nav-number">5.</span> <span class="nav-text">5. 参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

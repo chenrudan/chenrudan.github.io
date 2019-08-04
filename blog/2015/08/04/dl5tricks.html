@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要给出了在实现网络或者调节代码过程使用的以及平时看一些文章记录下来的一些小技巧，主要针对卷积网络和图像处理。就个人感受，有些技巧还是非常有效的，而且通常可以通过看开源库的一些文档或者源代码来发掘这些内容，最后能够称为自己所用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[DeepLearning]深度学习之五常见tricks">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2015/08/04/dl5tricks.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文主要给出了在实现网络或者调节代码过程使用的以及平时看一些文章记录下来的一些小技巧，主要针对卷积网络和图像处理。就个人感受，有些技巧还是非常有效的，而且通常可以通过看开源库的一些文档或者源代码来发掘这些内容，最后能够称为自己所用。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.150Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[DeepLearning]深度学习之五常见tricks">
+<meta name="twitter:description" content="本文主要给出了在实现网络或者调节代码过程使用的以及平时看一些文章记录下来的一些小技巧，主要针对卷积网络和图像处理。就个人感受，有些技巧还是非常有效的，而且通常可以通过看开源库的一些文档或者源代码来发掘这些内容，最后能够称为自己所用。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2015/08/04/dl5tricks.html">
+
+
+
+
+
+  <title>[DeepLearning]深度学习之五常见tricks | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2015/08/04/dl5tricks.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[DeepLearning]深度学习之五常见tricks</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-08-04T11:20:36+08:00">
+                2015-08-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文主要给出了在实现网络或者调节代码过程使用的以及平时看一些文章记录下来的一些小技巧，主要针对卷积网络和图像处理。就个人感受，有些技巧还是非常有效的，而且通常可以通过看开源库的一些文档或者源代码来发掘这些内容，最后能够称为自己所用。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文主要给出了在实现网络或者调节代码过程使用的以及平时看一些文章记录下来的一些小技巧，主要针对卷积网络和图像处理。就个人感受，有些技巧还是非常有效的，而且通常可以通过看开源库的一些文档或者源代码来发掘这些内容，最后能够称为自己所用。</p>
+<h4 id="构造validation-set"><a href="#构造validation-set" class="headerlink" title="构造validation set"></a>构造validation set</h4><p>一般数据集可能不会给出验证集，所以自己会从给的训练集中按照一定比例（9：1）分离出验证集。</p>
+<h4 id="增加训练数据"><a href="#增加训练数据" class="headerlink" title="增加训练数据"></a>增加训练数据</h4><p>为了更好的训练网络，有时候需要增加原始数据集，一般有以下方法[1]：</p>
+<ul>
+<li>沿着x轴将图片左右翻转</li>
+<li>随机的剪切、缩放、旋转</li>
+<li>用pca来改变RGB的强度值，产生分别对应的特征值和特征向量，然后用均值为0方差为0.1的随机数与特征值和特征向量相乘得到新的数据[2]</li>
+</ul>
+<h4 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h4><p>常见的是减均值、除方差，还有变化到-1～1，主要针对不同尺度的特征，例如房价预测的例子中，每个房子的房屋大小和卧室数量就不在一个数量级上，这种情况就需要对每一维特征进行尺度变换normalize，还有的方法是使用pca白化。但是就图像处理领域，通常就减去一个均值就可以直接拿来计算。</p>
+<h4 id="权重初始化"><a href="#权重初始化" class="headerlink" title="权重初始化"></a>权重初始化</h4><p>不要全部初始化为0，这样会导致大部分的deltaw都一样，一般用高斯分布或者uniform分布。但是这样的分布会导致输出的方差随着输入单元个数而变大，因此需要除以fan in（输入个数的平方根）。</p>
+<h4 id="卷积tricks"><a href="#卷积tricks" class="headerlink" title="卷积tricks"></a>卷积tricks</h4><ul>
+<li>图片输入是2的幂次方，例如32、64、96、224等。</li>
+<li>卷积核大小是3*3或者5*5。</li>
+<li>输入图片上下左右需要用0补充，即padding，且假如卷积核大小是5那么padding就是2（图片左右上下都补充2），卷积核大小是3padding大小就是1。</li>
+</ul>
+<h4 id="pooling层tricks"><a href="#pooling层tricks" class="headerlink" title="pooling层tricks"></a>pooling层tricks</h4><p>poolin层也能防止过拟合，使用overlapped pooling，即用来池化的数据有重叠，但是pooling的大小不要超过3。</p>
+<p>max pooling比avg pooling效果会好一些。</p>
+<h4 id="避免overfitting"><a href="#避免overfitting" class="headerlink" title="避免overfitting"></a>避免overfitting</h4><ul>
+<li>drop out能够避免过拟[1]，一般在加在全连接层后面[3]，但是会导致收敛速度变慢。</li>
+<li>正则化也能避免过拟合，L2正则l2正则惩罚了峰值权重，l1正则会导致稀疏权重，趋近于0，l1会趋向选择有用的输入。又或者可以给给权重矢量的模加上上边界（3 or 4），更新时对delta w进行归一化。</li>
+</ul>
+<h4 id="调参"><a href="#调参" class="headerlink" title="调参"></a>调参</h4><p>使用pretrain好的网络参数作为初始值。然后fine-tuning，此处可以保持前面层数的参数不变，只调节后面的参数。但是finetuning要考虑的是图片大小和跟原数据集的相关程度，如果相关性很高，那么只用取最后一层的输出，不相关数据多就要finetuning比较多的层。</p>
+<p>初始值设置为0.1，然后训练到一定的阶段除以2，除以5，依次减小。</p>
+<p>加入momentum项[2]，可以让网络更快的收敛。</p>
+<ul>
+<li>节点数增加，learning rate要降低</li>
+<li>层数增加，后面的层数learning rate要降低</li>
+</ul>
+<h4 id="激励函数"><a href="#激励函数" class="headerlink" title="激励函数"></a>激励函数</h4><p>Sigmoid作为激励函数有饱和和梯度消失的现象，在接近输出值0和1的地方梯度接近于0（可通过sigmoid的分布曲线观察出）。因而可采用Rectified Linear Units(ReLUs)作为激励函数，这样会训练的快一些，但是relu比较脆弱，如果某次某个点梯度下降的非常多，权重被改变的特别多，那么这个点的激励可能永远都是0了，还有带参的prelu、产生随机值的rrelu等改进版本。但是leaky版本（0换成0.01）的效果并不是很稳定。</p>
+<h4 id="通过做图来观察网络训练的情况"><a href="#通过做图来观察网络训练的情况" class="headerlink" title="通过做图来观察网络训练的情况"></a>通过做图来观察网络训练的情况</h4><p>可以画出随着不同参数训练集测试集的改变情况，观察它们的走势图来分析到底什么时候的参数比较合适。</p>
+<ul>
+<li>不同学习率与loss的曲线图，横坐标是epoch，纵坐标是loss或者正确率</li>
+<li>不同的batchsize与loss的曲线图，坐标同上</li>
+</ul>
+<h4 id="数据集不均衡"><a href="#数据集不均衡" class="headerlink" title="数据集不均衡"></a>数据集不均衡</h4><p>这种情况如果数据集跟imagenet的比较相近，可以直接用finetuning的方法，假如不相近，首先考虑重新构造数据集的每一类个数，再次可以减少数据量比较大的类（减采样），并且复制数据量比较小的类（增采样）。</p>
+<p>以上是在实现卷积神经网络中使用过的和平时看文章中提及到的一些技巧，大多数现在的开源软件都是已经实现好了，直接调用使用即可。</p>
+<p>参考：[1] <a href="http://cs231n.stanford.edu/" target="_blank" rel="noopener">http://cs231n.stanford.edu/</a></p>
+<p>[2]<a href="http://lamda.nju.edu.cn/weixs/project/CNNTricks/CNNTricks.html" target="_blank" rel="noopener">http://lamda.nju.edu.cn/weixs/project/CNNTricks/CNNTricks.html</a></p>
+<p>[3] <a href="http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf" target="_blank" rel="noopener">http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/07/22/cudastream.html" rel="next" title="【GPU编程系列之三】cuda stream和event相关内容">
+                <i class="fa fa-chevron-left"></i> 【GPU编程系列之三】cuda stream和event相关内容
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/10/26/installcaffe.html" rel="prev" title="---Ubuntu 14.04下配置caffe---">
+                ---Ubuntu 14.04下配置caffe--- <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#构造validation-set"><span class="nav-number">1.</span> <span class="nav-text">构造validation set</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增加训练数据"><span class="nav-number">2.</span> <span class="nav-text">增加训练数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#预处理"><span class="nav-number">3.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#权重初始化"><span class="nav-number">4.</span> <span class="nav-text">权重初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#卷积tricks"><span class="nav-number">5.</span> <span class="nav-text">卷积tricks</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pooling层tricks"><span class="nav-number">6.</span> <span class="nav-text">pooling层tricks</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#避免overfitting"><span class="nav-number">7.</span> <span class="nav-text">避免overfitting</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#调参"><span class="nav-number">8.</span> <span class="nav-text">调参</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#激励函数"><span class="nav-number">9.</span> <span class="nav-text">激励函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过做图来观察网络训练的情况"><span class="nav-number">10.</span> <span class="nav-text">通过做图来观察网络训练的情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据集不均衡"><span class="nav-number">11.</span> <span class="nav-text">数据集不均衡</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

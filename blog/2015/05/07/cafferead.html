@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="阅读caffe的源代码的一些总结。Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[caffe]的项目架构和源码解析">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2015/05/07/cafferead.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="阅读caffe的源代码的一些总结。Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe7.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe8.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe9.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe10.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe11.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe12.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe6.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.145Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[caffe]的项目架构和源码解析">
+<meta name="twitter:description" content="阅读caffe的源代码的一些总结。Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe7.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2015/05/07/cafferead.html">
+
+
+
+
+
+  <title>[caffe]的项目架构和源码解析 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2015/05/07/cafferead.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[caffe]的项目架构和源码解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-05-07T11:20:36+08:00">
+                2015-05-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  阅读caffe的源代码的一些总结。Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也得到了很多有效的成果。2013年9月-12月，贾扬清在伯克利大学准备毕业论文的时候开发了caffe最初的版本，后期有其他的牛人加入之后，近两年的不断优化，到现在成了最受欢迎的深度学习框架。近期，caffe2也开源了，但是仍旧在开发。本文主要基于源代码的层面来对caffe进行解读，并且给出了几个自己在测试的过程中感兴趣的东西。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也得到了很多有效的成果。2013年9月-12月，贾扬清在伯克利大学准备毕业论文的时候开发了caffe最初的版本，后期有其他的牛人加入之后，近两年的不断优化，到现在成了最受欢迎的深度学习框架。近期，caffe2也开源了，但是仍旧在开发。本文主要主要基于源代码的层面来对caffe进行解读，并且给出了几个自己在测试的过程中感兴趣的东西。</p>
+<h4 id="1-如何调试"><a href="#1-如何调试" class="headerlink" title="1.如何调试"></a>1.如何调试</h4><p>为了能够调试，首先要在makefile的配置文件中将DEBUG选项设置为1，这步谨慎选择，debug版本会在打印输出的时候输出大量的每个阶段耗时，也可直接从整个项目的caffe.cpp入手来查看源文件。编译好可调试的版本之后，执行下面的指令可以启动调试。</p>
+<pre><code>gdb --args ./build/tools/caffe train –solver=examples/cifar10/cifar10_full_solver.prototxt</code></pre><p>调试过程中需要注意的一个问题是，源码中使用了函数指针，执行下一步很容易就跳过了，所以要在合适的时机使用s来进入函数。</p>
+<h4 id="2-第三方库"><a href="#2-第三方库" class="headerlink" title="2.第三方库"></a>2.第三方库</h4><p><strong><center>gflags</center></strong></p>
+<p>gflags是Google出的一个能够简化命令行参数处理的工具，在c++代码中定义实际意义，在命令行中将参数传进去。例如下面的例子中，c++的代码中声明这样的内容，DEFINE_string是一个string类型，括号内的solver就是一个flag，这个flag从命令行中读取的参数就会解析成string，存在FLAGS_solver中，使用时当成正常的string使用即可。在命令行调用时（参见调试部分举出的例子），用-solver=xxxxx，将实际的值给传递进去。这里的string可以替换成int32/int64/bool等。</p>
+<p><strong>*<font size="2">DEFINE_string(solver, “”,  “The solver definition protocol buffer text file.”);</font>*</strong></p>
+<p>需要注意的时，这个定义过程只能在一个文件中定义一次，其他文件要是想用的话可以有两种选择，一种是直接在需要的文件中declare，一种方式在一个头文件中declare，其他文件要用就直接include。声明方式如下:</p>
+<p><strong>*<font size="2">DECLARE_bool(solver);</font>*</strong></p>
+<p>假如需要设置bool变量为false，一个简便的方法是在变量前面加上no，即变成-nosolver。此外，–会导致解析停止，例如下面的式子中，f1是flag，它的值为1，但是f2并不是2。</p>
+<p><font size="2">foo -f1 1 – -f2 2</font></p>
+<p><strong><center>Protobuf</center></strong></p>
+<p>Google Protocol Buffer(简称Protobuf)是Google公司内部的混合语言数据标准，目前已经正在使用的有超过48,162种报文格式定义和超过12,183个.proto文件。它是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化、序列化结构数据，自己定义一次数据如何结构化，目前提供了c++、java、python三种语言的API。相对于xml优点在于简单、体积小、读取处理时间快、更少产生歧义、更容易产生易于编程的类。</p>
+<p>就caffe而言，这个工具的用处体现在生成caffe所需的<strong>参数类</strong>，这些类能从以.prototxt结尾的文件中解析参数，然后对应生成Net、Layer的参数。自己定义序列化文件a.proto，文件内容如图1，以关键词message来定义一个类，本图中它是卷积层的参数类，这个类的成员类型有bool和uint32等，也可用自己定义的类型。等号后面的数字是一个唯一的编号tag，来区分这些不同参数，在官方文档中这些称为field。可以在一个.proto中定义多个message，注释风格与c/c++一致。定义好的proto进行编译后生成.h和.cc对应c++的头文件和源文件。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe7.png" alt="1" height="60%" width="60%" hspace="180">
+
+<p><font size="2"><center>图1 自定义proto</center></font></p>
+<p>图2是编译后自动生成的文件，可以看到生成了ConvolutionalParameter类。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe8.png" alt="1" height="60%" width="60%" hspace="180">
+
+<p><font size="2"><center>图2 自动生成的c++类</center></font></p>
+<p><strong><center>Glob</center></strong></p>
+<p>这个工具也是谷歌出品，用来打印初始化、运行时的信息，记录意外中断等。使用先要初始化google的logging库。一般在caffe中常见的LOG(INFO)…和CHECK(XXX)…都是它执行的。相关的内容可以参考下面的图片，图3是标出颜色的是代码中用到了的打印，图4是对应打印到屏幕上的信息。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe9.png" alt="1" height="60%" width="60%" hspace="180">
+
+<p><font size="2"><center>图3 c++代码</center></font></p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe10.png" alt="1" height="60%" width="60%" hspace="180">
+
+<p><font size="2"><center>图4 打印信息</center></font></p>
+<p><strong><center>LMDB</center></strong></p>
+<p>lmdb是一个读取速度快、轻量级的数据库，支持多线程、多进程并发，数据由key-value对存储。caffe还提供leveldb的接口，本文只讨论python实现的lmdb。在这个数据库中存放的是序列化生成的字符串。caffe提供脚本文件先生成lmdb格式的数据，这个脚本文件会生成一个文件夹，文件夹下包括两个文件，一个数据文件，一个lock文件。然后调用训练网络的DataLayer层来读取lmdb格式的数据。图5是定义ldmb数据库类型，图6是将数据序列化再存入数据库中。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe11.png" alt="1" height="40%" width="40%" hspace="260">
+
+<p><font size="2"><center>图5 定义db</center></font></p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe12.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图6 存入db</center></font></p>
+<h4 id="3-caffe基本结构"><a href="#3-caffe基本结构" class="headerlink" title="3.caffe基本结构"></a>3.caffe基本结构</h4><p><strong><center>Blob</center></strong></p>
+<p>这是caffe的数据存储类blob，它实现了关于一个变量的所有相关信息和相关操作。存储数据的方式可以看成是一个N维的c数组，存储空间连续。例如存储图片是4维(num, channel, height, width),变量(n,k,h,w)在数组中存储位置为((n*K+k)*H+h)*W+w。相应的四维参数保存为(out_channel, in_channel, filter_size, filter_size)。blob有以下三个特征：</p>
+<ul>
+<li>两块数据，一个是原始data，一个是求导值diff</li>
+<li>两种内存分配方式，一种是分配在cpu上，一种是分配在gpu上，通过前缀cpu、gpu来区分</li>
+<li>两种访问方式，一种是不能改变数据，一种能改变数据</li>
+</ul>
+<p>其中让人眼前一亮的是data和diff的设计，其实在卷积网络中，很多情况下一个变量不仅有它自身的值，另外还有cost function对它的导数，采用过多的变量来保存这两个信息还不如将它们放在一起直观，下图是源码blob.hpp中的定义。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe1.png" alt="1" height="40%" width="40%" hspace="260">
+
+<p><font size="2"><center>图7 定义blob</center></font></p>
+<p><strong><center>Layer</center></strong></p>
+<p>caffe根据不同的功能将它们包装成不同的Layer，例如卷积、pooling、非线性变换、数据层等等。具体有多少种layer及其内容参考官方文档即可，本文主要讨论它的实现，它的实现分为三个部分，也可参考演示图8：</p>
+<ul>
+<li>setup，初始化每一层，和它对应的连接关系</li>
+<li>forward，由bottom求top</li>
+<li>backward，由top的梯度求bottom的梯度，有参数的求参数梯度</li>
+</ul>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe6.png" alt="1" height="60%" width="60%" hspace="180">
+
+<p><font size="2"><center>图8 caffe的layer实现方式</center></font></p>
+<p>而前向传播、后向传播的函数也分别有两种实现方式，一种基于gpu一种基于cpu。Forward函数，参数分别是两个存放blob指针的vector，分别是bottom、top。通过指针数组的方式能够实现多个输入多个输出。值得一提的是，caffe的卷积部分采用了将数据进行变换，变成矩阵之后再用矩阵乘法来实现卷积，cudnn也是采用这样的方式，经过我的实验，确实这种方式比直接实现cuda kernel要快一些。caffe大部分底层实现都是用blas或者cublas处理的。</p>
+<p><strong><center>Net</center></strong></p>
+<p>Net它将不同的层正确的连接起来，是层和它们之间连接的集合。通过Net::Init()来初始化模型，构造blobs和layers，调用layers的setup函数。Net的Forward函数内部调用了ForwardPrefilled，并且调用了ForwardFromTo，它从给定的层数id（start）到end来调用Layer对象的Forward函数。</p>
+<p><strong><center>Solver</center></strong></p>
+<p>Solver是控制网络的关键所在，它的具体功能包括解析传递的prototxt、执行train、调用网络前向传播计算输出和loss、后向传播计算梯度、根据不同优化方式更新参数（可能不止有learning rate这种参数，而是由alpha、beta构成的更新方式）等。在解析.prototxt时，首先初始化NetParameter对象，用于放置全部的网络参数， 然后在初始化训练网络的时候，通过net变量给出的proto文件地址，来解析并获取网络的层次结构参数。其中的函数solve会根据命令行传递进来的参数来解析并恢复之前保存好的网络文件和权重等，恢复上次执行的iteration次数、loss等。当网络参数配置好，需要恢复的文件处理完成就调用net.cpp的Forward函数开始执行网络。Forward会返回这一次迭代的loss，然后打印出来。接下来会调用ApplyUpdata函数，它会根据不同的策略来改变当前权重的学习率大小，再更新权重。此外，solver还提供保存快照的功能。</p>
+<h4 id="4-运行实例"><a href="#4-运行实例" class="headerlink" title="4.运行实例"></a>4.运行实例</h4><p>假如是自己的图片数据，可以按照如下的方法来进行分类。我全部采用的c++，改源代码比较方便。</p>
+<ul>
+<li>将图片整理成train和test两个文件夹，并将图片的名称和label保存到一个txt中</li>
+<li>将数据变成lmdb格式，采用的是convert_imagenet这个工具</li>
+<li>生成均值处理后的图片，采用compute_image_mean这个工具</li>
+<li>修改模型并执行train</li>
+</ul>
+<p>此外，我还测试过一维数据，并且修改了convert_imagenet.cpp源码，将数据读入lmdb，大致代码如下:</p>
+<pre><code>datum.set_channels(num_channels);
+datum.set_height(num_height);
+datum.set_width(num_width);
+datum.clear_data();
+datum.set_encoded(false);
+datum.set_data(lines[line_id].first);
+datum.set_label(lines[line_id].second);</code></pre><p>通过改这个代码，可以将一维数据读入网络，进行处理。此外，在执行这个一维数据的过程中，也出了一个错，报错信息”Too big key/data, key is empty, or wrong DUPFIXED size”，这个问题是因为lmdb是保存的key-value对，而lmdb对key的长度进行了限制，长度不能超过512，但是我在传递的时候key的值给多了，因此得到了解决。</p>
+<h4 id="5-小结"><a href="#5-小结" class="headerlink" title="5.小结"></a>5.小结</h4><p>通过阅读源码可以看到，caffe作为一个架构，层次、思路、需要解决的问题都非常清晰，它的高效体现在很多方面，不仅采用了读取快速的lmdb，而且计算部分基本上都是用很高效的blas库完成的。而它的数据、层次、网络的构成和执行是分开控制的，这点就提供了比较大的灵活性，唯一的遗憾就是安装比较繁琐，总是会出现某个依赖包没装好的情况。总的来说，caffe在科研领域使用的非常广泛，大量的研究都是基于caffe预训练好的imagenet的网络而得到了很好的进展，作者这种分享的精神值得肯定。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/06/26/dl1baseconcept.html" rel="next" title="[DeepLearning]深度学习之一基础概念">
+                <i class="fa fa-chevron-left"></i> [DeepLearning]深度学习之一基础概念
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/07/22/cudastream.html" rel="prev" title="【GPU编程系列之三】cuda stream和event相关内容">
+                【GPU编程系列之三】cuda stream和event相关内容 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-如何调试"><span class="nav-number">1.</span> <span class="nav-text">1.如何调试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-第三方库"><span class="nav-number">2.</span> <span class="nav-text">2.第三方库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-caffe基本结构"><span class="nav-number">3.</span> <span class="nav-text">3.caffe基本结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-运行实例"><span class="nav-number">4.</span> <span class="nav-text">4.运行实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-小结"><span class="nav-number">5.</span> <span class="nav-text">5.小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

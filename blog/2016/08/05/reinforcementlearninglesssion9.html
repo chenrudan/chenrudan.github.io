@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之九】探索与利用">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/08/05/reinforcementlearninglesssion9.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之九】探索与利用">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/08/05/reinforcementlearninglesssion9.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之九】探索与利用 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/08/05/reinforcementlearninglesssion9.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之九】探索与利用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-05T11:20:36+08:00">
+                2016-08-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。</p>
+<p>本课视频地址:<br><a href="https://www.youtube.com/watch?v=sGuiWX07sKw" target="_blank" rel="noopener">RL Course by David Silver - Lecture 9: Exploration and Exploitation</a></p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf</a></p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>第一课中讲过Exploration和Exploitation即探索和利用，简单来说就是前者会尝试新的选择而后者会从已有的信息中选择最好的。例如在线投放的广告，前者会投放一些新的广告，而后者会投放最受欢迎的广告。</p>
+<p>有三种方式可以达到exploration的目的，第一种就是类似$\epsilon-$greedy算法在一定概率基础下随机选择一些action，第二种是更加倾向选择更加具有不确定性的状态/动作，这种方法就需要一种方法来衡量这种不确定性，第三种就是收集一些状态信息来确定是否值得到达这个状态。</p>
+<h4 id="2-epsilon-t-greedy"><a href="#2-epsilon-t-greedy" class="headerlink" title="2.$\epsilon_t$ greedy"></a>2.$\epsilon_t$ greedy</h4><p>例如k-摇臂赌博机，随机摇动一个摇臂会获得一定的奖赏，动作集是多个摇臂，奖赏是动作的概率分布$R^a(r) = P[r|a]$，在t时刻选择一个摇臂$a_t$，然后environment产生reward $r_t$，目标就是最大化累积从开始到t时刻的reward $\sum_{\tau}^t r_{\tau}$。t时刻动作值函数取值是每次reward的均值即$Q(a) = E[r|a]$，最好的取值是$V^{*} = Q(a^{*})=\underset{a\in A}{max}Q(a)$。在试验过程中t时刻与最优值的差的期望称为regret为$l_t = E[V^{*}-Q(a_t)]$，累积的total regret则是$L_t = E[\sum_{\tau=1}^t V^{*} - Q(a_t)]$，并将这个式子表达成两项之积，第一项叫count意义是选择这个动作的期望次数，第二项叫gap代表这个动作在当前值函数下取值与最优值之间的差，$L_t = \sum_{a\in A}E[N_t(a)]\Delta _a$。因此最大化累积奖赏就等于最小化total regret，引入regret是为了衡量算法能够好到什么程度。</p>
+<p>考虑之前的greedy算法，它永远在选择已知信息中最好的，所以很容易陷入次优值中，并且会导致线性regret，因为gap一直都没变。而$\epsilon-$greedy算法，有$\epsilon$的概率会选择任意一个action，因为是任意选择一个，所以最终的regret仍然是一个线性的，因为gap也没变，只是可能比greedy的方法变小了一点。所以为了保证尽可能让各种action都能被选择，就可以将值函数的初始值设的比较大，让gap变小，这样就有更多的可能取尝试那个动作。但是这种方式仍然改变不了两种方法的regret呈线性，因此做一个改变，将$\epsilon$的值不固定，而是采用逐渐减小的$\epsilon_t$，这种方法让regret呈现对数函数形式。</p>
+<h4 id="2-Upper-Confidence-Bounds-Algorithm"><a href="#2-Upper-Confidence-Bounds-Algorithm" class="headerlink" title="2.Upper Confidence Bounds Algorithm"></a>2.Upper Confidence Bounds Algorithm</h4><p>根据第二种方法，需要选择更加具有不确定性的action，这种不确定性则可以根据该动作被选中的次数即count的大小来衡量，如果count比较大说明这个action的信息已经多次被利用了，那么就比较确定这个action会带回的reward，如果count小就说明不确定性比较大。(课中讲了一些推导这里略)令不确定性为$\widehat{U}_t(a)=\sqrt{\frac{2log:t}{N_t(a)}}$，那么选择action的策略就变成了$a_t = \underset{a\in A}{argmax}Q(a) + \sqrt{\frac{2log:t}{N_t(a)}}$，第二项相当于加了一个额外的confidence和值函数一起来判断选择什么动作。</p>
+<p>基于贝叶斯定理同样也能用来判断与选择action，reward有先验分布的假设$p[R]$，将动作值函数表示为参数w的分布$p[Q|w]$，计算w的后验概率$p[w|R_1,…,R_t]$，再计算出值函数的后验概率分布$p[Q(a)|R_1,…,R_t] = p[Q|w]p[w|R_1,…,R_t]$。可以根据$\pi(a) = P[Q(a) = \underset{a’}{max}Q(a’)|R_1,…,R_t]$(其中a是最优选择)来选择action。</p>
+<h4 id="3-Information-State-Search"><a href="#3-Information-State-Search" class="headerlink" title="3.Information State Search"></a>3.Information State Search</h4><p>根据第三种方法，需要考虑当前获取的information，引入每个时刻的信息状态$\widetilde{s} = f(h_t)$，它是history的函数，并且也有状态转移概率$\widetilde{P}_{\widetilde{s},\widetilde{s’}}^a$。例如赌博机的例子中，如果一次以概率$\mu_a$赢，如何找到哪个摇臂有最大的概率赢，那么就能加入信息状态$\widetilde{s}=(\alpha, \beta)$，第一项记录摇臂输了的次数，第二项记录摇臂赢了的次数，所以信息状态记录了从开始到现在发生过的所有情况。从而可以根据这样的信息做出判断。</p>
+<h4 id="4-小结"><a href="#4-小结" class="headerlink" title="4.小结"></a>4.小结</h4><p>这节课说实话没听太懂，课上提了很多方法，查了一下资料发现搞懂这些还需要看不少的论文…第十课因为视频中的ppt不清晰，就没有看，但是感觉最后一课才是精华啊…因为前面这么多课都在介绍概念，很少有针对某个问题来讲解具体的解法。总结一下这些内容，其实强化学习要解决就是马尔可夫决策过程(MDP)，即执行不同的行为到达不同的状态，它由$(S,A,P,R,\gamma)$组成，从而可以围绕着求解environment、policy、value function三者展开的，有时已知environment有时未知environment，有时要显式的算出policy，有时要求的又是action-value function。我觉得与监督学习不同的地方在于MDP当前的某个状态下对最终的结果的影响是不定的，往往是要结合过去的一段行为和将来的一段行为才能确定当前的这个状态的影响，而监督学习在求解过程中会认为当前这个状态对最终结果有确定的影响，所以监督学习无法直接解决MDP问题。</p>
+<p>到现在才觉得有一点点入门，第九课的内容实在有点难度，希望日后能够把这些都搞懂。回头看写的这一系列其实还不够完美，课上有很多精华难以全部摘录下来，写的内容也只是我自己能消化的，很多内容我尽可能的简化来写，希望看完这些的人能够对强化学习有一些认识就足够了，真正想搞懂的最好能够自己去看看David Silver的课，真的很厉害，课程安排循序渐进，每一课的内容都非常充实。这个系列到这里就结束了，感觉身体被掏空……</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/08/04/reinforcementlearninglesssion8.html" rel="next" title="【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型)">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/09/04/cartpole.html" rel="prev" title="基于Policy Gradient实现CartPole">
+                基于Policy Gradient实现CartPole <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内容回顾"><span class="nav-number">1.</span> <span class="nav-text">1.内容回顾</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-epsilon-t-greedy"><span class="nav-number">2.</span> <span class="nav-text">2.$\epsilon_t$ greedy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Upper-Confidence-Bounds-Algorithm"><span class="nav-number">3.</span> <span class="nav-text">2.Upper Confidence Bounds Algorithm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Information-State-Search"><span class="nav-number">4.</span> <span class="nav-text">3.Information State Search</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-小结"><span class="nav-number">5.</span> <span class="nav-text">4.小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

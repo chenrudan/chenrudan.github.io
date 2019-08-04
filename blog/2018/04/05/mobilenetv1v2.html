@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="MobileNet是谷歌出品的一个轻量级的神经网络结构，目标是用于移动和嵌入式，在保证了性能的情况下能够较大程度的降低参数量，本文主要介绍一下两代MobileNet的设计方式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析两代MobileNet">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2018/04/05/mobilenetv1v2.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="MobileNet是谷歌出品的一个轻量级的神经网络结构，目标是用于移动和嵌入式，在保证了性能的情况下能够较大程度的降低参数量，本文主要介绍一下两代MobileNet的设计方式。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_2.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_3.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_4.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_5.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_6.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_7.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_8.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_12.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_9.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_10.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_11.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅析两代MobileNet">
+<meta name="twitter:description" content="MobileNet是谷歌出品的一个轻量级的神经网络结构，目标是用于移动和嵌入式，在保证了性能的情况下能够较大程度的降低参数量，本文主要介绍一下两代MobileNet的设计方式。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2018/04/05/mobilenetv1v2.html">
+
+
+
+
+
+  <title>浅析两代MobileNet | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2018/04/05/mobilenetv1v2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅析两代MobileNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-05T11:20:36+08:00">
+                2018-04-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/algorithm/" itemprop="url" rel="index">
+                    <span itemprop="name">algorithm</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  MobileNet是谷歌出品的一个轻量级的神经网络结构，目标是用于移动和嵌入式，在保证了性能的情况下能够较大程度的降低参数量，本文主要介绍一下两代MobileNet的设计方式。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>MobileNet[1]是谷歌出品的一个轻量级的神经网络结构，经过一年的发展逐渐成为类似GoogleNet、ResNet一样的基础性网络结构，它的出发点是想构造精简、轻量级的神经网络，可以在性能有限的移动端上运行。可以认为它是一种网络压缩的方法，但是不同于其他压缩模型的方法的是，它不是在一个大的网络上进行剪枝、量化、分解等操作，而是给出了一个新的网络构造。今年一月又推出了第二个更为优化的版本[2]，具体的caffe实现可以参考[3]。</p>
+<h3 id="1">MobileNet v1</h3>
+
+<p>V1版本的核心是将正常的卷积分解为深度可分离卷积和1x1逐点卷积，正常的卷积假设输入M个feature map，输出N个feature map，卷积核的数量为M<em>N，假设每个卷积核大小为3</em>3，M个卷积核与M个输入map对应卷积并累加得到一个输出map，再用新的一组M个卷积核与输入map卷积得到下一个输出map。卷积过程可以看成两个步骤，一是卷积核在输入图片上提取特征，二是将提取的特征通过相加的方式融合成新的特征。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_1.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图1 传统卷积(图片来源[1])</center></font></p>
+<p>而mobilenet将传统卷积分解成了两个步骤，第一个步骤是深度可分离卷积DepthwiseConvolution，它只有M个3<em>3的卷积核，M个卷积核与M个输入map一一卷积得到M个map，它起到了提取特征的作用，第二个步骤是逐点卷积PointwiseConvolution，实际上就是传统的卷积，只是所有的卷积核都是1</em>1，一共有M<em>N个1</em>1，起到了融合已提取特征的作用。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_2.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图2 深度可分离卷积和逐点卷积(图片来源[1])</center></font></p>
+<p>这个过程中减少的计算量是什么？实际上就是提取特征的filter个数变少了，1*1的卷积过程实际上也就是矩阵乘法，不需要im2col函数来整合成特征图矩阵和卷积核矩阵。所以在论文中，传统卷积和两步卷积对应的计算量对比如下，分母是传统卷积的计算量，分子是两步卷积的计算量。</p>
+<p>$$<br>\frac{D_K\cdot D_K\cdot M\cdot D_F\cdot D_F+M\cdot N\cdot D_F\cdot D_F}<br>{D_K\cdot D_K\cdot M\cdot N\cdot D_F\cdot D_F}<br>= \frac{1}{N}+\frac{1}{D^2_K}<br>$$</p>
+<p>而在实现上，传统卷积是一层就实现，分解后的卷积需要两次来实现，在DW卷积和PW卷积之后都接上了bn层和relu层。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_3.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图3 深度可分离卷积和逐点卷积Caffe实现</center></font></p>
+<p>MobileNet一共有28层，整体的结构如下表所示。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_4.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图4 MobileNet整体网络结构</center></font></p>
+<p>此外，文章还定义了两个，第一个超参数是宽度乘子$\alpha$，通过它可以进一步减少计算量，它是一个缩放系数，原来卷积的输入输出channel乘以这个系数就是新的channel数量。第二个超参数是分辨率乘子$\rho$，它也是缩放系数，对象是特征图的大小，特征图尺寸乘以这个系数就是新的特征图尺寸。</p>
+<p>实验结果上来看，文章在Imagenet数据集上的分类任务中对比了28层的传统卷积与MobileNet，在最终准确率降低较少的情况下，正常卷积的计算量和参数量分别是MobileNet的8.55倍、6.98倍。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_5.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图5 对比传统卷积与MobileNet(图片来源[1])</center></font></p>
+<p>有意思的是文章对比了图6中窄的网络和浅的网络，从结果上来看，在两者计算量一致的情况下，窄的网络比浅的网络性能更好。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_6.png" height="50%" width="50%" hspace="310">
+
+<p><font size="2"><center>图6 对比浅形网络和窄形网络(图片来源[1])</center></font></p>
+<p>另外一个有意思的结论是文章统计了Imagenet分类准确率跟计算量和参数量之间的关系，最终发现与计算量、参数两都呈现了类似log函数的形式。</p>
+<p>文章还在多种任务上都进行了对比测试，大部分的结果都表明了MobileNet能够在保证一定准确率的情况下极大的减少计算量。</p>
+<h3 id="2">MobileNet v2</h3>
+
+<p>从上面v1的构成表格中可以发现，MobileNet是没有shortcut结构的深层网络，为了得到更轻量级性能更好准确率更高的网络，v2版本就尝试了在v1结构中加入shortcut的结构，且给出了新的设计结构，文中称为inverted residual with linear bottleneck，即线性瓶颈的反向残差结构。</p>
+<p>文章首先考虑了relu非线性函数的影响，我们知道relu函数只取输入的非负值，且认为这个行为导致了信息损失，而文章却给出了另一个结论。首先文章假设了每一层的特征图激活值形成了一种未知流形，虽然无法直接知道这个流形是什么，但是流形学习中最基本的想法就是高维数据能够映射到低维空间，因而这些激活值构成的流形也是能映射的。在神经网络中这种映射就体现在降低特征图的channel数，类似MobileNet v1中设置了一个超参数宽度乘子$\alpha$，但是问题是这个宽度因子如何选择？降低到多少channel数能够最大程度的保留所有的信息。映射到一个合适的低维空间即等价于通过这个乘子降低到合适的channel数，且作者认为在宽度乘子作用下能够使得激活值形成的低维流形能够占满整个低维空间。就是在这个条件之下，文章通过公式证明了只有在激活值能够得到输入空间的一个低维流形时，relu函数才能够保留完备的信息。这是第一个性质，另外一个性质是当输入都是非负值时，就算经过relu变换，本质上还是线性变换，这点是显而易见的。</p>
+<p>这个性质表明了激活值的channel数量较少时，relu无法保留完备的信息，会丢失很多信息，所以这种情况下不适合用relu，如图7所示，将原始二维信息，经过一个矩阵映射到高维空间中，再经过一个relu，反向映射回原始二维空间，由于原始的二维空间是n=15,30的低维流形，而不是n=2,3的低维流形，所以在n=2,3时信息丢失较多。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_7.png" height="60%" width="60%" hspace="310">
+
+<p><font size="2"><center>图7 低维流形映射到高维空间中relu的影响(图片来源[2])</center></font></p>
+<p>基于上述结论，文章提出了linear bottleneck layer，这个结构有三个卷积操作，即先通过1*1的PointwiseConvolution来提升channel数，再接一个DepthwiseConvolution，最后再用PointwiseConvolution将channel数量降下来。Bottleneck就体现在最后的这个降低channel数的PointwiseConvolution，根据之前对relu的研究，这种维数较低的channel之后再加relu会损失信息，所以linear则体现在最后的PointwiseConvolution之后不像之前一样接relu了。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_8.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图8 MobileNet v2结构(图片来源[2])</center></font></p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_12.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图9 MobileNet v2结构caffe实现</center></font></p>
+<p>从实验结果上来看线性层确实能够防止非线性破坏过多的信息。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_9.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图10 在线性层加入relu的影响(图片来源[2])</center></font></p>
+<p>为了获得更强的深层反向梯度传播能力，在v2版本中加入了shortcut连接方式，inverted residuals的inverted体现跟resnet相反的设计方式，传统的resnet模块，往往会将输入channel先用PointwiseConvolution降低，执行了正常的卷积操作之后再用PointwiseConvolution将channel增加还原，而本文的设计则跟这个方式刚好是反的。图10的结果中也可看出加入shortcut连接性能提升很多。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_10.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图11 加入shortcut的影响(图片来源[2])</center></font></p>
+<p>结合上述两个创新点之后，MobileNet V2的整体结构如图11，其中每一个bottleneck的结构如图8所示。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/mobilenet_11.png" height="30%" width="30%" hspace="310">
+
+<p><font size="2"><center>图12 MobileNet V2整体网络结构</center></font></p>
+<h3 id="3">小结</h3>
+
+<p>有人说MobileNet没有创新点，有人说MobileNet是业界良心，个人觉得MobileNet是一个非常棒的网络，虽然很多东西不是它原创的，但是两个版本的实用性都非常强。</p>
+<p>[1] <a href="https://arxiv.org/pdf/1704.04861.pdf" target="_blank" rel="noopener">MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications</a></p>
+<p>[2] <a href="https://arxiv.org/abs/1801.04381" target="_blank" rel="noopener">Inverted Residuals and Linear Bottlenecks: Mobile Networks for Classification, Detection and Segmentation</a></p>
+<p>[3] <a href="https://github.com/shicai/MobileNet-Caffe" target="_blank" rel="noopener">MobileNet-Caffe</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/03/10/updateubuntu1710.html" rel="next" title="解决ubuntu更新17.10后开机进不了桌面的问题">
+                <i class="fa fa-chevron-left"></i> 解决ubuntu更新17.10后开机进不了桌面的问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/10/02/networkquantization.html" rel="prev" title="神经网络模型量化方法简介">
+                神经网络模型量化方法简介 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1"><span class="nav-number">1.</span> <span class="nav-text">MobileNet v1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2"><span class="nav-number">2.</span> <span class="nav-text">MobileNet v2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

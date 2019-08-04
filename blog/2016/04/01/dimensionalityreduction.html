@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【机器学习算法系列之三】简述多种降维算法">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/reduction.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/manifold_learning.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lda.jpg">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder2.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.142Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【机器学习算法系列之三】简述多种降维算法">
+<meta name="twitter:description" content="最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/reduction.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction.html">
+
+
+
+
+
+  <title>【机器学习算法系列之三】简述多种降维算法 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【机器学习算法系列之三】简述多种降维算法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-04-01T11:20:36+08:00">
+                2016-04-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。主要目录如下:</p>
+<ul>
+<li><a href="#1">1. 降维基本概念</a></li>
+<li><a href="#2">2. 从什么角度出发降维</a></li>
+<li><a href="#3">3. 降维算法</a><ul>
+<li><a href="#3.1">3.1 主成分分析PCA</a></li>
+<li><a href="#3.2">3.2 多维缩放(MDS)</a></li>
+<li><a href="#3.3">3.3 线性判别分析(LDA)</a></li>
+<li><a href="#3.4">3.4 等度量映射(Isomap)</a></li>
+<li><a href="#3.5">3.5 局部线性嵌入(LLE)</a></li>
+<li><a href="#3.6">3.6 t-SNE</a></li>
+<li><a href="#3.7">3.7 Deep Autoencoder Networks</a></li>
+</ul>
+</li>
+<li><a href="#4">4. 小结</a></li>
+</ul>
+<p>老规矩，先上一个各个算法信息表，$X$表示高维输入矩阵大小是高维数D乘以样本个数N，$C=XX^T$，$Z$表示降维输出矩阵大小低维数d乘以N，$E=ZZ^T$，线性映射是$Z=W^TX$，高维空间中两两之间的距离矩阵为A，$S_w, S_b$分别是LDA的类内散度矩阵和类间散度矩阵，k表示流形学习中一个点与k个点是邻近关系，$F$表示高维空间中一个点由周围几个点的线性组合矩阵，$M=(I-F)(I-F)^T$。$-$表示不确定。$P$是高维空间中两点距离占所有距离比重的概率矩阵，$Q$低维空间中两点距离占所有距离比重的概率矩阵。$l$表示全连接神经网络的层数，$D_l$表示每一层的节点个数。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/reduction.png" alt="1" height="100%" width="100%" hspace="0">
+
+<p><font size="2"><center>图1 不同降维算法对比</center></font></p>
+<p>这里autoencoder是否去中心化个人觉得还是有点疑问，在处理图像数据的时候，会对输入图片做一个变到0均值的预处理，但是这个操作是针对一张样本内减均值[1]，这里的去中心化指的是针对某一维数据减均值，并不是一个概念。下面开始具体谈谈降维相关的内容。</p>
+<h3 id="1">1. 降维基本概念</h3>
+
+<p>降维的意思是能够用一组个数为d的向量$\mathbf{z_i}$来代表个数为D的向量$\mathbf{x_i}$所包含的有用信息，其中$d&lt;D$。假设对一张512*512大小的图片，用svm来做分类，最直接的做法是将图按照行或者列展开变成长度为512*512的输入向量$\mathbf{x_i}$，跟svm的参数相乘。假如能够将512*512的向量在保留有用信息的情况下降维到100，那么存储输入和参数的空间会减少很多，计算向量乘法的时间也会减少很多。所以降维能够有效的减少计算时间。而高维空间的数据很有可能出现分布稀疏的情况，即100个样本在100维空间分布肯定是非常稀疏的，每增加一维所需的样本个数呈指数级增长，这种在高维空间中样本稀疏的问题被称为维数灾难。降维可以缓解这种问题。</p>
+<p>而为什么可以降维，这是因为数据有冗余，要么是一些没有用的信息，要么是一些重复表达的信息，例如一张512*512的图只有中心100*100的区域内有非0值，剩下的区域就是没有用的信息，又或者一张图是成中心对称的，那么对称的部分信息就重复了。正确降维后的数据一般保留了原始数据的大部分的重要信息，它完全可以替代输入去做一些其他的工作，从而很大程度上可以减少计算量。例如降到二维或者三维来可视化。</p>
+<h3 id="2">2. 从什么角度出发来降维</h3>
+
+<p>一般来说可以从两个角度来考虑做数据降维，一种是直接提取特征子集做特征抽取，例如从512*512图中只取中心部分，一种是通过线性/非线性的方式将原来高维空间变换到一个新的空间，这里主要讨论后面一种。后面一种的角度一般有两种思路来实现[2]，一种是基于从高维空间映射到低维空间的projection方法，其中代表算法就是PCA，而其他的LDA、Autoencoder也算是这种，主要目的就是学习或者算出一个矩阵变换W，用这个矩阵与高维数据相乘得到低维数据。另一种是基于流形学习的方法，流形学习的目的是找到高维空间样本的低维描述，它假设在高维空间中数据会呈现一种有规律的低维流形排列，但是这种规律排列不能直接通过高维空间的欧式距离来衡量，如下左图所示，某两点实际上的距离应该是下右图展开后的距离。如果能够有方法将高维空间中流形描述出来，那么在降维的过程中就能够保留这种空间关系，为了解决这个问题，流形学习假设高维空间的局部区域仍然具有欧式空间的性质，即它们的距离可以通过欧式距离算出(Isomap)，或者某点坐标能够由临近的节点线性组合算出(LLE)，从而可以获得高维空间的一种关系，而这种关系能够在低维空间中保留下来，从而基于这种关系表示来进行降维，因此流形学习可以用来压缩数据、可视化、获取有效的距离矩阵等。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/manifold_learning.png" alt="1" height="30%" width="30%" hspace="370">
+
+<p><font size="2"><center>图2 流形学习</center></font></p>
+<h3 id="3">3. 几种降维方法流程</h3>
+
+<h4 id="3.1">3.1 主成分分析PCA</h4>
+
+<p>PCA由Karl Pearson在1901年发明，是一种线性降维方法，高维空间(维数为D)的某个点$\mathbf{x_i} = (x_1, x_2, …, x_D)$通过与矩阵W相乘映射到低维空间(维数为d，$d&lt;D$)中的某个点$\mathbf{z_i} = W^T\mathbf{x_i}$，其中W的大小是$D*d$，i对应的是第i个样本点。从而可以得到N个从D维空间映射到d维空间的点，PCA的目标是让映射得到的点$\mathbf{z_i}$尽可能的分开，即让N个$\mathbf{z_i}$的方差尽可能大。假如D维空间中的数据每一维均值为0，即$\sum_i \mathbf{x_i} = \mathbf{0}$，那么两边乘上$W^T$得到的降维后的数据每一维均值也是0，考虑一个矩阵$C=\frac{1}{N}X*X^T$，这个矩阵是这组D维数据的协方差矩阵，可以看出对角线上的值是D维中的某一维内的方差，非对角线元素是D维中两维之间的协方差。</p>
+<p>$$<br>\frac{1}{N}X*X^T=\begin{pmatrix}<br>\frac{1}{N}\sum_{i=1}^N x_{1i}^2&amp; … &amp; \frac{1}{N}\sum_{i=1}^N x_{1i}^Tx_{Di} \<br>… &amp;  &amp;… \<br>\frac{1}{N}\sum_{i=1}^N x_{Di}^Tx_{1i} &amp; … &amp;\frac{1}{N}\sum_{i=1}^N x_{Di}^2<br>\end{pmatrix}<br>$$</p>
+<p>那么针对降维后d维数据的协方差矩阵$B=\frac{1}{N}Z*Z^T$，如果希望降维后的点尽可能分开，那么就希望B对角线上值即每一维的方差尽可能大，方差大说明这些维上数据具有非常好的区分性，同时希望d的每一维都是正交的，它们正交就会使得两个维是无关的，那么它们就不会包含重叠的信息，这样就能最好的表现数据，每一维都具有足够的区分性，同时还具有不同的信息。这种情况下B非对角线上值全部为0。又由于可以推导得出$B=\frac{1}{N}Z*Z^T = W^T*(\frac{1}{N}X*X^T)W = W^T*C*W$，这个式子实际上就是表示了线性变换矩阵W在PCA算法中的作用是让原始协方差矩阵C对角化。又由于线性代数中对角化是通过求解特征值与对应的特征向量得到，因此可以推出PCA算法流程(流程主要摘自周志华老师的《机器学习》一书，其中加入了目标和假设用于对比后面的算法。周老师书中是基于拉格朗日乘子法推导出来，本质上而言与[3]都是一样的，这里很推荐这篇讲PCA数学原理的博客[3])。</p>
+<ul>
+<li>输入:N个D维向量${\mathbf{x_1},…,\mathbf{x_N}}$，降维到d维</li>
+<li>输出:投影矩阵$W=(w_1, …, w_d)$，其中每一个$w_i$都是D维列向量</li>
+<li>目标:投影降维后数据尽可能分开，$\underset{w}{max} ; tr(W^TXX^TW)$(这里的迹是因为上面提到的B的非对角线元素都是0，而对角线上的元素恰好都是每一维的方差)</li>
+<li>假设:降维后数据每一维方差尽可能大，并且每一维都正交</li>
+<li>1.将输入的每一维均值都变为0，去中心化</li>
+<li>2.计算输入的协方差矩阵$C=X*X^T$</li>
+<li>3.对协方差矩阵C做特征值分解</li>
+<li>4.取最大的前d个特征值对应的特征向量$w_1,…,w_d$</li>
+</ul>
+<p>此外，PCA还有很多变种kernel PCA, probabilistic PCA等等，本文暂时只考虑最简单的PCA版本。</p>
+<h4 id="3.2">3.2 多维缩放(MDS)</h4>
+
+<p>MDS的目标是在降维的过程中将数据的dissimilarity(差异性)保持下来，也可以理解降维让高维空间中的距离关系与低维空间中距离关系保持不变。这里的距离用矩阵表示，N个样本的两两距离用矩阵A的每一项$a_{ij}$表示，并且假设在低维空间中的距离是欧式距离。而降维后的数据表示为$\mathbf{z_i}$，那么就有$a_{ij} = \left | \mathbf{z_i-z_j} \right |^2 = \left | \mathbf{z_i} \right |^2 + \left | \mathbf{z_j} \right |^2 - 2\mathbf{z_i}\mathbf{z_j}^T$，右边的三项统一用内积矩阵E来表示$e_{ij} = \mathbf{z_i}\mathbf{z_j}^T$。去中心化之后，E的每一行每一列之和都是0，从而可以推导得出</p>
+<p>$$<br>e_{ij} = -\frac{1}{2}(a_{ij}^2-a_{i\cdot} - a_{\cdot j}-a_{\cdot\cdot}^2)=-\frac{1}{2}(e_{ii}+e_{jj}-2e_{ij}-\frac{1}{N}(tr(E)+Ne_{jj})-\frac{1}{N}(tr(E)+Ne_{ii})+\frac{1}{N^2}(2Ne_{jj})) \<br>= e_{ij} = -\frac{1}{2}(PAP)_{ij}<br>$$</p>
+<p>其中$P=I-\frac{1}{N}\mathbf 1$单位矩阵I减去全1矩阵的$\frac{1}{N}$，$i \cdot$与$\cdot j$是指某列或者某列总和，从而建立了距离矩阵A与内积矩阵E之间的关系。因而在知道A情况下就能够求解出E，进而通过对E做特征值分解，令$E=V\Lambda V^T$，其中$\Lambda$是对角矩阵，每一项都是E的特征值${\lambda_1\geq … \geq \lambda_d }$，那么在所有特征值下的数据就能表示成$Z=\Lambda^{\frac{1}{2}}V^T$，当选取d个最大特征值就能让在d维空间的距离矩阵近似高维空间D的距离矩阵，从MDS流程如下[2]:</p>
+<ul>
+<li>输入:距离矩阵$A^{N*N} = {a_{ij}}$，上标表示矩阵大小，原始数据是D维，降维到d维</li>
+<li>输出:降维后矩阵$Z^{d*N}=\widetilde{\Lambda}^{\frac{1}{2}}\widetilde{V}$</li>
+<li>目标:降维的同时保证数据之间的相对关系不变</li>
+<li>假设:已知N个样本的距离矩阵</li>
+<li>1.算出$a_{i\cdot}、a_{\cdot j}、a_{\cdot \cdot}$</li>
+<li>2.计算内积矩阵E</li>
+<li>3.对E做特征值分解</li>
+<li>4.取d个最大特征值构成$\widetilde{V}$，对应的特征向量按序排列构成$\widetilde{\Lambda}$</li>
+</ul>
+<h4 id="3.3">3.3 线性判别分析(LDA)</h4>
+
+<p>LDA最开始是作为解决二分类问题由Fisher在1936年提出，由于计算过程实际上对数据做了降维处理，因此也可用作监督线性降维。它通过将高维空间数据投影到低维空间，在低维空间中确定每个样本所属的类，这里考虑K个类的情况。它的目标是将样本能尽可能正确的分成K类，体现为同类样本投影点尽可能近，不同类样本点尽可能远，这点跟PCA就不一样，PCA是希望所有样本在某一个维数上尽可能分开，LDA的低维投影可能会重叠，但是PCA就不希望投影点重叠。它采用的降维思路跟PCA是一样的，都是通过矩阵乘法来进行线性降维，投影点是$\mathbf{z_i}=W^T*\mathbf{x_i}$。假设按下图中的方向来投影，投影中心对应的原来高维点分别是$\mu1，\mu2$。由于希望属于不同类的样本尽可能离的远，那么就希望投影过后的投影中心点离的尽可能远，即目标是$\underset{W}{max}; || W^T\mathbf{\mu_1}-W^T\mathbf{\mu_2} | |^2$，但是仅仅有中心离的远还不够，例如下图中垂直于x1轴投影，两个中心离的足够远，但是却有样本在投影空间重叠，因此还需要额外的优化目标，即同类样本投影点尽可能近。那么同类样本的类间协方差就应该尽可能小，同类样本的协方差矩阵如下。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lda.jpg" alt="1" height="30%" width="30%" hspace="370">
+
+<p><font size="2"><center>图3 LDA进行投影(图来源[4])</center></font></p>
+<p>$$<br>\underset{w}{min};<br>= \underset{X\in X_1}{\sum}(W^TX-W^T\mu_1)(W^TX-W^T\mu_1)^T = W^T(\underset{X\in X_1}{\sum}(X-\mu_1)(X-\mu_1))W = W^T\sum_{X_1} W<br>$$</p>
+<p>其中$\mu_1 = (u_1, …, u_N), W = (w_1, …, w_d)$，$X_1$表示样本属于第1类的集合，中间的矩阵$\sum_{X_1}$是属于第$X_1$的样本协方差矩阵，将K个类的原始数据协方差矩阵加起来称为类内散度矩阵，$S_w=\sum_{k=1}^{K}S_k = \sum_{k=1}^{K}\sum_{X\in X_k}(X-\mu_k)(X-\mu_k)^T$。而上面两个类的中心距离是中心直接相减，K个类投影中心距离需要先计算出全部样本的中心$\mu = \frac{1}{N} \sum_{k=1}^{K}N_k\mu_k$($N_k$表示属于第k类的样本个数)，通过类间散度矩阵来衡量，即$S_b=\sum_{k=1}^{K} N_k (\mathbf{\mu_k} - \mathbf{\mu})(\mathbf{\mu_k} - \mathbf{\mu})^T$。整合一下，LDA算法的优化目标是最大化下面的cost function:</p>
+<p>$$<br>\underset{W}{max} ; J(W) = \frac{tr(W^T(\sum_{k=1}^{K} N_k (\mathbf{\mu_k} - \mathbf{\mu})(\mathbf{\mu_k} - \mathbf{\mu})^T)W)} {tr(W^T\sum_{k=1}^{K}\sum_{X\in X_k}(X-\mu_k)(X-\mu_k)^T)W)}<br>=\frac{tr(W^TS_bW)}{tr(W^TS_wW)}<br>$$</p>
+<p>二分类情况下，W的大小是$D*1$，即$J(W)$本身是个标量，针对K类的情况，W的大小是$D*d-1$，优化的目标是对上下的矩阵求它的迹。这里可以发现在LDA中没有对数据去中心化，如果要去中心化每个类的中心就会重叠了，所以这个算法没有去中心化。然后$J(W)$对W求导，这个式子就表明了W的解是$S_w^{-1}S_b$的d-1个最大特征值对应的特征向量组成的矩阵。那么就可以通过W来对X进行降维。</p>
+<p>$$<br>\frac{\partial J(W)}{\partial W} = (W^TS_wW)2S_bW-(W^TS_bW)2S_wW = 0 \<br>\Rightarrow S_bW - J(W)S_wW = 0 \Rightarrow S_w^{-1}S_bW = J(W)W<br>$$</p>
+<ul>
+<li>输入:N个D维向量${\mathbf{x_1},…,\mathbf{x_N}}$，数据能够被分成d个类</li>
+<li>输出:投影矩阵$W=(w_1, …, w_{d-1})$，其中每一个$w_i$都是D维列向量</li>
+<li>目标:投影降维后同一类的样本之间协方差尽可能小，不同类之间中心距离尽可能远</li>
+<li>假设:优化目标是最大化$\frac{tr(W^TS_bW)}{tr(W^TS_wW)}$</li>
+<li>1.求出类内散度矩阵$S_w$和类间散度矩阵$S_b$</li>
+<li>2.对$S_w = U\sum V^T$做奇异值分解，求得$S_w^{-1}=V\sum^{-1}U^T$</li>
+<li>3.对矩阵$S_w^{-1}S_b$做特征分解</li>
+<li>4.取最大的前d-1个特征值对应的特征向量$w_1,…,w_{d-1}$</li>
+</ul>
+<p>个人觉得这里的优化目标实际上体现了一个假设，即假设优化目标上下的表达式都是对角矩阵，W的变换使得$S_d$与$S_w$都变成了对角矩阵。</p>
+<h4 id="3.4">3.4 等度量映射(Isomap)</h4>
+
+<p>上面提到的MDS只是对数据降维，它需要已知高维空间中的距离关系，它并不能反应出高维数据本身潜在的流形，但是可以结合流形学习的基本思想和MDS来进行降维[5]。也就是高维空间的局部空间的距离可以用欧式距离算出，针对MDS的距离矩阵A，某两个相邻的点之间距离$A_{ij} = \left | x_i -x_j \right |$也就是它们的欧式距离，距离比较近的点则通过最短路径算法来确定，而离的比较远的两点之间$A_{ij} = \infty$，把矩阵A确定下来，那么这里就涉及到判断什么样的点相邻，Isomap是通过KNN来确定相邻的点，整体算法流程如下:</p>
+<ul>
+<li>输入:N个D维向量${\mathbf{x_1},…,\mathbf{x_N}}$，一个点有K个近邻点，映射到d维</li>
+<li>输出:降维后矩阵$Z^{d*N}=\widetilde{\Lambda}^{\frac{1}{2}}\widetilde{V}$</li>
+<li>目标:降维的同时保证高维数据的流形不变</li>
+<li>假设:高维空间的局部区域上某两点距离可以由欧式距离算出</li>
+<li>1.由KNN先构造A的一部分，即求出相邻的点并取它们的欧式距离填入$A_{ij}$，其他的位置全部初始化为无穷大</li>
+<li>2.根据最短路径算法(Dijkstra算法)找到距离比较近的点之间的路径并填入距离</li>
+<li>3.将距离矩阵A作为MDS的输入，得到输出</li>
+</ul>
+<h4 id="3.5">3.5 局部线性嵌入(LLE)</h4>
+
+<p>如之前提到过的，流形学习的局部区域具有欧式空间的性质，那么在LLE中就假设某个点$x_i$坐标可以由它周围的一些点的坐标线性组合求出，即$\mathbf{x_i} = \sum_{j\in X_i}f_{ij} \mathbf{x_j}$(其中$X_i$表示$\mathbf{x_i}$的邻域上点的集合)，这也是在高维空间的一种表示。由于这种关系在低维空间中也被保留，因此$\mathbf{z_i} = \sum_{j\in Z_i}f_{ij} \mathbf{z_j}$，两个式子里面权重取值是一样的。</p>
+<p>基于上面的假设，首先想办法来求解这个权重，假设每个样本点由周围K个样本求出来，那么一个样本的线性组合权重大小应该是$1*K$，通过最小化reconstruct error重构误差来求解，然后目标函数对f求导得到解。</p>
+<p>$$<br>\underset{f_1,…,f_K}{min} ; \sum_{k=1}^K\left | \mathbf{x_i}- \sum_{j\in X_i}f_{ij}\mathbf{x_j} \right |   ;;;;;;;; s.t.\sum_{j\in X_i}f_{ij}=1 \<br>$$</p>
+<p>求出权重之后，代入低维空间的优化目标$\underset{z_1,…,z_K}{min}  \sum_{k=1}^K\left | \mathbf{z_i}- \sum_{j\in Z_i}f_{ij}\mathbf{z_j} \right | = tr((Z-Z*F)(Z-Z*F)^T) = tr(ZMZ)  ;;;;;;;; s.t. Z*Z^T=I$来求解Z，这里将F按照$N*K$排列起来，且加入了对Z的限制。这里用拉格朗日乘子法可以得到$MZ=\lambda Y$的形式，从而通过对M进行特征值分解求得Z。</p>
+<ul>
+<li>输入:N个D维向量${\mathbf{x_1},…,\mathbf{x_N}}$，一个点有K个近邻点，映射到d维</li>
+<li>输出:降维后矩阵Z</li>
+<li>目标:降维的同时保证高维数据的流形不变</li>
+<li>假设:高维空间的局部区域上某一点是相邻K个点的线性组合，低维空间各维正交</li>
+<li>1.由KNN先构造A的一部分，即求出K个相邻的点，然后求出矩阵F和M</li>
+<li>2.对M进行特征值分解</li>
+<li>3.取前d个非0最小的特征值对应的特征向量构成Z(这里因为最小化目标，所以取小的特征值)</li>
+</ul>
+<h4 id="3.6">3.6 t-SNE</h4>
+
+<p>t-SNE也是一种将高维数据降维到二维或者三维空间的方法，它是2008年由Maaten提出[6]，基于2002年Hinton提出的随机近邻嵌入(Stochastic Neighbor Embedding, SNE)方法的改进。主要的思想是假设高维空间中的任意两个点，$x_j$的取值服从以$x_i$为中心方差为$\sigma_i$的高斯分布，同样$x_i$服从以$x_j$为中心方差为$\sigma_j$的高斯分布,这样$x_j$与$x_i$相似的条件概率就为$p_{j|i} = \frac{exp(-\left || \mathbf{x_i}-\mathbf{x_j} \right ||^2 / 2\sigma_i^2)}{\sum_{k\neq i}exp(-\left || \mathbf{x_i}-\mathbf{x_k} \right ||^2 / 2\sigma_i^2)}$，即$x_j$在$x_i$高斯分布下的概率占全部样本在$x_i$高斯分布下概率的多少，说明了从$x_i$角度来看两者的相似程度。接着令$p_{ij} = (p_{i|j} + p_{j | i})/2n$用这个概率来作为两个点相似度在全部样本两两相似度的联合概率$p_{ij}$。公式如下，论文没有解释$\sigma$是标量还是矢量，但是因为在后续的求解中$p_{ij}$不是直接由下面这个联合概率公式求出，而是通过前面的条件概率来求，前面的式子针对每一个样本i都会计算一个$\sigma_i$，具体给定一个确定值$Prep(P_i) = 2^{H(P_i)}$，其中$H(P_i)=-\sum_jp_{j|i}logp_{j|i}$。接着通过二分查找来确定$x_i$对应的$\sigma_i$，使得代入上面的两个式子后等于$Prep$的值，因此这里的$\sigma$应该是个矢量。不太可能所有样本都共用一个高斯分布参数。</p>
+<p>$$<br>p_{ij}=\frac{exp(-\frac{\left | \mathbf{x_i}-\mathbf{x_j} \right |^2}{2\sigma^2})}{\sum_{k\neq l}exp(-\frac{\left | \mathbf{x_k}-\mathbf{x_l} \right |^2}{2\sigma^2})}<br>$$</p>
+<p>同时将低维空间两个点的相互关系或者说相似程度也用联合概率来表示，假设在低维空间中两点间欧式距离服从一个自由度的学生t分布，那么在低维空间中两个点的距离概率在所有的两个点距离概率之中的比重作为它们的联合概率。</p>
+<p>$$<br>q_{ij}=\frac{(1+{\left | \mathbf{z_i}-\mathbf{z_j} \right |^2})^{-1}}{\sum_{k\neq l}(1+\left | \mathbf{z_k}-\mathbf{z_l} \right |^2)^{-1}}<br>$$</p>
+<p>假如在高维空间的$x_i, x_j$与对应在低维空间中的$z_i, z_j$算出来的相似性值$p_{ij}, q_{ij}$相等，那么就说明低维空间的点能够正确的反应高维空间中的相对位置关系。所以tsne的目的就是找到一组降维表示能够最小化$p_{ij}$和$q_{ij}$之间的差值。因此，tsne采用了KullbackLeibler divergence即KL散度来构建目标函数$ J = KL(P || Q) = \sum_i\sum_jp_{ij}log\frac{p_{ij}}{q_{ij}}$，KL散度能够用来衡量两个概率分布的差别。它通过梯度下降的方法来求输入数据对应的低维表达$z_i$，即用目标函数对$z_i$求导，把$z_i$作为可优化变量，求得每次对$z_i$的梯度为$\frac{\partial J}{\partial \mathbf{z_i}} = 4\sum_j(p_{ij}-q_{ij})(1+||\mathbf{z_i}-\mathbf{z_j}||^2)^{-1}$，然后更新迭代$z_i$，在实际更新的过程中则像神经网络的更新一样加入了momentum项为了加速优化，大概的算法流程如下:</p>
+<ul>
+<li>输入:N个D维向量${\mathbf{x_1},…,\mathbf{x_N}}$，映射到二维或者三维，定值$Perp$，迭代次数T，学习率$\eta$，momentum项系数$\alpha(t)$</li>
+<li>输出:降维后数据表示${\mathbf{z_1},…,\mathbf{z_N}}$</li>
+<li>目标:降维到二维或者三维可视化(重点是可视化)</li>
+<li>假设:在高维空间中，一个点$x_j$的取值服从以另外一个点$x_i$为中心的高斯分布。在低维空间中，两个点之间的欧式距离服从自由度为1的t分布</li>
+<li>1.先由二分查找确定$x_i$的$\sigma_i$</li>
+<li>2.计算成对的$P_{j|i}$，得到$p_{ij} = (p_{j|i}+p_{i|j})/2$</li>
+<li>3.初始化${\mathbf{z_1},…,\mathbf{z_N}}$</li>
+<li>4.计算$q_{ij}$</li>
+<li>5.计算梯度$\frac{\partial J}{\partial \mathbf{z_i}}$</li>
+<li>6.更新$\mathbf{z_{i}}^{(t)} = \mathbf{z_{i}}^{(t-1)} + \eta \frac{\partial J}{\partial \mathbf{z_i}} + \alpha(t)(\mathbf{z_{i}}^{(t-1)} - \mathbf{z_{i}}^{(t-2)})$</li>
+<li>7.重复4~6至收敛或者完成迭代次数T</li>
+</ul>
+<p>需要注意的是，这个算法将低维数据作为变量进行迭代，所以如果需要加入插入新的数据，是没有办法直接对新数据进行操作，而是要把新数据加到原始数据中再重新算一遍，因此T-sne主要的功能还是可视化。</p>
+<h4 id="3.7">3.7 Deep Autoencoder Networks</h4>
+
+<p>Autoencoder是神经网络的一种，它是一种无监督算法，可以用来降维也能用来从数据中自动学习某种特征，这个神经网络的原理是输入一组值，经过网络之后能够获得一组输出，这组输出的值尽可能的跟输入的值大小一致。网络由全连接层组成，每层每个节点都跟上一层的所有节点连接。Autoencoder的结构如下图4所示，encoder网络是正常的神经网络前向传播$\mathbf{z} = W\mathbf{x}+\mathbf{b}$，decoder网络的传播参数是跟它成对称结构的层参数的转置，经过这个网络的值为$\mathbf{\mathbf{x}’ = W^T\mathbf{z}+\mathbf{b}^T}$，最后传播到跟网络的输入层个数相等的层时，得到一组值$\mathbf{x}’$，网络希望这两个值相等$\mathbf{x}’=\mathbf{x}$，这个值与真实输入$x$值通过交叉熵或者均方误差得到重构误差的cost function，再通过最小化这个cost和梯度下降的方法使网络学到正确的参数。因此可以通过这个网络先经过”encoder”网络将高维数据投影到低维空间，再经过”decoder”网络反向将低维数据还原到高维空间。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder.png" alt="1" height="15%" width="15%" hspace="490">
+
+<p><font size="2"><center>图4 Autoencoder网络结构图</center></font></p>
+<p>然而在实际的实现网络过程中，整个网络实际上层数只是图4中的一半，即4层网络，2000-1000-500-30的全连接结构。因为权重参数实际上在encoder和decoder中是相同的，enocoder过程是上一层的节点值乘以权重得到这一层的节点值，而decoder是这一层节点值与权重矩阵的转置相乘得到上一层的节点值。下图[7]更加清晰的展示了每一层实际的结构，包括一次前向传播和后向传播，因此可以拿最顶层的值作为网络的降维输出来进行其他的分析，例如可视化，或者作为压缩特征使用。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder2.png" alt="1" height="30%" width="30%" hspace="370">
+
+<p><font size="2"><center>图5 Autoencoder层间结构</center></font></p>
+<p>06年的时候Hinton在science上发了一篇文章讲如何用深度学习中的autoencoder网络来做降维[8]，主要是提出了先通过多层RBM来预训练权重参数，用来解决autoencoder降维后的质量依赖初始化网络权重的问题，即主要目的是提出一种有效的初始化权重的方式。上面的表达式中没有加入非线性变换，真实网络中每一层跟权重做矩阵乘法之后还需要加上非线性变换。此外，autoencoder的模型中可以加入sparsity的性质[9]，即针对N个D维输入，某一层的某一个节点输出值之和$\widehat{\rho_j}^{(l)}$趋近于0，即$\widehat{\rho_j}^{(l)} = \frac{1}{N}\sum_{i=1}^N[a_j^{(l)}(\mathbf{x^{(i)}})]$，其中l代表是哪一层，i代表是第几个输入。也能加对权重有要求的正则项。</p>
+<ul>
+<li>输入:N个D维向量${\mathbf{x_1},…,\mathbf{x_N}}$，网络结构即每层节点数，迭代次数T，学习率$\eta$</li>
+<li>输出:降维后数据表示${\mathbf{z_1},…,\mathbf{z_N}}$</li>
+<li>目标:网络能够学习到数据内部的一些性质或者结构，从而能够重构输入数据</li>
+<li>假设:神经网络就是特牛逼，就是能学到特征，科科</li>
+<li>1.设置层数和每一层节点数</li>
+<li>2.初始化权重参数</li>
+<li>3.前向传播计算下一层的节点值$\mathbf{z} = W\mathbf{x}+\mathbf{b}$</li>
+<li>4.反向传播计算上一层反向节点值$\mathbf{\mathbf{x}’ = W^T\mathbf{z}+\mathbf{b}^T}$</li>
+<li>5.计算每一层对输入和对这层参数W的梯度，利用反向传播将error传递到整个网络</li>
+<li>6.将分别对$W$和$W^T$的梯度求和然后更新$W$</li>
+<li>7.重复3~6至收敛或者完成迭代次数T</li>
+</ul>
+<h3 id="4">4. 小结</h3>
+
+<p>本文主要重点放在算法流程是什么，每一步具体做了什么，有的地方可能理论阐述还不够清晰。但是有意思的是除了t-sne和autoencoder之外，其他的几种降维算法都是基于构造某个矩阵，然后对矩阵进行特征值分解，得到相关的$Z$或者$W$。Laplacian Eigenmaps拉普拉斯特征映射没有完整研究，但是看算法最后也是选择前d个最小非零特征值，这个很有意思，就是数学功底不好，暂时想不通为什么基于特征值的效果这么好。而比较一层的autoencoder和PCA，假设autoencoder的目标函数是最小化均方误差，虽然autoencoder没有PCA那么强的约束(要求每一维正交)，但是autoencoder也许可以学到，因为本身基于最大化协方差的迹与最小均方差估计是等价的。几种方法总是让人感觉有着某些潜在的关联，不知道是不是能够提取出一种统一的模型能够把降维这件事情给解决掉。</p>
+<ol>
+<li><p><a href="http://ufldl.stanford.edu/wiki/index.php/Data_Preprocessing#Per-example_mean_subtraction" target="_blank" rel="noopener">Data Preprocessing</a></p>
+</li>
+<li><p><a href="http://research.microsoft.com/pubs/150728/FnT_dimensionReduction.pdf" target="_blank" rel="noopener">Dimension Reduction: A Guided Tour</a></p>
+</li>
+<li><p><a href="http://blog.codinglabs.org/articles/pca-tutorial.html" target="_blank" rel="noopener">PCA的数学原理</a></p>
+</li>
+<li><p><a href="http://www.di.univr.it/documenti/OccorrenzaIns/matdid/matdid437773.pdf" target="_blank" rel="noopener">A Tutorial on Data Reduction Linear Discriminant Analysis (LDA)</a></p>
+</li>
+<li><p><a href="http://www.eecs.berkeley.edu/~efros/courses/AP06/presentations/ThompsonDimensionalityReduction.pdf" target="_blank" rel="noopener">manifold learning with applications to object recognition</a></p>
+</li>
+<li><p><a href="http://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf" target="_blank" rel="noopener">Visualizing Data using t-SNE</a></p>
+</li>
+<li><p><a href="http://cs.stanford.edu/~quocle/tutorial2.pdf" target="_blank" rel="noopener">A Tutorial on Deep Learning Part 2: Autoencoders, Convolutional Neural Networks and Recurrent Neural Networks</a></p>
+</li>
+<li><p><a href="https://www.cs.toronto.edu/~hinton/science.pdf" target="_blank" rel="noopener">Reducing the Dimensionality of Data with Neural Networks</a></p>
+</li>
+<li><p><a href="https://web.stanford.edu/class/cs294a/sparseAutoencoder.pdf" target="_blank" rel="noopener">CS294A Lecture notes Sparse autoencoder</a></p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/03/06/introductionofgpusoftware.html" rel="next" title="【GPU编程系列之二】CUDA的软件层面和NVCC编译流程">
+                <i class="fa fa-chevron-left"></i> 【GPU编程系列之二】CUDA的软件层面和NVCC编译流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/04/23/pythonmemorycontrol.html" rel="prev" title="[Python]内存管理">
+                [Python]内存管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1"><span class="nav-number">1.</span> <span class="nav-text">1. 降维基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2"><span class="nav-number">2.</span> <span class="nav-text">2. 从什么角度出发来降维</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3"><span class="nav-number">3.</span> <span class="nav-text">3. 几种降维方法流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3.1"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 主成分分析PCA</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3.2"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 多维缩放(MDS)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3.3"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 线性判别分析(LDA)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3.4"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 等度量映射(Isomap)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3.5"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 局部线性嵌入(LLE)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3.6"><span class="nav-number">3.6.</span> <span class="nav-text">3.6 t-SNE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3.7"><span class="nav-number">3.7.</span> <span class="nav-text">3.7 Deep Autoencoder Networks</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4"><span class="nav-number">4.</span> <span class="nav-text">4. 小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

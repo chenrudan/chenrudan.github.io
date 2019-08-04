@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第八课的总结笔记。这一课主要讲了如何拟合environment模型，通过有监督的方式来更新model，以及如何基于学习的model来找policy/value function，主要谈到了Monte-Carlo Tree Search方法，并且将拟合model和求解value function结合起来实现Dyna算法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型)">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/08/04/reinforcementlearninglesssion8.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第八课的总结笔记。这一课主要讲了如何拟合environment模型，通过有监督的方式来更新model，以及如何基于学习的model来找policy/value function，主要谈到了Monte-Carlo Tree Search方法，并且将拟合model和求解value function结合起来实现Dyna算法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_8_1.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_8_2.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_8_3.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.157Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型)">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第八课的总结笔记。这一课主要讲了如何拟合environment模型，通过有监督的方式来更新model，以及如何基于学习的model来找policy/value function，主要谈到了Monte-Carlo Tree Search方法，并且将拟合model和求解value function结合起来实现Dyna算法。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/08/04/reinforcementlearninglesssion8.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型) | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/08/04/reinforcementlearninglesssion8.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-04T11:20:36+08:00">
+                2016-08-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第八课的总结笔记。这一课主要讲了如何拟合environment模型，通过有监督的方式来更新model，以及如何基于学习的model来找policy/value function，主要谈到了Monte-Carlo Tree Search方法，并且将拟合model和求解value function结合起来实现Dyna算法。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第八课的总结笔记。这一课主要讲了如何拟合environment模型，通过有监督的方式来更新model，以及如何基于学习的model来找policy/value function，主要谈到了Monte-Carlo Tree Search方法，并且将拟合model和求解value function结合起来实现Dyna算法。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=ItMutbeOHtc" target="_blank" rel="noopener">RL Course by David Silver - Lecture 8: Integrating Learning and Planning</a></p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf</a></p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>前面两节课是将policy和value function表达成参数形式，从而通过更新参数来解决MDP问题，而本课则是希望拟合出未知environment的model，即知道environment是如何转移状态和反馈reward，那么就能从model中找到合适的policy和value function，这一步称为planning。本课的标题中learn指的是在不学习model的情况下对policy和value function建模的行为，而plan就是学习model，并从model中推断出policy和value function，后者也叫model-based reinforcement learning。</p>
+<p>environment的参数化好处在于，避免了状态多policy复杂难学，它像在模拟出游戏的规则，这样就能通过搜索树的方式获得value function，并且能够通过监督学习方式来学习model。例如输入是状态$s$输出是状态$s’$，此处就能给一定的监督信息，说明$s’$取什么样的值比较好。而缺点在于用一个近似的model来构造一个近似的value function，两个近似都会存在一定的误差。</p>
+<h4 id="2-Model-Based-Reinforcement-Learning"><a href="#2-Model-Based-Reinforcement-Learning" class="headerlink" title="2.Model-Based Reinforcement Learning"></a>2.Model-Based Reinforcement Learning</h4><p>model的形式可以表现为$S,A,P,R$，假设状态集和动作集是已知的，把状态转移和奖赏表示成状态和动作的独立概率分布为$P[S_{t+1}, R_{t+1}|S_t, A_t] = P[S_{t+1}|S_t, A_t]P[R_{t+1}|S_t,A_t]$。目标就是从一段执行序列中$S_1,A_1,R_2,…,S_T$来估计model，这样就能看成一个监督问题，把$S_t,A_t$当成模型输入，那么即$R_{t+1},S_{t+1}$就能看成模型的输出。学习$R_{t+1}$是一个回归问题，可以用最小均方差等方法来解决，而学习$S_{t+1}$则是一个密度估计问题，可以用KL divergence等方法来解决。</p>
+<p>举个例子，有两个状态$A,B$，有8条序列，分别是$(A,0,B,0),(B,1),(B,1),(B,1),(B,1),(B,1),(B,1),(B,0)$。数字代表这个状态下的reward，用最简单的建模方式，将所有转移过状态记录下来，reward平均一下。从样本中状态A肯定会转移到状态B，且reward均值是0，而状态B有6次reward是1，2次reward是0，平均一下得到有75%概率得到reward为1，就能得到右边的model图。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_8_1.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图1 Building Model实例(图片来源[1])</center></font></p>
+<p>拟合好模型之后就是如何plan出相应的value function，最简单的planning方法就是从model中采样出一些样本，然后基于这些样本当成model-free的强化学习问题来解决，即之前课上的Monte-Carlo control、Sarsa等算法，这种方法叫Sample-based planning。针对之前的例子，假如采样得到8个样本$(B,1),(B,0),(B,1),(A,0,B,1),(B,1),(A,1,B,1),(B,1),(B,0)$，用Monte-Carlo learning来分析，A状态出现了两次，每次最终获得的reward是1，$V(A)=1$，而B状态则出现8次，6次reward为1，因此$V(B)=0.75$。</p>
+<h4 id="3-Integrated-Architectures"><a href="#3-Integrated-Architectures" class="headerlink" title="3.Integrated Architectures"></a>3.Integrated Architectures</h4><p>从上面内容可以看出存在两种样本，一种是真实数据称为Real experience，一种是从model中采样出来的称为Simulated experience。</p>
+<p>如果将learn和plan结合起来，即又学习model的形式，又学习value function或者policy，这也是一种方法，称为Dyna。如下图所示，experience包括real和simulated两种，既可以用real数据来直接学value function/policy，也可以将real数据用来学习model，然后由model产生simulated数据继续学value function/policy。结合Q-learning的算法流程如下。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_8_2.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图2 Dyna算法流程循环图(图片来源[1])</center></font></p>
+<ul>
+<li>针对集合$S$和$A$所有值初始化$Q(s,a)$和$Model(s,a)$</li>
+<li>循环</li>
+<li>==选择当前状态为$S$，通过$\epsilon-$greedy选择一个$A$</li>
+<li>==执行$A$，获得reward R和下一个state $S’$(前两步都来自real experience)</li>
+<li>==由Q-Learning更新动作值函数$Q(S,A) = Q(S,A) + \alpha[R+\gamma max_aQ(S’,A)-Q(S,A)]$</li>
+<li>==由获得的$R,S’$来学习模型$Model(S,A)$</li>
+<li>==循环n次</li>
+<li>====随机选择一个$S$和$A$</li>
+<li>====基于模型得到$R,S’$</li>
+<li>====同样的方法更新动作值函数</li>
+</ul>
+<h4 id="3-Simulation-Based-Search"><a href="#3-Simulation-Based-Search" class="headerlink" title="3.Simulation-Based Search"></a>3.Simulation-Based Search</h4><p>上面的方法在plan值函数的时候，是随机选状态和动作再更新。但是在状态集常常会有比较关键的状态和没用的状态，那么就应该更多的关注重要的状态，将一个重要的状态作为根节点，由$Model(s,a)$得到从这个状态出发的搜索树，如下图。再从分支中选择一些episode来做model-free learning，如果选择的方法是Monte-Carlo control方法，那么整个算法就叫Monte-Carlo Search。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_8_3.png" alt="1" height="30%" width="30%" hspace="300">
+
+<p><font size="2"><center>图3 search tree(图片来源[1])</center></font></p>
+<p>Monte-Carlo Tree Search算法的流程如下</p>
+<ul>
+<li>给定一个model $M_v$</li>
+<li>从一个重要状态出发$s_t$在当前的simulation policy下模拟出K个episodes，即得到$( s_t, A_t^k, R_{t+1}^k, S_{t+1}^k…,S_T^k) _{k=1}^K~M_v,\pi$</li>
+<li>根据episodes构造搜索树</li>
+<li>由Monte-Carlo Learning每次访问到$s,a$都记录一次最后求所有episodes的平均得到$Q(s,a) = \frac{1}{N(s,a)} \sum_{k=1}^K\sum_{u=t}^T 1(S_u,A_u=s,a)G_u$</li>
+<li>然后由最大值函数得到当前最佳的action，即$a_t = \underset{a\in A}{argmax}Q(s_t,a)$</li>
+</ul>
+<p>实际上就是将Monte-Carlo control应用到simulated experience上。</p>
+<p>例如围棋中衡量一个位置$s$的好坏问题。这里的奖赏函数是中间时刻$R_t=0$，到达终止状态时如果是黑赢了$R_T=1$，如果是白赢了$R_T=0$。policy由两部分组成$\pi = (\pi_B,\pi_W)$分别是两个玩家落子策略，值函数(位置s的好坏)是当前状态下黑子赢的概率$v_{\pi}(s) = P[Black:wins|S=s]$，最大值函数是$v_*(s) = \underset{\pi_B}{max} :\underset{\pi_W}{min}v_{\pi}(s)$</p>
+<p>如果将MC的部分改成用TD来更新$Q(s,a)$就是TD search。可以看出Dyna算法就是分了两次更新值函数。</p>
+<p>[1] <a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/08/03/reinforcementlearninglesssion7.html" rel="next" title="【David Silver强化学习公开课之七】Policy Gradient">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之七】Policy Gradient
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/08/05/reinforcementlearninglesssion9.html" rel="prev" title="【David Silver强化学习公开课之九】探索与利用">
+                【David Silver强化学习公开课之九】探索与利用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内容回顾"><span class="nav-number">1.</span> <span class="nav-text">1.内容回顾</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Model-Based-Reinforcement-Learning"><span class="nav-number">2.</span> <span class="nav-text">2.Model-Based Reinforcement Learning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Integrated-Architectures"><span class="nav-number">3.</span> <span class="nav-text">3.Integrated Architectures</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Simulation-Based-Search"><span class="nav-number">4.</span> <span class="nav-text">3.Simulation-Based Search</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

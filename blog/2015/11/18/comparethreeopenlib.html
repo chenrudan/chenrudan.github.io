@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近Google开源了他们内部使用的深度学习框架TensorFlow，结合之前开源的MXNet和Caffe，对三个开源库进行了比较，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的比较。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Caffe、TensorFlow、MXnet三个开源库对比">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="最近Google开源了他们内部使用的深度学习框架TensorFlow，结合之前开源的MXNet和Caffe，对三个开源库进行了比较，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的比较。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe5.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/compare2.png">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/compare3.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.143Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Caffe、TensorFlow、MXnet三个开源库对比">
+<meta name="twitter:description" content="最近Google开源了他们内部使用的深度学习框架TensorFlow，结合之前开源的MXNet和Caffe，对三个开源库进行了比较，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的比较。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe5.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib.html">
+
+
+
+
+
+  <title>Caffe、TensorFlow、MXnet三个开源库对比 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Caffe、TensorFlow、MXnet三个开源库对比</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-11-18T11:20:36+08:00">
+                2015-11-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  最近Google开源了他们内部使用的深度学习框架TensorFlow，结合之前开源的MXNet和Caffe，对三个开源库进行了比较，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的比较。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近Google开源了他们内部使用的深度学习框架TensorFlow[1]，结合之前开源的MXNet[2]和Caffe[3]，对三个开源库做了一些讨论，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的讨论。表格1是三者的一些基本情况的记录和比较。其中示例指的是官方给出的example是否易读易理解，因为TensorFlow直接安装python包，所以一开始没有去下源代码，从文档中找example不如另外两个下源码直接。实际上TensorFlow更加像一套独立的python接口，它不止能够完成CNN/RNN的功能，还见到过有人用它做Kmeans聚类。这个表主观因素比较明显，仅供参考。</p>
+<hr>
+<p>(2017年2月27日)本文年久失修，有兴趣的可以移步到新的链接:) <a href="http://chenrudan.github.io/blog/2017/02/25/comparetfmxpd.html">TensorFlow、MXNet、PaddlePaddle三个开源库对比</a></p>
+<hr>
+<hr>
+<p>(2016年6月27日更新)大半年的时间过去了，再回过头来看这篇文章，感觉有点伤感，Caffe已经很久没有更新过了，曾经的霸主地位果然还是被tensorflow给终结了，特别是从0.8版本开始，tensorflow开始支持分布式，一声叹息…MXNet还是那么拼命，支持的语言新增了四种，Matlab/Javascripts/C++/Scala，文档也变的更漂亮了，还推出了手机上图片识别的demo[8]。</p>
+<hr>
+<p>(原文如下)</p>
+<table>
+<thead>
+<tr>
+<th align="center">库名称</th>
+<th align="center">开发语言</th>
+<th align="center">支持接口</th>
+<th align="center">安装难度(ubuntu)</th>
+<th align="center">文档风格</th>
+<th align="center">示例</th>
+<th align="center">支持模型</th>
+<th align="center">上手难易</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Caffe</td>
+<td align="center">c++/cuda</td>
+<td align="center">c++/python/matlab</td>
+<td align="center">***</td>
+<td align="center">*</td>
+<td align="center">***</td>
+<td align="center">CNN</td>
+<td align="center">**</td>
+</tr>
+<tr>
+<td align="center">MXNet</td>
+<td align="center">c++/cuda</td>
+<td align="center">python/R/Julia</td>
+<td align="center">**</td>
+<td align="center">***</td>
+<td align="center">**</td>
+<td align="center">CNN/RNN</td>
+<td align="center">*</td>
+</tr>
+<tr>
+<td align="center">TensorFlow</td>
+<td align="center">c++/cuda/python</td>
+<td align="center">c++/python</td>
+<td align="center">*</td>
+<td align="center">**</td>
+<td align="center">*</td>
+<td align="center">CNN/RNN/…</td>
+<td align="center">***</td>
+</tr>
+</tbody></table>
+<ul>
+<li><font size="1.5">安装难度: <em>(简单) –&gt; **</em>(复杂)</font></li>
+<li><font size="1.5">文档风格: <em>(一般) –&gt; **</em>(好看、全面)</font></li>
+<li><font size="1.5">示例: <em>(给的少) –&gt; **</em>(给的多、全)</font></li>
+<li><font size="1.5">上手难易: <em>(易) –&gt; **</em>(难)</font></li>
+</ul>
+<h3 id="1-基本数据结构"><a href="#1-基本数据结构" class="headerlink" title="1.基本数据结构"></a>1.基本数据结构</h3><table>
+<thead>
+<tr>
+<th align="center">库名称</th>
+<th align="center">数据结构名称</th>
+<th align="center">设计方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Caffe</td>
+<td align="center">Blob</td>
+<td align="center">存储的数据可以看成N维的c数组，有(n,k,h,w)四个维数，一个blob里面有两块数据空间保存前向和后向求导数据</td>
+</tr>
+<tr>
+<td align="center">MXNet</td>
+<td align="center">NDArray</td>
+<td align="center">提供cpu/gpu的矩阵和矢量计算，能够自动并行</td>
+</tr>
+<tr>
+<td align="center">TensorFlow</td>
+<td align="center">tensor</td>
+<td align="center">相当于N维的array或者list，维数可变，数据类型一旦定义不能改变</td>
+</tr>
+</tbody></table>
+<p>caffe的数据存储类blob，当把数据可以看成是一个N维的c数组，它们的存储空间连续。例如存储图片是4维(num, channel, height, width),变量(n,k,h,w)在数组中存储位置为((n*K+k)*H+h)*W+w。blob有以下三个特征[4]:</p>
+<ul>
+<li>两块数据，一个是原始data，一个是求导值diff</li>
+<li>两种内存分配方式，一种是分配在cpu上，一种是分配在gpu上，通过前缀cpu、gpu来区分</li>
+<li>两种访问方式，一种是不能改变数据，一种能改变数据</li>
+</ul>
+<p>Caffe最让我觉得精妙的地方在于一个blob保存前向和后向的数据。虽然就代码本身而言，前向数据是因为输入数据不同而改变，后向求导是因为求导不同而改变，根据SRP原则，在一个类里面因为两个原因而改变了数据这种是不合适的设计。但是从逻辑层面，前向数据的改变引起了反向求导的不同，它们实际上是一起在改变，本身应该是一个整体。所以我很喜欢这个设计，虽然基本上其他框架中都是将两个数据给分离出来，caffe2也不知是否保留。</p>
+<p>MXNet的NDArray类似numpy.ndarray，也支持把数据分配在gpu或者cpu上进行运算。但是与numpy和caffe不同的是，当在操作NDArray，它能自动的将需要执行的数据分配到多台gpu和cpu上进行计算，从而完成高速并行。在调用者的眼中代码可能只是一个单线程的，数据只是分配到了一块内存中，但是背后执行的过程实际上是并行的。将指令(加减等)放入中间引擎，然后引擎来评估哪些数据有依赖关系，哪些能并行处理。定义好数据之后将它绑定到网络中就能处理它了。</p>
+<p>TensorFlow的tensor，它相当于N维的array或者list，与MXNet类似，都是采用了以python调用的形式展现出来。某个定义好的tensor的数据类型是不变的，但是维数可以动态改变。用tensor rank和TensorShape来表示它的维数（例如rank为2可以看成矩阵，rank为1可以看成向量）。tensor是个比较中规中矩的类型。唯一特别的地方在于在TensorFlow构成的网络中，tensor是唯一能够传递的类型，而类似于array、list这种不能当成输入。</p>
+<p>值得一提的是cuda-convnet采用的数据结构是NVMatrix，NV表示数据分配在gpu上，即将所有变量都当成矩阵来处理，它只有两维，它算是最早用cuda实现的深度学习框架，而上面三种框架都采用了多维可变维的思想，这种可变维在用矩阵做卷积运算的时候是很有效的。</p>
+<h3 id="2-网络实现方式"><a href="#2-网络实现方式" class="headerlink" title="2.网络实现方式"></a>2.网络实现方式</h3><p>Caffe是典型的功能（过程）计算方式，它首先按照每一个大功能（可视化、损失函数、非线性激励、数据层）将功能分类并针对部分功能实现相应的父类，再将具体的功能实现成子类，或者直接继承Layer类，从而形成了XXXLayer的形式。然后将不同的layer组合起来就成了net。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe5.png" alt="1" height="25%" width="25%" hspace="320">
+
+<p><font size="2"><center>图1 caffe的网络结构(来源[7])</center></font></p>
+<p>MXNet是符号计算和过程计算混合[5]，它设计了Symbol大类，提供了很多符号运算的接口，每个symbol定义了对数据进行怎样的处理，symbol只是定义处理的方式，这步还并未真正的执行运算。其中一个需要注意的是symbol里面有Variable，它作为承载数据的符号，定义了需要传递什么样的数据给某个Variable，并在后续的操作中将数据绑定到Variable上。下面的代码是一个使用示例，它实现了将激励函数连接到前面定义好的net后面，并给出了这一个symbol的名字和激励函数类型，从而构造出net。下图左边部分是定义symbol的合集，中间将数据绑定到Variable上之后变成了右边真正的执行流程图。</p>
+<pre><code>net = mx.symbol.Activation(data=net, name=&apos;relu1&apos;, act_type=&quot;relu&quot;)</code></pre><img src="http://7xkmdr.com1.z0.glb.clouddn.com/compare2.png" alt="1" height="50%" width="50%" hspace="230">
+
+<p><font size="2"><center>图2 MXNet的网络结构(图来源[2])</center></font></p>
+<p>TensorFlow选择的是符号计算方式，它的程序分为计算构造阶段和执行阶段，构造阶段是构造出computation graph，computation graph就是包含一系列符号操作Operation和Tensor数据对象的流程图，跟mxnet的symbol类似，它定义好了如何进行计算（加减乘除等）、数据通过不同计算的顺序（也就是flow，数据在符号操作之间流动的感觉）。但是暂时并不读取输入来计算获得输出，而是由后面的执行阶段启动session的run来执行已经定义好的graph。这样的方式跟mxnet很相似，应该都是借鉴了theano的想法。其中TensorFlow还引入了Variable类型，它不像mxnet的Variable属于symbol（tf的operation类似mxnet的symbol），而是一个单独的类型，主要作用是存储网络权重参数，从而能够在运行过程中动态改变。tf将每一个操作抽象成了一个符号Operation，它能够读取0个或者多个Tensor对象作为输入(输出)，操作内容包括基本的数学运算、支持reduce、segment（对tensor中部分进行运算。例如tensor长度为10，可以同时计算前5个，中间2个，后面三个的和）、对image的resize、pad、crop、filpping、transposing等。tf没有像mxnet那样给出很好的图形解释或者实例(可能因为我没找到。。)，按照自己的理解画了一部分流程图。有点疑惑的是，为什么要设计Variable，tf给出的一个alexnet的example源码中，输入数据和权重都设置成了Variable，每一层的输出并未直接定义，按照tf的说法，只有tensor类型能够在网络中传递，输出的类型应该是tensor，但是由于输入和权重改变了，输出应该也在随着改变，既然如此，为何不只设计一个tensor，让tensor也能动态改变。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/compare3.png" alt="1" height="20%" width="20%" hspace="360">
+
+<p><font size="2"><center>图3 TensorFlow的computation graph</center></font></p>
+<p>就设计而言，TensorFlow相对于其他两个更像是一种通用的机器学习框架，而不是只针对cnn或rnn，但就现在的性能而言，tf的速度比很多开源框架都要差一点[6]。</p>
+<h3 id="3-分布式训练"><a href="#3-分布式训练" class="headerlink" title="3.分布式训练"></a>3.分布式训练</h3><p>Caffe和TensorFlow没有给出分布式的版本，MXNet提供了多机分布式，因而前两者只有如何控制使用多gpu。Caffe通过直接在执行指令后面加上<strong><em>-gpu 0,1</em></strong>来表示调用两个gpu0和1，只实现了数据并行，也就是在不同的gpu上执行相同网络和不同数据，caffe会实例化多个solver和net让每次处理的batch_size加倍。TensorFlow则能够自己定义某个操作执行在哪个gpu上，通过调用<strong><em>with tf.device(‘/gpu:2’)</em></strong>表示接下来的操作要在gpu2上处理，它也是数据并行。MXNet通过执行脚本时指定多机节点个数来确定在几台主机上运行，也是数据并行。MXNet的多gpu分配和它们之间数据同步是通过MXNet的数据同步控制KVStore来完成的。</p>
+<p>KVStore的使用首先要创建一个kv空间，这个空间用来在不同gpu不同主机间分享数据，最基本的操作是push和pull，push是把数据放入这个空间，pull是从这个空间取数据。这个空间内保存的是key-value([int, NDArray])，在push/pull的时候来指定到哪个key。下面的代码将不同的设备上分配的b[i]通过key3在kv空间累加再输出到a，从而完成了对多gpu的处理。这个是个非常棒的设计，提供了很大的自由度，并且为开发者减少了控制底层数据传输的麻烦。</p>
+<pre><code>gpus = [mx.gpu(i) for i in range(4)]    
+b = [mx.nd.ones(shape, gpu) for gpu in gpus]
+kv.push(3, b)
+kv.pull(3, out = a)</code></pre><p>之前有看过一篇论文，如何将卷积网络放在多gpu上训练，论文中有两种方法，一种是常用的数据并行，另一种是模型并行。模型并行指的是将一个完整的网络切分成不同块放在不同gpu上执行，每个gpu可能只处理某一张图的四分之一。采用模型并行很大程度上是因为显存不够放不下整个网络的数据，而现在gpu的功能性能提高，一个gpu已经能够很好的解决显存不够的问题，再加上模型并行会有额外的通信开销，因此开源框架采用了数据并行，用来提高并行度。</p>
+<h3 id="4-小结"><a href="#4-小结" class="headerlink" title="4.小结"></a>4.小结</h3><p>上面针对三个框架的不同方面进行了一些分析与比较，可以看出TensorFlow和MXNet有一些相似的地方，都是想做成更加通用的深度学习框架，貌似caffe2也会采用符号计算[5]，说明以后的框架会更加的偏向通用性和高效，个人最喜欢的是caffe，也仿造它和cuda-convnet的结构写过卷积网络，如果是想提高编程能力可以多看看这两个框架的源码。而MXNet给人的感觉是非常用心，更加注重高效，文档也非常的详细，不仅上手很容易，运用也非常的灵活。TensorFlow则是功能很齐全，能够搭建的网络更丰富而不是像caffe仅仅局限在CNN。总之框架都是各有千秋，如何选择也仅凭个人的喜好，然而google这个大杀器一出现引起的关注度还是最大的，虽然现在单机性能还不够好，但是看着长长的开发人员名单，也只能说大牛多就是任性。</p>
+<p>参考:</p>
+<p>[1] <a href="http://tensorflow.org/" target="_blank" rel="noopener">http://tensorflow.org/</a></p>
+<p>[2] <a href="http://mxnet.readthedocs.org/en/latest/index.html" target="_blank" rel="noopener">http://mxnet.readthedocs.org/en/latest/index.html</a></p>
+<p>[3] <a href="http://caffe.berkeleyvision.org/" target="_blank" rel="noopener">http://caffe.berkeleyvision.org/</a></p>
+<p>[4] <a href="http://chenrudan.github.io/blog/2015/05/07/cafferead.html">[caffe]的项目架构和源码解析</a></p>
+<p>[5] <a href="http://weibo.com/p/1001603907610737775666" target="_blank" rel="noopener">如何评价Tensorflow和其它深度学习系统</a></p>
+<p>[6] <a href="https://github.com/soumith/convnet-benchmarks" target="_blank" rel="noopener">Imagenet Winners Benchmarking</a></p>
+<p>[7] <a href="http://caffe.berkeleyvision.org/tutorial/net_layer_blob.html" target="_blank" rel="noopener">Blobs, Layers, and Nets: anatomy of a Caffe model</a></p>
+<p>[8] <a href="http://mxnet.readthedocs.io/en/latest/how_to/smart_device.html#demo-apk-download" target="_blank" rel="noopener">Deep Learning in a Single File for Smart Devices</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/10/26/installcaffe.html" rel="next" title="---Ubuntu 14.04下配置caffe---">
+                <i class="fa fa-chevron-left"></i> ---Ubuntu 14.04下配置caffe---
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/12/02/emexample.html" rel="prev" title="【机器学习算法系列之一】EM算法实例分析">
+                【机器学习算法系列之一】EM算法实例分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-基本数据结构"><span class="nav-number">1.</span> <span class="nav-text">1.基本数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-网络实现方式"><span class="nav-number">2.</span> <span class="nav-text">2.网络实现方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-分布式训练"><span class="nav-number">3.</span> <span class="nav-text">3.分布式训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-小结"><span class="nav-number">4.</span> <span class="nav-text">4.小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

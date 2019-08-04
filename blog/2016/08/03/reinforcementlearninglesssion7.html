@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是David Silver强化学习公开课第七课的总结笔记。这一课主要讲了将policy看成某个参数$	heta$的函数，即将policy形式变成状态和动作的概率分布函数，在policy函数可微的情况下能够通过对参数求导来优化policy。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【David Silver强化学习公开课之七】Policy Gradient">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/08/03/reinforcementlearninglesssion7.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文是David Silver强化学习公开课第七课的总结笔记。这一课主要讲了将policy看成某个参数$	heta$的函数，即将policy形式变成状态和动作的概率分布函数，在policy函数可微的情况下能够通过对参数求导来优化policy。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.136Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【David Silver强化学习公开课之七】Policy Gradient">
+<meta name="twitter:description" content="本文是David Silver强化学习公开课第七课的总结笔记。这一课主要讲了将policy看成某个参数$	heta$的函数，即将policy形式变成状态和动作的概率分布函数，在policy函数可微的情况下能够通过对参数求导来优化policy。">
+<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/08/03/reinforcementlearninglesssion7.html">
+
+
+
+
+
+  <title>【David Silver强化学习公开课之七】Policy Gradient | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/08/03/reinforcementlearninglesssion7.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">【David Silver强化学习公开课之七】Policy Gradient</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-03T11:20:36+08:00">
+                2016-08-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/project-experience/" itemprop="url" rel="index">
+                    <span itemprop="name">project experience</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文是David Silver强化学习公开课第七课的总结笔记。这一课主要讲了将policy看成某个参数$	heta$的函数，即将policy形式变成状态和动作的概率分布函数，在policy函数可微的情况下能够通过对参数求导来优化policy。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文是David Silver强化学习公开课第七课的总结笔记。这一课主要讲了将policy看成某个参数$\theta$的函数，即将policy形式变成状态和动作的概率分布函数，在policy函数可微的情况下能够通过对参数求导来优化policy。</p>
+<p>本课视频地址:<a href="https://www.youtube.com/watch?v=KHZVXao4qXs" target="_blank" rel="noopener">RL Course by David Silver - Lecture 7: Policy Gradient Methods</a></p>
+<p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/pg.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/pg.pdf</a></p>
+<p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
+<p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
+<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+
+<h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>在第一课的内容中，曾经提到过agent的分类，将value function、policy、model(environment)进行组合可以得到model-based、policy-based、model-free、value-based、actor critic五种类型。其中value-based是说已知policy情况下学习value function，就像第四课的内容。policy-based是指没有显式的值函数形式，而需要学习policy。actor critic则是需要同时学习学习值函数和policy的形式。</p>
+<p>带有随机性的policy往往比确定性的policy效果要好，就如第一课中所说的确定性的policy通常会被过利用。Policy-based类型能学习到带有随机性的policy，并且对于高维的action更有效。后者是因为在用value-based的方法时，常常要最大化当前的值函数，会需要大量的计算。 </p>
+<p>在之前的课程中，policy都是基于greedy或者$\epsilon-$greedy的方法直接从值函数中获得。本课主要内容是为policy引入参数，变成在某个状态和某组参数下选择某个动作的概率分布$\pi_{\theta}(s,a) = P[a|s,\theta]$，直接求解策略，从已有的sample的experience中学习如何让policy变得更好。为什么要求解含参数的policy也是跟上节课一样的原因，现实问题中有大量的state和action，无法针对每个state每个action都有一个确定的policy，因此需要一定的泛化能力，面对没有见过的state或者action有一定的决策能力。</p>
+<p>将Policy表达成参数$\theta$的目标函数，有如下几种形式，start value是针对拥有起始状态的情况下求起始状态$s_1$获得的reward，average value针对不存在起始状态而且停止状态也不固定的情况，在这些可能的状态上计算平均获得的reward，或者只计算immdiate reward的期望。其中$d^{\pi_{\theta}}(s)$指状态分布函数。</p>
+<table>
+<thead>
+<tr>
+<th align="center">start value</th>
+<th align="center">average value</th>
+<th align="center">average reward per time-step</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">$J_1(\theta) = V^{\pi_{\theta}}(s_1)$</td>
+<td align="center">$J_{avV}(\theta) = \sum_s d^{\pi_{\theta}}(s)V^{\pi_{\theta}}(s)$</td>
+<td align="center">$J_{avR}(\theta)=\sum_s d^{\pi_{\theta}}(s)\sum_a \pi_{\theta}(s,a)R_s^a$</td>
+</tr>
+</tbody></table>
+<h4 id="2-Monte-Carlo-Policy-Gradient"><a href="#2-Monte-Carlo-Policy-Gradient" class="headerlink" title="2.Monte-Carlo Policy Gradient"></a>2.Monte-Carlo Policy Gradient</h4><p>假设$\pi_{\theta}$是可微的，且梯度为$\bigtriangledown _{\theta}\pi_{\theta}(s,a) = \pi_{\theta}(s,a)\frac{\bigtriangledown _{\theta}\pi_{\theta}(s,a)}{\pi_{\theta}(s,a)} = \pi_{\theta}(s,a)\bigtriangledown _{\theta} log\pi_{\theta}(s,a)$，第二项称为score function。如果假设不同形式的policy，就能得到不同形式的score function，例如假设policy表达式与特征线性组合(特征向量为$\phi(s,a)$)的指数成线性关系$\pi_{\theta}(s,a) \propto e^{\phi(s,a)^T\theta}$，求出的score function形式为$\bigtriangledown _{\theta} log\pi_{\theta}(s,a) = \phi(s,a) - E_{\pi_{\theta}}[\phi(s,\cdot)]$。按照我的理解，从公式角度来说，第一项是当前输入特征向量，第二项是输入特征向量的期望，如果当前输入特征向量出现次数多而且表现比较好，但是距离期望比较远，那么就需要调整policy来更加趋近于当前特征向量，这个差值代表了当前特征向量与期望之差，距离远调整的就多，距离近调整的就少。</p>
+<p>从上面的目标函数形式中我觉得目标是在优化reward，就还是在优化值函数，只是这里$\theta$不是值函数的参数，而是policy的参数。如果目标函数对参数求导，可以得到policy的gradient的形式为$\bigtriangledown _{\theta}J(\theta) = E_{\pi_{\theta}}[\bigtriangledown _{\theta}log\pi_{\theta}(s,a)Q^{\pi_{\theta}(s,a)}]$。第一项衡量了policy朝当前选择(某个状态+某个动作)偏移的程度，第二项衡量了当前选择的好坏。</p>
+<p>从而推导出Monte-Carlo Policy Gradient的形式，首先更新参数的方法是随机梯度下降+policy gradient，gradient中的动作值函数取值用执行过程中的return来代替。</p>
+<ul>
+<li>随机初始化$\theta$</li>
+<li>针对每个episode ${s_1,a_1,r_2,…,s_{T-1}, a_{T-1}, r_T}~\pi_{\theta}$</li>
+<li>==从t=1到T-1</li>
+<li>====更新$\theta = \theta + \alpha \bigtriangledown _{\theta}log\pi_{\theta}(s_t,a_t)v_t$</li>
+</ul>
+<h4 id="3-Actor-Critic-Policy-Gradient"><a href="#3-Actor-Critic-Policy-Gradient" class="headerlink" title="3.Actor-Critic Policy Gradient"></a>3.Actor-Critic Policy Gradient</h4><p>上面的方法是用episode中反馈的return当做是动作值函数的采样，如果不当成采样而是采用上节课的value function approximation的方法，即迭代更新policy又更新值函数。policy的gradient稍微做了一些改变$\bigtriangledown _{\theta}log\pi_{\theta}(s,a)Q_w(s,a)$，具体流程如下</p>
+<ul>
+<li>初始化起始状态$s,\theta$</li>
+<li>基于初始policy采样得到下一次执行的动作$a$</li>
+<li>每走一步</li>
+<li>==得到奖赏$r$，和转移到下一个时刻的状态$s’$</li>
+<li>==基于下一个时刻的状态再选择一个动作$a’~\pi_{\theta}(s’,a’)$</li>
+<li>==求值函数参数梯度$\delta = r + \gamma Q_w(s’,a’) - Q_w(s,a)$</li>
+<li>==更新policy参数 $\theta = \theta + \alpha\bigtriangledown _{\theta}log\pi_{\theta}(s,a)Q_w(s,a)$</li>
+<li>==更新值函数参数$w = w+\beta \delta \phi(s,a)$</li>
+<li>==更新动作和状态$a = a’, s = s’$</li>
+</ul>
+<p>这节课实在是太抽象了T^T。。没有啥例子，完全无法直观的感受一下policy如何表达成$\theta$的函数形式。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/07/29/reinforcementlearninglesssion6.html" rel="next" title="【David Silver强化学习公开课之六】求解近似值函数">
+                <i class="fa fa-chevron-left"></i> 【David Silver强化学习公开课之六】求解近似值函数
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/08/04/reinforcementlearninglesssion8.html" rel="prev" title="【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型)">
+                【David Silver强化学习公开课之八】Integrating Learning and Planning(对Environment建立模型) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-内容回顾"><span class="nav-number">1.</span> <span class="nav-text">1.内容回顾</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Monte-Carlo-Policy-Gradient"><span class="nav-number">2.</span> <span class="nav-text">2.Monte-Carlo Policy Gradient</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Actor-Critic-Policy-Gradient"><span class="nav-number">3.</span> <span class="nav-text">3.Actor-Critic Policy Gradient</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

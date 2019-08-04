@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="2016年1月20日Bengio在Quora上做了一次面向全世界网友的问答，共回答了83个问题，本文记录一下感兴趣的几个问题。因为不是全部翻译过来而是选取了一些我觉得有价值的内容，所以有的地方可能会失去原来的感觉，每个问题都附上了原文链接方便点击查看。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="#Yoshua Bengio#1月20日Yoshua Bengio在Quora上的问答记录">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2016/01/20/bengiosession.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="2016年1月20日Bengio在Quora上做了一次面向全世界网友的问答，共回答了83个问题，本文记录一下感兴趣的几个问题。因为不是全部翻译过来而是选取了一些我觉得有价值的内容，所以有的地方可能会失去原来的感觉，每个问题都附上了原文链接方便点击查看。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.144Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="#Yoshua Bengio#1月20日Yoshua Bengio在Quora上的问答记录">
+<meta name="twitter:description" content="2016年1月20日Bengio在Quora上做了一次面向全世界网友的问答，共回答了83个问题，本文记录一下感兴趣的几个问题。因为不是全部翻译过来而是选取了一些我觉得有价值的内容，所以有的地方可能会失去原来的感觉，每个问题都附上了原文链接方便点击查看。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2016/01/20/bengiosession.html">
+
+
+
+
+
+  <title>#Yoshua Bengio#1月20日Yoshua Bengio在Quora上的问答记录 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2016/01/20/bengiosession.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">#Yoshua Bengio#1月20日Yoshua Bengio在Quora上的问答记录</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-01-20T11:20:36+08:00">
+                2016-01-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/resource/" itemprop="url" rel="index">
+                    <span itemprop="name">resource</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  2016年1月20日Bengio在Quora上做了一次面向全世界网友的问答，共回答了83个问题，本文记录一下感兴趣的几个问题。因为不是全部翻译过来而是选取了一些我觉得有价值的内容，所以有的地方可能会失去原来的感觉，每个问题都附上了原文链接方便点击查看。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>2016年1月20日Bengio在Quora上做了一次面向网友的问答，回答了83个问题，这里记录一下感兴趣的几个问题。因为不是全部翻译过来而是选取了一些我觉得有价值的内容，所以有的地方可能会失去原来的感觉，每个问题都附上了原文链接可以点击查看。目录如下:</p>
+<ul>
+<li><a href="#1">1. 什么是深度学习？</a></li>
+<li><a href="#2">2. 深度学习在沿着什么样的方向发展？</a></li>
+<li><a href="#3">3. 2015年读过最好的机器学习paper？</a></li>
+<li><a href="#4">4. 距离了解为什么深度学习有效还有多远？</a></li>
+<li><a href="#5">5. 深度学习研究的领域有哪些？</a></li>
+<li><a href="#6">6. 为什么bengio认为当前机器学习算法限制在于它们需要足够多的数据来学习？</a></li>
+<li><a href="#7">7. 为什么无监督重要？</a></li>
+<li><a href="#8">8. 怎么看待Are ML and Statistics Complementary?这篇论文，由于深度学习机器学习是不是离统计学变远了？</a></li>
+<li><a href="#9">9. 神经网络是否有概率解释？</a></li>
+<li><a href="#10">10. 除了重构输入，其他的无监督学习目标还有什么?</a></li>
+<li><a href="#11">11. 算法是否可能从噪声中提取有用信息？</a></li>
+</ul>
+<p>Quora原文地址: <a href="https://www.quora.com/profile/Yoshua-Bengio/session/37/?__snids__=1517801181&__nsrc__=1&__filter__=all" target="_blank" rel="noopener">Session with Yoshua Bengio</a></p>
+<h4 id="1">1. 什么是深度学习？</h4>
+
+<p><a href="https://www.quora.com/What-is-Deep-Learning-3" target="_blank" rel="noopener">Yoshua Bengio: What is Deep Learning?</a></p>
+<p>深度学习是在学习多层表达来帮助学习者完成感兴趣的任务，较高级别的表达会通过深层组合计算来获取更抽象的概念。</p>
+<h4 id="2">2. 深度学习在沿着什么样的方向发展？</h4>
+
+<p><a href="https://www.quora.com/Where-is-deep-learning-research-headed" target="_blank" rel="noopener">Yoshua Bengio: Where is deep learning research headed?</a></p>
+<p>研究即探索，并不知道什么能够成功而是需要探索很多条路，因此以下是一些比较有挑战的方向。</p>
+<ul>
+<li>无监督学习非常重要，而我们现在做的并不正确</li>
+<li>深度学习会继续从传统模式识别的任务扩增到全面的人工智能任务，包括symbolic manipulation, memory, planning and reasoning，从而能够更好的理解人类的自然语言和对话（通过图灵测试）。此外还扩增到了强化学习、控制学、机器人学等领域。</li>
+<li>人工智能方面，需要更加深入的理解人类大脑并尝试找到通过机器学习来解释大脑运作的方法</li>
+<li>改进极大似然方法，在复杂的高维空间中，并不是绝对需要学习最优的目标</li>
+<li>计算能力（特别是硬件）的提升会让基于深度学习的AI获利，因为AI需要特别多关于这个世界的数据和知识，并基于这些来进行推理，然后需要大型网络来训练大量数据集。</li>
+</ul>
+<h4 id="3">3. 2015年读过最好的机器学习paper？</h4>
+
+<p><a href="https://www.quora.com/What-is-the-most-exciting-machine-learning-research-paper-you-read-in-2015" target="_blank" rel="noopener">Yoshua Bengio: What is the most exciting machine learning research paper you read in 2015?</a></p>
+<ul>
+<li><a href="http://arxiv.org/pdf/1502.03167v3.pdf" target="_blank" rel="noopener">Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</a>，因为对训练大型结构有效，并且被人们认为是标准方法</li>
+<li><a href="http://arxiv.org/pdf/1507.02672.pdf" target="_blank" rel="noopener">Semi-Supervised Learning with Ladder Networks</a>,让半监督重回人们视野，特别是去噪的自编码网络很有意思</li>
+<li><a href="http://arxiv.org/pdf/1406.2661v1.pdf" target="_blank" rel="noopener">Generative Adversarial Nets</a>、<a href="http://arxiv.org/pdf/1511.06434v2.pdf" target="_blank" rel="noopener">nsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks</a>等关于generative adversarial networks (GAN)，LAPGAN，DCGAN网络的论文，因为它们提出了图片生成模型，使得无监督在去年有快速的发展</li>
+<li><a href="http://arxiv.org/pdf/1506.03134.pdf" target="_blank" rel="noopener">Pointer Networks</a>、<a href="http://arxiv.org/pdf/1506.07503.pdf" target="_blank" rel="noopener">Attention-Based Models for Speech Recognition</a>等基于内容的关注机制content-based attention mechanisms的文章，研究了机器翻译、神经图灵机和端到端的记忆网络等。</li>
+</ul>
+<h4 id="4">4. 距离了解为什么深度学习有效还有多远？</h4>
+
+<p><a href="https://www.quora.com/How-far-along-are-we-in-understanding-why-deep-learning-works" target="_blank" rel="noopener">Yoshua Bengio: How far along are we in understanding why deep learning works?</a></p>
+<p>bengio认为我们已经有一定的了解基础了。我们知道表示学习、深层结构、卷积结构和递归结构的每个元素对应到某个函数的参数选择（或者说某种先验信息）。我们已经有理论解释为什么这些参数选择能够起到一个重要(指数)统计优势（即能够用更少的数据获得更高的正确性）<a href="http://papers.nips.cc/paper/5422-on-the-number-of-linear-regions-of-deep-neural-networks.pdf" target="_blank" rel="noopener">On the Number of Linear Regions of Deep Neural Networks</a>。我们知道为什么在训练深度网络中的优化问题并不像以前认为的那样难以解决，即绝大多数的局部最小值也是很好的解。<a href="https://ganguli-gang.stanford.edu/pdf/14.SaddlePoint.NIPS.pdf" target="_blank" rel="noopener">Identifying and attacking the saddle point problem in high-dimensional non-convex optimization</a>、<a href="http://cims.nyu.edu/~achoroma/NonFlash/Papers/PAPER_AMMGY.pdf" target="_blank" rel="noopener">The Loss Surfaces of Multilayer Networks</a></p>
+<p>此外，在另外一个问题中，bengio认为当前的深度学习算法还有东西无法学到无法解决，但随着深度学习的逐渐发展，以后都能学到。</p>
+<h4 id="5">5. 深度学习研究的领域有哪些？</h4>
+
+<p><a href="https://www.quora.com/What-are-the-open-research-areas-in-Deep-Learning" target="_blank" rel="noopener">Yoshua Bengio: What are the open  research areas in Deep Learning?</a></p>
+<ul>
+<li>无监督学习会有很了不起的发展，其中包括<ul>
+<li>从自然图片和声音中生成清晰图像和语音的生成模型</li>
+<li>当有label的数据集不干净时半监督学习能够发挥作用</li>
+<li>学习从数据到空间独立变量的双向变换</li>
+</ul>
+</li>
+<li>在模型中引入推理能力</li>
+<li>大规模的自然语言理解和知识表达</li>
+<li>多时间尺度的分层表达的模型</li>
+<li>更好的理解某些优化问题，例如无监督学习或者有长期依赖的递归网络中产生的一些问题</li>
+<li>训练模型将planning（能够执行what-if的情景）纳入学习过程，并且能够做决策</li>
+<li>提升强化学习的规模</li>
+<li>最大似然有一些缺点需要解决，例如在训练和测试条件下有错误匹配的问题</li>
+<li>连接深度学习与生物学</li>
+<li>加大对深度学习的理论理解（优化问题，表达和统计理论）</li>
+<li>制造特殊的硬件，不仅仅能够离线训练模型，而且能训练更大的模型，使得模型能容纳更多信息</li>
+<li>健康领域，存在的特殊问题是缺失数据，通过迁移学习来从其他小任务中采集数据</li>
+</ul>
+<h4 id="6">6. 为什么bengio认为当前机器学习算法限制在于它们需要足够多的数据来学习？</h4>
+
+<p><a href="https://www.quora.com/You-have-said-that-the-main-limitation-of-current-machine-learning-algorithms-is-that-they-need-too-much-data-to-learn-Can-you-elaborate-on-that" target="_blank" rel="noopener">Yoshua Bengio: You have said that the main limitation of current machine learning algorithms is that they need too much data to learn. Can you elaborate on that?</a></p>
+<p>人一生下来的前两年，孩子们能看到的数据实际上是没有label的，在幼年时代孩子们所接触到的自然语言比我们用来训练系统的要少的多。这是因为人类能够更好的利用少量的数据，bengio认为人类建造了一个关于这个世界的内在模型并且能够获取一些构成因果关系因子。这样能够让我们在某种假设条件下预测会发生什么，即使这些假设条件跟我们经历过的完全不一样。我们可能从来没有经历过一次车祸，但是我们能够在脑子里将它模拟出来。</p>
+<p>(笔者：这个问题我保持怀疑态度，这里面举出来的例子个人认为并不合适，比如我们没有经历车祸但是我们看到过，所以我觉得模拟出来的也差不多是我们记忆中看到的车祸。而孩子们接触到的自然语言，也没有一个量化的标准说明它比网络用来训练的少)</p>
+<h4 id="7">7. 为什么无监督重要？</h4>
+
+<p><a href="https://www.quora.com/Why-is-unsupervised-learning-important-What-role-does-deep-learning-have-in-solving-it" target="_blank" rel="noopener">Yoshua Bengio: Why is unsupervised learning important? What role does deep learning have in solving it?</a></p>
+<p>深度学习是在学习表示，获取中间概念，特征和隐藏变量的统计依赖性。这些依赖是指监督学习中的输入到输出的依赖或者无监督学习中的观测变量之间的关系。监督学习会给电脑展示非常多的例子，这些例子中会出现某些概念，然后“教”电脑知道哪些概念对我们来说很重要。但是这并不是人们学习的方式，人们在接受新概念时不一定同时有label来告诉他们，例如成年人不会告诉孩子一张图中每个像素点是什么或者每张图中每个物体是什么，也不会告诉他们听到的句子中每个词的意思和语法结构。而从简单的观察中提取大量的信息是无监督正在做的。我们希望无监督能从少量的有lable数据发现所有的概念。</p>
+<p>而科学家们也会进行无监督学习，比如他们在观察这个世界，想出一些有解释能力的模型，通过观察现象来测试它们，然后持续尝试改进围绕着我们的世界的因果模型。</p>
+<h4 id="8">8. 怎么看待Are ML and Statistics Complementary?这篇论文，由于深度学习机器学习是不是拉开了与统计学的距离？</h4>
+
+<p><a href="https://www.quora.com/Whats-your-opinion-on-Max-Wellings-position-paper-Are-ML-and-Statistics-Complementary-Is-ML-is-moving-away-from-statistics-due-to-deep-learning" target="_blank" rel="noopener">Yoshua Bengio: What’s your opinion on Max Welling’s position paper “Are ML and Statistics Complementary”? Is ML is moving away from statistics due to deep learning?</a></p>
+<p>Max总结了三个深度学习成功的原因：计算能力,大数据集,大模型。bengio加了第四条，powerful biases，它是指函数的参数选择，也可以认为是贝叶斯理论中的先验信息）。因为在深度学习中有很多的假设：假设有很多隐藏因子，假设有很多因子的组合，equivariance(?)和时间相干性假设（卷积网络），时间平稳的假设（递归网络）等。bengio同意max认为的解释数以亿计参数的意义是不现实的，但是能理解这些隐藏的或者显在的引入网络的先验信息。因此，仍然有很多关于深度学习的理论需要被挖掘，其中统计学会占有重要地位。</p>
+<h4 id="9">9. 神经网络有效是否有概率解释？</h4>
+
+<p><a href="https://www.quora.com/Can-neural-networks-have-a-purely-probabilistic-interpretation-for-why-they-work" target="_blank" rel="noopener">Yoshua Bengio: Can neural networks have a purely probabilistic interpretation for why they work?</a></p>
+<p>可以这样理解，有监督深度学习在学习条件概率，无监督学习方法在估计数据生成的联合分布。但是由于它既包括统计问题又包括优化问题，所以为什么深度学习有效不是一个概率问题。</p>
+<h4 id="10">10. 除了重构输入，其他的无监督学习目标还有什么?</h4>
+
+<p><a href="https://www.quora.com/Apart-from-trying-to-reconstruct-the-input-as-in-Autoencoder-what-other-tasks-could-prove-useful-for-unsupervised-learning-of-deep-networks" target="_blank" rel="noopener">Yoshua Bengio: Apart from trying to reconstruct the input (as in Autoencoder), what other tasks could prove useful for unsupervised learning of deep networks?</a></p>
+<ul>
+<li>在给定其他变量情况下预测一个变量（pseudolikelihood）</li>
+<li>在给定其他变量情况下预测一小组变量(generalized pseudolikelihood)</li>
+<li>在给定前一组变量情况下预测这一组中的某个变量(fully-visible Bayes nets, autoregressive nets, NADE, generative RNNs)</li>
+<li>在给定一个被损坏的观测点情况下将原始干净的点还原出来(denoising)</li>
+<li>预测输入是否来自数据产生的分布还是其他分布，类似概率分类器(Noise-Constrastive Estimation)</li>
+<li>学习一个逆转函数</li>
+<li>学习一个能够多次使用的复杂变换并收敛到接近数据产生的分布(Generative Stochastic Networks, generative denoising autoencoders, diffusion inversion = nonequilibrium thermodynamics)</li>
+<li>学习产生不能被分类器区分的样本(GAN = generative adversarial networks)</li>
+<li>极大化某个概率模型的似然函数</li>
+</ul>
+<h4 id="11">11. 算法是否可能从噪声中提取有用信息？</h4>
+
+<p><a href="https://www.quora.com/Do-you-think-that-its-possible-for-algorithms-to-extract-useful-information-from-what-is-generally-disacarded-as-noise" target="_blank" rel="noopener">Yoshua Bengio: Do you think that it’s possible for algorithms to extract useful information from what is generally disacarded as noise?</a></p>
+<p>只有当噪声中真正存在某种潜在的统计结构时才可以。例如猫在听人讲话觉得是噪声，人听外语也会觉得是噪声。因此当构建合适的模型让噪声也变得结构化才能提取有用信息。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/01/09/logisticregression.html" rel="next" title="【机器学习算法系列之二】浅析Logistic Regression">
+                <i class="fa fa-chevron-left"></i> 【机器学习算法系列之二】浅析Logistic Regression
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/03/06/introductionofgpusoftware.html" rel="prev" title="【GPU编程系列之二】CUDA的软件层面和NVCC编译流程">
+                【GPU编程系列之二】CUDA的软件层面和NVCC编译流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1"><span class="nav-number">1.</span> <span class="nav-text">1. 什么是深度学习？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2"><span class="nav-number">2.</span> <span class="nav-text">2. 深度学习在沿着什么样的方向发展？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3"><span class="nav-number">3.</span> <span class="nav-text">3. 2015年读过最好的机器学习paper？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4"><span class="nav-number">4.</span> <span class="nav-text">4. 距离了解为什么深度学习有效还有多远？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5"><span class="nav-number">5.</span> <span class="nav-text">5. 深度学习研究的领域有哪些？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6"><span class="nav-number">6.</span> <span class="nav-text">6. 为什么bengio认为当前机器学习算法限制在于它们需要足够多的数据来学习？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7"><span class="nav-number">7.</span> <span class="nav-text">7. 为什么无监督重要？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8"><span class="nav-number">8.</span> <span class="nav-text">8. 怎么看待Are ML and Statistics Complementary?这篇论文，由于深度学习机器学习是不是拉开了与统计学的距离？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9"><span class="nav-number">9.</span> <span class="nav-text">9. 神经网络有效是否有概率解释？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10"><span class="nav-number">10.</span> <span class="nav-text">10. 除了重构输入，其他的无监督学习目标还有什么?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11"><span class="nav-number">11.</span> <span class="nav-text">11. 算法是否可能从噪声中提取有用信息？</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

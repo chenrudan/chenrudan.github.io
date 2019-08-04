@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要介绍我在实现陈天奇老师的深度学习系统课程课后作业的过程中的一些思考和解决方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Assignment 1 &amp; 2">
+<meta property="og:url" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2.html">
+<meta property="og:site_name" content="听见下雨的声音">
+<meta property="og:description" content="本文主要介绍我在实现陈天奇老师的深度学习系统课程课后作业的过程中的一些思考和解决方法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_1.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_2.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_3.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_4.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_5.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_6.png">
+<meta property="og:updated_time" content="2019-08-04T12:46:52.158Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Assignment 1 &amp; 2">
+<meta name="twitter:description" content="本文主要介绍我在实现陈天奇老师的深度学习系统课程课后作业的过程中的一些思考和解决方法。">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2017/05/10/assignments1and2/as_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://chenrudan.github.io/blog/2017/05/10/assignments1and2.html">
+
+
+
+
+
+  <title>Assignment 1 & 2 | 听见下雨的声音</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-62560044-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?cc1faf3ded4681fc1ea43c446392e242";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听见下雨的声音</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-reward">
+          <a href="/reward/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+            
+            打赏
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://chenrudan.github.io/blog/2017/05/10/assignments1and2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Rudan Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听见下雨的声音">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Assignment 1 & 2</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-10T11:20:36+08:00">
+                2017-05-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/code/" itemprop="url" rel="index">
+                    <span itemprop="name">code</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文主要介绍我在实现陈天奇老师的深度学习系统课程课后作业的过程中的一些思考和解决方法。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
+<p>本文主要介绍我在实现陈天奇老师的<a href="http://dlsys.cs.washington.edu" target="_blank" rel="noopener">深度学习系统</a>课程课后作业的过程中的一些思考和解决方法，这个课虽然没有视频，但是ppt做的非常好，assignment中已经给出了答案，编写程序可以直接检查结果是否正确，值得一做。本文会结合一些课中的ppt来解释。</p>
+<p>现在的深度学习系统在实现上分为用户使用的接口、系统设计、计算实现三个部分，如图1所示。我所理解的的这三个部分内容如下，实现用户接口实际上就是实现compute graph中的一个个结点，用户通过定义好计算图再执行，并且会将自动求导加入计算过程，为什么这么做通过assignment 1来解释，接着是实现如何优化计算图的内部结构以及执行计算图的操作，第三部分就是实现具体卷积、relu等的计算。</p>
+<p><img src="/blog/2017/05/10/assignments1and2/as_1.png" alt="图1 深度学习系统架构(图片来源[1])"></p>
+<h3 id="Assignment-1"><a href="#Assignment-1" class="headerlink" title="Assignment 1"></a>Assignment 1</h3><p>内容描述:<a href="https://github.com/dlsys-course/assignment1" target="_blank" rel="noopener">Reverse-mode Automatic Differentiation</a></p>
+<p>要实现的就一个auto_diff.py文件，主要有Node、Variable、Op、Executor等类，node就是compute graph中的每一个结点，结点代表的是某种计算，它会记录输入是哪个node，并保存对输入的某个操作op，op就是具体的计算内容，variable本质是一个op，但它本身不代表任何东西，填入什么就是什么，executor通过自己的run函数来调用op的compute函数来计算这个op。</p>
+<p>这个文件大部分内容都已经实现了，而我们要填入的内容主要是各个op的compute函数以及这个op对应的gradient函数，以及用来计算整个计算图梯度的graidents函数，和执行整个计算图的executor的run函数。</p>
+<p>这个作业的核心问题就是<a href="http://dlsys.cs.washington.edu/pdf/lecture4.pdf" target="_blank" rel="noopener">第四课</a>的内容–实现自动求导。反向传播算法根据链式法则能够计算出目标函数对神经网络每一个结点的梯度，自动求导要做的也是计算目标函数对计算图中每一个node的梯度，这里面就涉及到需要计算每一个op的输出对输入的导数，因此针对每一个op来实现一个gradient函数，先把梯度计算出来。</p>
+<p>最开始在思考如何实现op的梯度时，没有体会到自动求导的用意，当对任何在实现梯度，返回值都是直接计算的数值结果，就跟compute函数的计算方式一样，如下面的代码实现点乘mul_op的梯度。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">def compute(self, node, input_vals):</span><br><span class="line">    <span class="string">""</span><span class="string">"Given values of two input nodes, return result of element-wise multiplication."</span><span class="string">""</span></span><br><span class="line">    <span class="string">""</span><span class="string">"TODO: Your code here"</span><span class="string">""</span></span><br><span class="line">    assert len(input_vals) == 2</span><br><span class="line">    <span class="built_in">return</span> input_vals[0]*input_vals[1]</span><br><span class="line"></span><br><span class="line">def gradient(self, node, output_grad):</span><br><span class="line">    <span class="string">""</span><span class="string">"Given gradient of multiply node, return gradient contributions to each input."</span><span class="string">""</span></span><br><span class="line">    <span class="string">""</span><span class="string">"TODO: Your code here"</span><span class="string">""</span></span><br><span class="line">    <span class="built_in">return</span> [output_grad*node.inputs[1], output_grad*node.inputs[0]]</span><br></pre></td></tr></table></figure>
+
+<p>按照这种想法，当实现矩阵乘法时发现做不出来了，因为gradient函数的输入值是node和这个op输出的梯度，要计算的是对node的梯度，而不像compute函数一样有input_vals这样的numpy数组，从而可以直接调用numpy的库函数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">def compute(self, node, input_vals):</span><br><span class="line">    <span class="string">""</span><span class="string">"Given values of input nodes, return result of matrix multiplication."</span><span class="string">""</span></span><br><span class="line">    <span class="string">""</span><span class="string">"TODO: Your code here"</span><span class="string">""</span></span><br><span class="line">    assert len(input_vals) == 2</span><br><span class="line">    <span class="keyword">if</span> node.matmul_attr_trans_A == False and node.matmul_attr_trans_B == False:</span><br><span class="line">        <span class="built_in">return</span> np.dot(input_vals[0], input_vals[1])</span><br><span class="line">    <span class="keyword">elif</span> node.matmul_attr_trans_A == True and node.matmul_attr_trans_B == False:</span><br><span class="line">        <span class="built_in">return</span> np.dot(np.transpose(input_vals[0]), input_vals[1])</span><br><span class="line">    <span class="keyword">elif</span> node.matmul_attr_trans_A == False and node.matmul_attr_trans_B == True:</span><br><span class="line">        <span class="built_in">return</span> np.dot(input_vals[0], np.transpose(input_vals[1]))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">return</span> np.dot(np.transpose(input_vals[0]), np.transpose(input_vals[1]))</span><br></pre></td></tr></table></figure>
+
+<p>这里就说明了graident肯定不是要计算出一个数值，经过思考，这里的gradient的输出应该是一个node，而node本身又是有op，op是有compute函数的，所以自动求导的出发点是将梯度当成计算图中的node，没有所谓的前向后向，在执行时，只向前计算每一个node的compute函数。此处求解矩阵乘法的梯度是实现成了如下的方式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def gradient(self, node, output_grad):</span><br><span class="line">    <span class="string">""</span><span class="string">"Given gradient of multiply node, return gradient contributions to each input.</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    Useful formula: if Y=AB, then dA=dY B^T, dB=A^T dY</span></span><br><span class="line"><span class="string">    "</span><span class="string">""</span></span><br><span class="line">    <span class="string">""</span><span class="string">"TODO: Your code here"</span><span class="string">""</span></span><br><span class="line">    <span class="built_in">return</span> [matmul_op(output_grad, node.inputs[1], False, True),</span><br><span class="line">            matmul_op(node.inputs[0], output_grad, True, False)]</span><br></pre></td></tr></table></figure>
+
+<p>那么接下来去实现executor的run函数就变得简单了，它只需按照node的顺序，一个个调用node中保存的op的compute函数，这个函数的每一步计算返回的都是数值，不是node。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> topo_order:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> len(node.inputs) == 1:</span><br><span class="line">        node_to_val_map[node] = node.op.compute(node, [node_to_val_map[node.inputs[0]]])</span><br><span class="line">    <span class="keyword">elif</span> len(node.inputs) == 2:</span><br><span class="line">        node_to_val_map[node] = node.op.compute(node,</span><br><span class="line">                                               [node_to_val_map[node.inputs[0]],</span><br><span class="line">                                                node_to_val_map[node.inputs[1]]])</span><br></pre></td></tr></table></figure>
+
+<p>最后需要实现的是graidents函数，它的功能是求出给定的node列表的每一个成员的梯度，实际上做的事情就是将从输出到输入的所有node对应梯度按照依赖关系排列出梯度计算图，计算图与梯度计算图之间通过output结点的梯度由output结点大小决定而关联起来，如下图的红色node计算图，再针对给定的node列表进行返回。</p>
+<p><img src="/blog/2017/05/10/assignments1and2/as_2.png" alt="图2 自动求导(图片来源[2])"></p>
+<p>基于课程中的自动求导的伪码可以得出下面求解gradients函数的实现。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> reverse_topo_order:</span><br><span class="line"></span><br><span class="line">    <span class="comment">#将输出多条线得到的grad加起来</span></span><br><span class="line">    grad = sum_node_list(node_to_output_grads_list[node])</span><br><span class="line">    node_to_output_grad[node] = grad</span><br><span class="line">    input_grads = node.op.gradient(node, grad)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> id <span class="keyword">in</span> range(len(node.inputs)):</span><br><span class="line">        <span class="keyword">if</span> node.inputs[id] not <span class="keyword">in</span> node_to_output_grads_list:</span><br><span class="line">            node_to_output_grads_list[node.inputs[id]] = [input_grads[id]]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            node_to_output_grads_list[node.inputs[id]].append(input_grads[id])</span><br></pre></td></tr></table></figure>
+
+<p>以上就是assignment1的一些内容和我的一些思考，我觉得最重要的想法就是将node的梯度也变成计算图中的一个node，这样就能很方便的实现自动求导，执行一遍计算图就将要求的东西全部求出来了。最后结果如下，如果代码有问题，会返回Error，如果代码执行错误，会返回Fail。</p>
+<p><img src="/blog/2017/05/10/assignments1and2/as_3.png" alt="图3 assignment1结果"></p>
+<h3 id="Assignment-2"><a href="#Assignment-2" class="headerlink" title="Assignment 2"></a>Assignment 2</h3><p>内容描述：<a href="https://github.com/dlsys-course/assignment2" target="_blank" rel="noopener">Assignment 2: GPU Graph Executor</a></p>
+<p>需要实现的主要有两个部分，一个是src/gpu_op.cu文件通过gpu现实op，一个是python/dlsys/autodiff.py实现优化内存。有两个测试方式，一种是tests/test_gpu_op.py只测试写的gpu代码正确性，一种是tests/mnist_dlsys.py会基于之前的所有代码实现一个逻辑回归和mlp看运行结果是否正确。</p>
+<p>gpu这个部分没什么好说的，需要自己实现host函数和kernel函数，kernel函数的逻辑很简单，看过一些gpu教程之后肯定没问题，要注意的就是输入的维数在test_gpu_op.py和mnist_dlsys.py中可能不相等。还有使用cublas库的时候，这个库认为数据的存储方式是按列存储，所以在处理上我将输入的两个矩阵换了位置。课程给出的一段示例代码中有下面的形式，一个block中最大thread的个数是1024，threads.x取1024之后，threads.y不能再取大于1的值，所以这样的写法我觉得不太正确。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dim3 threads;</span><br><span class="line"><span class="keyword">if</span> (nrow &lt;= 1024) &#123;</span><br><span class="line">  threads.x = nrow;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  threads.x = 1024;</span><br><span class="line">  threads.y = (nrow + 1023) / 1024;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另外，在autodiff.py中需要实现内存优化，根据第七课的ppt，内存优化的出发点其实就是记录下已经给每个node分配的内存空间大小，并且不释放已经分配好的空间，如果后面node需要的内存大小跟前面的一样且前面的空间已经空闲，那么这块内存就能复用。</p>
+<p><img src="/blog/2017/05/10/assignments1and2/as_4.png" alt="图4 内存优化算法(图片来源[3])"></p>
+<p>那么需要实现的就两个部分，一是记录下每个op的形状，用来确定需要的内存空间大小，实现的函数就是infer_shape，它有op的输入结点的形状数组，推断出这个op输出的形状数组，例如下面add_op对应的函数为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   def infer_shape(self, node, input_shapes):</span><br><span class="line">       <span class="string">""</span><span class="string">"Need to handle input_vals[0].shape != input_vals[1].shape"</span><span class="string">""</span></span><br><span class="line">       <span class="string">""</span><span class="string">"TODO: Your code here"</span><span class="string">""</span></span><br><span class="line"><span class="keyword">if</span> input_shapes[0] == input_shapes[1]:</span><br><span class="line">       	<span class="built_in">return</span> input_shapes[0]</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	<span class="built_in">return</span> input_shapes[1]</span><br></pre></td></tr></table></figure>
+
+<p>另外就是在已知每个node的形状数组情况下，决定内存如何进行复用，重点是要确定已分配的内存何时能够被重写，因为当内存a在作为内存b和c的输入时，就算内存b跟a大小一模一样，也不能直接将b写入a的内存空间，因为c还要用，因此我给出的解决方案如下，首先记录每个node它会被多少node使用，保存在num_of_output中，key是node，索引是这个node被作为输入的次数。用变量shapes_has_arise来保存出现过的形状数组，将形状数组作为key，value是已经分配了这个形状数组的node集合，变量memory_can_be_reuse保存每一个结点已经作为输入的次数，当作为输入的次数已经达到在num_of_output中存储的数字时说明这块内存已经可以被重新使用了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">shapes_has_arise = &#123;&#125;</span><br><span class="line">self.node_to_arr_map = &#123;&#125;</span><br><span class="line">num_of_output = &#123;&#125;</span><br><span class="line">memory_can_be_reuse = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> self.topo_order:</span><br><span class="line">	num_of_output[node] = 0</span><br><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> self.topo_order:</span><br><span class="line">	<span class="keyword">for</span> input_node <span class="keyword">in</span> node.inputs:</span><br><span class="line">		num_of_output[input_node] += 1</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> node <span class="keyword">in</span> self.topo_order:</span><br><span class="line">	<span class="keyword">if</span> node not <span class="keyword">in</span> feed_shapes:</span><br><span class="line">	//如果内存形状没有出现过，就分配这块内存保存在node_to_arr_map中，并将这个结点记录在memory_can_be_reuse</span><br><span class="line">	<span class="keyword">if</span> str(self.node_to_shape_map[node]) not <span class="keyword">in</span> shapes_has_arise:</span><br><span class="line">		self.node_to_arr_map[node] = ndarray.empty(self.node_to_shape_map[node], ctx=self.ctx)</span><br><span class="line">		shapes_has_arise[str(self.node_to_shape_map[node])] = [node]</span><br><span class="line">		//这个结点不能被使用</span><br><span class="line">		memory_can_be_reuse[node] = 0</span><br><span class="line">					</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		need_new_alloc = True</span><br><span class="line">		//假如内存形状已经出现过，遍历已经分配了相同形状的node</span><br><span class="line">		//如果这块内存被使用的次数已经到达记录的次数，那么就作为新的空间使用</span><br><span class="line">		<span class="keyword">for</span> i <span class="keyword">in</span> range(len(shapes_has_arise[str(self.node_to_shape_map[node])])):</span><br><span class="line">			allocated_node = shapes_has_arise[str(self.node_to_shape_map[node])][i]</span><br><span class="line">			<span class="keyword">if</span> memory_can_be_reuse[allocated_node] &lt; num_of_output[allocated_node]:</span><br><span class="line">				memory_can_be_reuse[allocated_node] += 1</span><br><span class="line">			<span class="keyword">else</span>:</span><br><span class="line">				self.node_to_arr_map[node] = self.node_to_arr_map[allocated_node]</span><br><span class="line">				need_new_alloc = False</span><br><span class="line">				<span class="built_in">break</span></span><br><span class="line">							</span><br><span class="line">		<span class="keyword">if</span> need_new_alloc:</span><br><span class="line">			self.node_to_arr_map[node] = ndarray.empty(self.node_to_shape_map[node], ctx=self.ctx)</span><br><span class="line">			shapes_has_arise[str(self.node_to_shape_map[node])].append(node)</span><br><span class="line">			memory_can_be_reuse[node] = 0</span><br><span class="line">		<span class="keyword">else</span>:</span><br><span class="line">			del shapes_has_arise[str(self.node_to_shape_map[node])][i]</span><br><span class="line">			memory_can_be_reuse[node] = 0</span><br><span class="line">			shapes_has_arise[str(self.node_to_shape_map[node])].append(node)</span><br></pre></td></tr></table></figure>
+
+<p>相应的结果输出如下:</p>
+<p><img src="/blog/2017/05/10/assignments1and2/as_5.png" alt="图5 gpu程序输出结果"></p>
+<p><img src="/blog/2017/05/10/assignments1and2/as_6.png" alt="图6 mlp输出结果"></p>
+<p>引用：</p>
+<p>[1] <a href="http://dlsys.cs.washington.edu/pdf/lecture3.pdf" target="_blank" rel="noopener"> Lecture 3: Overview of Deep Learning System</a></p>
+<p>[2] <a href="http://dlsys.cs.washington.edu/pdf/lecture4.pdf" target="_blank" rel="noopener">Lecture 4: Automatic Differentiation</a></p>
+<p>[3] <a href="http://dlsys.cs.washington.edu/pdf/lecture7.pdf" target="_blank" rel="noopener"> Lecture 7: Memory Optimization</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/02/25/comparetfmxpd.html" rel="next" title="TensorFlow、MXNet、PaddlePaddle三个开源库对比">
+                <i class="fa fa-chevron-left"></i> TensorFlow、MXNet、PaddlePaddle三个开源库对比
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/10/30/introductiontotransferlearning.html" rel="prev" title="迁移学习简介">
+                迁移学习简介 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC80MDA5MS8xNjYxOA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Rudan Chen</p>
+              <p class="site-description motion-element" itemprop="description">陈汝丹的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Assignment-1"><span class="nav-number">1.</span> <span class="nav-text">Assignment 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Assignment-2"><span class="nav-number">2.</span> <span class="nav-text">Assignment 2</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rudan Chen</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
