@@ -86,12 +86,12 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是David Silver强化学习公开课第五课的总结笔记。这一课主要讲了解决在未知policy未知environment的情况下control问题的两种思路，即On-Policy和Off-Policy，在第四课的Monte-Carlo和Temporal Difference基础上进行改进。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.145Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/07/26/reinforcementlearninglesssion5/rl.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.954Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【David Silver强化学习公开课之五】Model-Free Control(解决未知Environment下的Control问题)">
 <meta name="twitter:description" content="本文是David Silver强化学习公开课第五课的总结笔记。这一课主要讲了解决在未知policy未知environment的情况下control问题的两种思路，即On-Policy和Off-Policy，在第四课的Monte-Carlo和Temporal Difference基础上进行改进。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/07/26/reinforcementlearninglesssion5/rl.png">
 
 
 
@@ -397,7 +397,7 @@
 <p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/control.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/control.pdf</a></p>
 <p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/07/26/reinforcementlearninglesssion5/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>上次课谈到了在给定policy的情况下求解未知environment的MDP问题，称之为Model-Free Prediction问题。本节则是解决未知policy情况下未知environment的MDP问题，也就是Model-Free Control问题，这个问题实际上是最常见的强化学习问题。由于这种问题中未知policy，那么就有两种思路来获得policy，一种称为on-policy learning是基于某个policy做出一些action然后评估这个policy效果如何，一种称为off-policy learning是从一些已知的policy中学习policy，比如机器人在学习走路时，可以从人控制机器人走路的sample中来学习，但不是完全的跟sample走的action完全一样，在sample中尝试去走不同的一步看是否有更好reward。</p>
 <h4 id="2-On-Policy-Monte-Carlo"><a href="#2-On-Policy-Monte-Carlo" class="headerlink" title="2. On-Policy Monte-Carlo"></a>2. On-Policy Monte-Carlo</h4><p>On-Policy Monte-Carlo由policy evaluation + $\epsilon-$Greedy Policy Improvement组成。</p>

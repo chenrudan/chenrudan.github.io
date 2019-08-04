@@ -86,14 +86,14 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="最近Google开源了他们内部使用的深度学习框架TensorFlow，结合之前开源的MXNet和Caffe，对三个开源库进行了比较，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的比较。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe5.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/compare2.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/compare3.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.143Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib/caffe5.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib/compare2.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib/compare3.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.952Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Caffe、TensorFlow、MXnet三个开源库对比">
 <meta name="twitter:description" content="最近Google开源了他们内部使用的深度学习框架TensorFlow，结合之前开源的MXNet和Caffe，对三个开源库进行了比较，其中只有Caffe比较仔细的看过源代码，其他的两个库仅阅读官方文档和一些研究者的评论博客有感，本文首先对三个库有个整体的比较，再针对一些三者设计的不同数据结构、计算方式、gpu的选择方式等方面做了比较详细的比较。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe5.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2015/11/18/comparethreeopenlib/caffe5.png">
 
 
 
@@ -486,15 +486,15 @@
 <p>TensorFlow的tensor，它相当于N维的array或者list，与MXNet类似，都是采用了以python调用的形式展现出来。某个定义好的tensor的数据类型是不变的，但是维数可以动态改变。用tensor rank和TensorShape来表示它的维数（例如rank为2可以看成矩阵，rank为1可以看成向量）。tensor是个比较中规中矩的类型。唯一特别的地方在于在TensorFlow构成的网络中，tensor是唯一能够传递的类型，而类似于array、list这种不能当成输入。</p>
 <p>值得一提的是cuda-convnet采用的数据结构是NVMatrix，NV表示数据分配在gpu上，即将所有变量都当成矩阵来处理，它只有两维，它算是最早用cuda实现的深度学习框架，而上面三种框架都采用了多维可变维的思想，这种可变维在用矩阵做卷积运算的时候是很有效的。</p>
 <h3 id="2-网络实现方式"><a href="#2-网络实现方式" class="headerlink" title="2.网络实现方式"></a>2.网络实现方式</h3><p>Caffe是典型的功能（过程）计算方式，它首先按照每一个大功能（可视化、损失函数、非线性激励、数据层）将功能分类并针对部分功能实现相应的父类，再将具体的功能实现成子类，或者直接继承Layer类，从而形成了XXXLayer的形式。然后将不同的layer组合起来就成了net。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe5.png" alt="1" height="25%" width="25%" hspace="320">
+<img src="/blog/2015/11/18/comparethreeopenlib/caffe5.png" alt="1" height="25%" width="25%" hspace="320">
 
 <p><font size="2"><center>图1 caffe的网络结构(来源[7])</center></font></p>
 <p>MXNet是符号计算和过程计算混合[5]，它设计了Symbol大类，提供了很多符号运算的接口，每个symbol定义了对数据进行怎样的处理，symbol只是定义处理的方式，这步还并未真正的执行运算。其中一个需要注意的是symbol里面有Variable，它作为承载数据的符号，定义了需要传递什么样的数据给某个Variable，并在后续的操作中将数据绑定到Variable上。下面的代码是一个使用示例，它实现了将激励函数连接到前面定义好的net后面，并给出了这一个symbol的名字和激励函数类型，从而构造出net。下图左边部分是定义symbol的合集，中间将数据绑定到Variable上之后变成了右边真正的执行流程图。</p>
-<pre><code>net = mx.symbol.Activation(data=net, name=&apos;relu1&apos;, act_type=&quot;relu&quot;)</code></pre><img src="http://7xkmdr.com1.z0.glb.clouddn.com/compare2.png" alt="1" height="50%" width="50%" hspace="230">
+<pre><code>net = mx.symbol.Activation(data=net, name=&apos;relu1&apos;, act_type=&quot;relu&quot;)</code></pre><img src="/blog/2015/11/18/comparethreeopenlib/compare2.png" alt="1" height="50%" width="50%" hspace="230">
 
 <p><font size="2"><center>图2 MXNet的网络结构(图来源[2])</center></font></p>
 <p>TensorFlow选择的是符号计算方式，它的程序分为计算构造阶段和执行阶段，构造阶段是构造出computation graph，computation graph就是包含一系列符号操作Operation和Tensor数据对象的流程图，跟mxnet的symbol类似，它定义好了如何进行计算（加减乘除等）、数据通过不同计算的顺序（也就是flow，数据在符号操作之间流动的感觉）。但是暂时并不读取输入来计算获得输出，而是由后面的执行阶段启动session的run来执行已经定义好的graph。这样的方式跟mxnet很相似，应该都是借鉴了theano的想法。其中TensorFlow还引入了Variable类型，它不像mxnet的Variable属于symbol（tf的operation类似mxnet的symbol），而是一个单独的类型，主要作用是存储网络权重参数，从而能够在运行过程中动态改变。tf将每一个操作抽象成了一个符号Operation，它能够读取0个或者多个Tensor对象作为输入(输出)，操作内容包括基本的数学运算、支持reduce、segment（对tensor中部分进行运算。例如tensor长度为10，可以同时计算前5个，中间2个，后面三个的和）、对image的resize、pad、crop、filpping、transposing等。tf没有像mxnet那样给出很好的图形解释或者实例(可能因为我没找到。。)，按照自己的理解画了一部分流程图。有点疑惑的是，为什么要设计Variable，tf给出的一个alexnet的example源码中，输入数据和权重都设置成了Variable，每一层的输出并未直接定义，按照tf的说法，只有tensor类型能够在网络中传递，输出的类型应该是tensor，但是由于输入和权重改变了，输出应该也在随着改变，既然如此，为何不只设计一个tensor，让tensor也能动态改变。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/compare3.png" alt="1" height="20%" width="20%" hspace="360">
+<img src="/blog/2015/11/18/comparethreeopenlib/compare3.png" alt="1" height="20%" width="20%" hspace="360">
 
 <p><font size="2"><center>图3 TensorFlow的computation graph</center></font></p>
 <p>就设计而言，TensorFlow相对于其他两个更像是一种通用的机器学习框架，而不是只针对cnn或rnn，但就现在的性能而言，tf的速度比很多开源框架都要差一点[6]。</p>

@@ -86,18 +86,18 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_1.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_2.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_3.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_4.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_5.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_6.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.149Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl2_1.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl2_2.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl2_3.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl2_4.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl2_5.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl2_6.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.962Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【David Silver强化学习公开课之二】马尔可夫决策过程MDP">
 <meta name="twitter:description" content="本文是David Silver强化学习公开课第二课的总结笔记。主要介绍了马尔可夫过程(MP)、马尔可夫奖赏过程(MRP)、马尔可夫决策过程(MDP)是什么，以及它们涉及到的一些概念，结合了课程ppt给出的例子对概念有了一些直观的了解。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/06/12/reinforcementlearninglesssion2/rl.png">
 
 
 
@@ -403,7 +403,7 @@
 <p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MDP.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MDP.pdf</a>。</p>
 <p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-基础概念"><a href="#1-基础概念" class="headerlink" title="1.基础概念"></a>1.基础概念</h4><p>状态集合S: 有限状态state集合，s表示某个特定状态</p>
 <p>动作集合A: 有限动作action集合，a表示某个特定动作</p>
@@ -414,18 +414,18 @@
 <p>状态值函数$v(s)$: 即基于t时刻的状态s能获得的return的期望，$v(s)=E[G_t|S_t=s]$，这里是仅按照状态转移矩阵选择执行何种动作，如果加入动作选择策略，那么函数就变成了$v_{\pi}(s) = E_{\pi}[G_t|S_t=s]$</p>
 <p>动作值函数$q_{\pi}(s,a)$: 基于t时刻的状态s，选择特定的一个action后能获得的return期望，这里的选择过程就隐含加入了策略。$q_{\pi}(s,a)= E_{\pi}[G_t|S_t=s, A_t=a]$</p>
 <h4 id="2-MDP与实例分析"><a href="#2-MDP与实例分析" class="headerlink" title="2. MDP与实例分析"></a>2. MDP与实例分析</h4><p><strong>马尔可夫链/过程(Markov Chain/Process)</strong>，是具有markov性质的随机状态s1,s2,…序列。由$[S,P]$组成。如下图1圆圈内是状态，箭头上的值是状态之间的转移概率。class是指上第几堂课，facebook指看facebook网页，pub指去酒吧，pass指通过考试，sleep指睡觉。例如处于class1有0.5的概率转移到class2，或者0.5的概率转移到facebook。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_1.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl2_1.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图1 Markov Process Example(图片来源[1])</center></font></p>
 <p>从而可以产生非常多的随机序列，例如C1 C2 C3 Pass Sleep或者C1 FB FB C1 C2 C3 Pub C1 FB FB FB C1 C2 C3 Pub C2 Sleep等。这些随机状态的序列就是马尔可夫过程。这里可以看到有一些状态发生了循环。</p>
 <p><strong>马尔可夫奖赏过程(Markov Reward Process)</strong>，即马尔可夫过程加上value judgement，value judegment即判断一个像上面一个特定的随机序列有多少累积reward，也就是计算出$v(s)$。它由$[S,P,R,\gamma]$组成，示意图如下。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_2.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl2_2.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图2 Markov Reward Process Example(图片来源[1])</center></font></p>
 <p>可以看出比图1多了红色部分即R，但是R的取值只决定了immediate reward，在实际过程中肯定是需要考虑到后面步骤的reward才能确定当前的选择是否正确。而实际上$v(s)$由两部分组成，一个是immediate reward，一个是后续状态产生的discounted reward，推导如下(这里我觉得视频里似乎把$ER_s$与$R_{t+1}$的取值当成一样的了)，推导出来的这个式子称为Bellman方程。</p>
 <p>$$<br>\begin{split}<br>v(s) = &amp;E[G_t|S_t=s] \<br>       = &amp;E[R_{t+1} + \gamma (R_{t+2}+\gamma R_{t+3}+…) | S_t=s] \<br>        = &amp;E[R_{t+1} + \gamma G_{t+1} | S_t=s] \<br>        = &amp;ER_s + \gamma \sum_{s’\in S}P_{ss’}v(s’)<br>\end{split} ::::: (1)<br>$$</p>
 <p>那么每一个状态下能得到的状态值函数取值或者说累积reward如下所示，即原来写着class、sleep状态的地方替换成了数字(这里假设$\gamma = 1$)。可以从sleep状态出发，推导出每个状态的状态值函数取值，如右上角红色公式所示。最右的-23与-13，列出二元一次方程组即可求出。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_3.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl2_3.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图3 State Value Function Example(图片来源[1])</center></font></p>
 <p>将Bellman方程表达成矩阵形式，变成了$v = ER + \gamma Pv$，是个线性等式，直接求解得到$v = (I - \gamma P)^{-1}ER$。而这样求解的话计算复杂度是$O(n^3)$，所以一般通过动态规划、蒙特卡洛估计与Temporal-Difference learning这些迭代的方式求解。</p>
@@ -433,16 +433,16 @@
 <p>$$<br>v_{\pi}(s) = \sum_{a\in A}\pi(a|s)(R_s^a + \gamma \sum_{s’\in S}P_{ss’}^av_{\pi}(s’))  ::::: (2)<br>$$</p>
 <p>$$<br>q_{\pi}(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a\sum_{a’\in A}\pi(a’|s’)q_{\pi}(s’,a’)  ::::: (3)<br>$$</p>
 <p>下图是一个MDP的例子，箭头上的单词表示action，与MRP不同的是，这里给出的immediate reward是同时在某个状态s和某个动作a条件下，所以图中R不是只取决于s，而是取决于s和a。右上角的等式表达出了这一个状态的状态值函数求解过程。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_4.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl2_4.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图4 Markov Decision Processes Example(图片来源[1])</center></font></p>
 <p>由于策略$\pi(a|s)$是可以改变的，因此两个值函数的取值不像MRP一样是固定的，那么就能从不同的取值中找到一个最大值即最优值函数(这节课没有讲如何求解)。例如下面两个图就是上面的例子能找到的最优状态值函数$v_*(s)$与最优动作值函数$q_*(s,a)$。如果知道了$q_*(s,a)$，那么也就知道了在每一步选择过程中应该选择什么样的动作。也就是说MDP需要解决的问题并不是每一步到底会获得多少累积reward，而是找到一个最优的解决方案。这两个最优值函数同样存在着一定关系，$v_*(s) = \underset{a}{max}:q_*(s,a)$，从而可以推出$q_*(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a \underset{a’}{max}: q_*(s’, a’)$，这个等式称为Bellman优化方程，它不是一个线性等式，没有闭式解。通常通过值迭代、策略迭代、Q-learning、Sarsa等方法求解。</p>
 <p>$$<br> v_*(s) = \underset{a}{max}: q_*(s,a) ::::: (4)<br>$$</p>
 <p>$$<br>q_*(s,a) = R_s^a + \gamma \sum_{s’\in S}P_{ss’}^a \underset{a’}{max}: q_*(s’, a’)  ::::: (5)<br>$$</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_5.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl2_5.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图5 Optimal State-Value Function Example(图片来源[1])</center></font></p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl2_6.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/12/reinforcementlearninglesssion2/rl2_6.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图6 Optimal Action-Value Function Example(图片来源[1])</center></font></p>
 <p>实际上一定存在这样的一个最优策略$\pi_*$。可以通过最大化$q_*(s,a)$获得。针对任意的MDP问题，总是存在一个最优的deterministic policy。</p>

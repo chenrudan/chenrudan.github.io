@@ -86,12 +86,12 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="最近两天研究了一下EM算法，主要是基于《统计学习方法》和论文《What is the expectation maximization algorithm?》，但是对两个文章里面给的实例求解过程都比较的困惑，搜索网上的一些博客也没有找到对应的求解过程，仔细研究了一下，想清楚之后求解其实很简单，但是中间也遇到了一些坑，所以把解题思路给出来。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/em1.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.138Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/12/02/emexample/em1.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.948Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【机器学习算法系列之一】EM算法实例分析">
 <meta name="twitter:description" content="最近两天研究了一下EM算法，主要是基于《统计学习方法》和论文《What is the expectation maximization algorithm?》，但是对两个文章里面给的实例求解过程都比较的困惑，搜索网上的一些博客也没有找到对应的求解过程，仔细研究了一下，想清楚之后求解其实很简单，但是中间也遇到了一些坑，所以把解题思路给出来。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/em1.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2015/12/02/emexample/em1.png">
 
 
 
@@ -409,7 +409,7 @@
 <p>$$\frac{\partial Q}{\partial \pi} = (\frac{\mu_1}{\pi} - \frac{1-\mu_1}{1-\pi})+\cdot \cdot \cdot + (\frac{\mu_N}{\pi} - \frac{1-\mu_N}{1-\pi}) = \frac{\mu_1-\pi}{\pi(1-\pi)} + \cdot \cdot \cdot + \frac{\mu_N-\pi}{\pi(1-\pi)} = \frac{\sum _{j=1} ^N\mu_j-N\pi}{\pi(1-\pi)}$$</p>
 <p>再令这个结果等于0，即获得$\pi^{i+1} = \frac{1}{N}\sum_{j=1}^{N}\mu_j^{i+1}$，其他两个也同理。</p>
 <h4 id="2-两硬币模型"><a href="#2-两硬币模型" class="headerlink" title="2.两硬币模型"></a>2.两硬币模型</h4><p>假设有两枚硬币A、B，以相同的概率随机选择一个硬币，进行如下的掷硬币实验：共做5次实验，每次实验独立的掷十次，结果如图中a所示，例如某次实验产生了H、T、T、T、H、H、T、H、T、H，H代表证明朝上。a是在知道每次选择的是A还是B的情况下进行，b是在不知道选择的硬币情况下进行，问如何估计两个硬币正面出现的概率？</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/em1.png" alt="1" height="50%" width="50%" hspace="200">
+<img src="/blog/2015/12/02/emexample/em1.png" alt="1" height="50%" width="50%" hspace="200">
 
 <p><font size="2"><center>图1 两硬币模型题目(图来源[1])</center></font></p>
 <p>针对a情况，已知选择的A or B，重点是如何计算输出的概率分布，论文中直接统计了5次实验中A正面向上的次数再除以总次数作为A的$\hat{\theta_A}$，这其实也是极大似然求导求出来的。 </p>

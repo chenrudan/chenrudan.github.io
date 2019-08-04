@@ -86,14 +86,14 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_3.jpg">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_4.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.137Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4/rl.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4/rl4_3.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4/rl4_4.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.945Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【David Silver强化学习公开课之四】Model-Free Learning(解决未知Environment下的Prediction问题)">
 <meta name="twitter:description" content="本文是David Silver强化学习公开课第四课的总结笔记。这一课主要讲了解决在未知environment的情况下强化学习的prediction问题的两种方法，分别是Monte-Carlo Reinforcement Learning和Temporal Difference。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/07/11/reinforcementlearninglesssion4/rl.png">
 
 
 
@@ -399,7 +399,7 @@
 <p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MC-TD.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/MC-TD.pdf</a>。</p>
 <p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/07/11/reinforcementlearninglesssion4/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>上节课中通过动态规划能够解决已知environment的MDP问题，也就是已知$S,A,P,R,\gamma$，其中根据是否已知policy将问题又划分成了prediction和control问题，本质上来说这种known MDP问题已知environment即转移矩阵与reward函数，但是很多问题中environment是未知的，不清楚做出了某个action之后会变到哪一个state也不知道这个action好还是不好，也就是说不清楚environment体现的model是什么，在这种情况下需要解决的prediction和control问题就是Model-free prediction和Model-free control。显然这种新的问题只能从与environment的交互得到的experience中获取信息。</p>
 <p>这节课要解决的问题是Model-free prediction，即未知environment的Policy evaluation，在给定的policy下，每个state的value function是多少。</p>
@@ -417,7 +417,7 @@
 <p>$$<br>G_t^{\lambda} = (1-\lambda)\sum_{n=1}^{\infty }\lambda^{n-1}G_t^{(n)} :::: (5)<br>$$</p>
 <p>$$<br>V(S_t) = V(S_t) + \alpha(G_t^{\lambda} - V(S_t)) ::::(6)<br>$$</p>
 <p>下面左图是一个从办公室驾驶回家的路上花费时间的例子，第一列表示当前状态，例如下雨，离开高速等等，第二列表示当前花费时间，第三列表示估计还有多久能到家，第四列是前两列之和，表示估计要花费的总时间。要求的value function是当前状态下要到家的总时间，针对这个问题，MC和TD算法都给出了自己的解决结果，即右图中的虚线。可以明显看出来蒙特卡洛方法是根据整个流程走完了之后，根据最后的结果更新了前面每个state的value function都是43，而TD则是走完一步，发现当前花费总时间发生了变化，就更新上一个状态所需的时间，因此第一个状态的value function取值是40，第二个状态value function取值是35等等。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_3.jpg" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/07/11/reinforcementlearninglesssion4/rl4_3.jpg" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图1 驾驶例子(图片来源[1])</center></font></p>
 <h4 id="4-Monte-Carlo-VS-Temporal-Difference"><a href="#4-Monte-Carlo-VS-Temporal-Difference" class="headerlink" title="4.Monte-Carlo VS. Temporal Difference"></a>4.Monte-Carlo VS. Temporal Difference</h4><p>在谈两种算法的优劣前，先谈谈Bias/Variance tradeoff的问题。平衡Bias/Variance是机器学习比较经典的一个问题，bias是指预测结果与真实结果的差值，variance是指训练集每次预测结果之间的差值，bias过大会导致欠拟合它衡量了模型是否准确，variance过大会导致过拟合衡量了模型是否稳定。如果$G_t$和$R_{t+1}+\gamma v_{\pi}(S_{t+1})$跟真实值一样，那么就是无偏差估计。因为在MC算法中，它是将最终获得的reward返回到了前面的状态，因此是真实值，但是它采样的episode并不能代表所有的情况，所以会导致比较大的variance。而TD的$R_{t+1}+\gamma V(S_{t+1})$跟真实值是有偏差的，在计算的过程基于随机的状态、转移概率、reward等等，涵盖了一些随机的采样，因此variance比较小。</p>
@@ -446,7 +446,7 @@
 <td align="center">体现出了马尔可夫性质</td>
 </tr>
 </tbody></table>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl4_4.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/07/11/reinforcementlearninglesssion4/rl4_4.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图2 Policy Evaluation相关算法(图片来源[1])</center></font></p>
 <p>上面的图是用Policy Evaluation解决强化学习问题的一些算法的区别与相关性，最左边的竖线表示如果考虑了所有的可能发生的情况那么就是动态规划，如果只考虑了部分采样那么就是时序差分。下面的横线表示如果考虑了一次episode中全部的动作就是Monte-Carlo，如果只考虑部分动作就是时序差分。如果又考虑全部情况又考虑每一种情况的全部动作就是穷举。</p>

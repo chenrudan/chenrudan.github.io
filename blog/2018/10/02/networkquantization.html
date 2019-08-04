@@ -86,21 +86,31 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文主要梳理了模型量化算法的一些文章，阐述了每篇文章主要的内核思想和量化过程，整理了一些对这些文章的分析和看法。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2vkw1j21ek0mb0y7.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2vxvsj21bi0wl44x.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwzlxsj20ly0ao76w.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwrgqej20ly07edg7.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwtyasj20md0caq4e.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwxqd2j20t3075tae.jpg">
-<meta property="og:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwsvggj20q5082my5.jpg">
-<meta property="og:updated_time" content="2019-08-04T13:12:48.338Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vkw1j21ek0mb0y7.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vxvsj21bi0wl44x.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vkw1j21ek0mb0y7.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vxvsj21bi0wl44x.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwzlxsj20ly0ao76w.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwzlxsj20ly0ao76w.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwrgqej20ly07edg7.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwrgqej20ly07edg7.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwtyasj20md0caq4e.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwtyasj20md0caq4e.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwxqd2j20t3075tae.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwxqd2j20t3075tae.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwsvggj20q5082my5.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwsvggj20q5082my5.jpg">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.960Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="神经网络模型量化方法简介">
 <meta name="twitter:description" content="本文主要梳理了模型量化算法的一些文章，阐述了每篇文章主要的内核思想和量化过程，整理了一些对这些文章的分析和看法。">
-<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2018/10/02/networkquantization/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg">
 
 
 
@@ -403,7 +413,8 @@
         <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
 <p>随着神经网络算法的发展，网络性能虽然越来越强大，但是也耗费了太多的计算资源和内存，为了得到更有效率的网络以及能部署在移动端，近几年神经网络的压缩算法成了一个研究热点，主要的网络压缩途径有五种，量化、剪枝、低秩分解、教师-学生网络、轻量化网络设计，量化就是将以往用32bit或者64bit表达的浮点数用1bit、2bit占用较少内存空间的形式进行存储。剪枝的目的是为了去掉一些不重要的神经元、连接、通道等，低秩分解主要是通过各种分解方法用精简的张量来表达复杂张量，教师-学生网络间接通过提升小网络性能来压缩学生网络的规模，一般可以与其他压缩方法同时使用，轻量化网络设计主要是类似MobileNet这种设计的非常精简但性能又好的网络。几种方法都各有特点，都是值得研究和讨论的，本文主要针对量化算法近几年的发展做一个梳理和归纳，我觉得量化算法有几个特点，理论简单，公式少，性能稳定且trick多。</p>
 <p>下图1-4我整理了本文涉及到的文章在各个开源数据集上的性能表现，由于各个文章中对比指标不是完全一致，例如MNIST、Cifar10所用到的基础网络不一定一样，对性能感兴趣的可以去对照原文看看。</p>
-<table><tr><td><center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg"><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2vkw1j21ek0mb0y7.jpg">图1  Cifar10、VGG、GoogLeNet </center></td><td><center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">图2 AlexNet</center></td></tr><tr><td><center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">图3 ResNet18</center></td><td><center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00i2vxvsj21bi0wl44x.jpg">图4 ResNet34 & ResNet50</center></td></tr></table>
+<table><tr><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg"><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vkw1j21ek0mb0y7.jpg">图1  Cifar10、VGG、GoogLeNet </center></td><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">图2 AlexNet</center></td></tr><tr><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">图3 ResNet18</center></td><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vxvsj21bi0wl44x.jpg">图4 ResNet34 & ResNet50</center></td></tr></table>
+<table><tr><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fvx8hhjfbfj21ji0vktfq.jpg"><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vkw1j21ek0mb0y7.jpg">图1  Cifar10、VGG、GoogLeNet </center></td><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">图2 AlexNet</center></td></tr><tr><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2wpqfj20wx120afp.jpg">图3 ResNet18</center></td><td><center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00i2vxvsj21bi0wl44x.jpg">图4 ResNet34 & ResNet50</center></td></tr></table>
 
 <p>模型量化主要包括两个部分，一是针对权重Weight量化，一是针对激活值Activation量化，在一些文章中已经表明了将权重和激活值量化到8bit时就可以等价32bit的性能。在神经网络中的基本操作就是权重和激活值的卷积、乘加操作，$W*A$如果将其中一项量化到{-1,1}，那么就将乘加操作简化为了加减操作，如果两项都量化到{-1,1}，乘加操作就简化为了按位操作，对于硬件计算是非常友好的。</p>
 <h3 id="1">BinnaryConnect</h3>
@@ -414,7 +425,8 @@
 <p>$$<br>w_b= \begin{cases} +1, &amp; \text {if $w \geq$ 0}; \ -1, &amp; \text{otherwise} \end{cases} \tag{1}<br>$$</p>
 <p>$$<br>w_b= \begin{cases} +1, &amp; \text {with probability $p=\sigma (w)$}; \ -1, &amp; \text{with probability 1-p} \end{cases} \tag{2}<br>$$</p>
 <p>完整算法流程如下图5，C是损失函数，binarize(w)是按照上述公式二值化权重值，clip(w)是截断权重值，L是层数。前向传播时，只对权重做二值化，然后逐层求出二值权重得到的激活值，反向传播时，也是在二值权重上将对每层输入的导数传播回来，此时的导数是浮点的，更新参数时，同样求得的梯度也是浮点的。由于通常求得的梯度数值不是很大但是又非常重要，所以此处参数更新时还是用浮点梯度。由于权重量化时只取符号，浮点权重大于正负1，对结果没有影响，为了限制浮点权重不会增长过于夸张以及提高正则性，使用了clip函数将浮点权重限制在正负1之间。</p>
-<center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwzlxsj20ly0ao76w.jpg">图5 BinnaryConnect算法流程</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwzlxsj20ly0ao76w.jpg">图5 BinnaryConnect算法流程</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwzlxsj20ly0ao76w.jpg">图5 BinnaryConnect算法流程</center>
 
 <p>量化网络如何inference，一是直接用二值权重。二是用浮点权重，权重二值化只用在训练阶段。三是从浮点权重和随机二值化可以采样出很多二值网络，将它们的预测输出平均一下作为输出。论文用第三种方法，训练过程中用随机二值权重，测试时用浮点权重可以提升性能，证明了论文前面认为的带噪声的权重具有一定的正则性。</p>
 <p>这篇文章主要贡献在于将浮点权重量化到1bit，提出了完整的量化权重流程，且从带噪声的权重角度来解释量化权重。</p>
@@ -459,7 +471,8 @@
 
 <p>FFN[16]中只将浮点权重量化到2bit，通过定点化分解方式来求解量化后权重，由于三值权重只有正负1和0，即可以消除最耗费资源的multiply-accumulate operations(MAC)操作，FFN可以得到浮点网络性能相当的网络，且乘法运算仅为浮点网络的千分之一。</p>
 <p>通过semidiscrete decomposition(SDD)半离散分解将浮点权重W分解成定点化方式$W=XDY^T$，中D是一个非负对角矩阵，X和Y每个元素取值为{-1,0,1}，所以一个正常的卷积n*c*h*w会被分解成三个步骤，卷积有n个输出channel，拆成三个后，第一个可看成有k个输出channel的卷积，即k*c*h*w，第二个步骤相当于每个特征图都乘以一个尺度因子，最后一个也可以看成卷积层大小是n*1*1*k。</p>
-<center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwrgqej20ly07edg7.jpg">图6 FFN分解</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwrgqej20ly07edg7.jpg">图6 FFN分解</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwrgqej20ly07edg7.jpg">图6 FFN分解</center>
 
 <p>为了更好的恢复浮点权重，算法中保留了X和Y对应的浮点数值$\hat{X}$和$\hat{Y}$，且浮点数值被限制在-1.5~1.5，根据取值落在哪个区间量化到哪个数值，而在梯度更新时，更新的对象是$\hat{X}$和$\hat{Y}$。</p>
 <p>FFN只针对权重做了量化，提出了将浮点权重矩阵用矩阵分解的方式分解成三个简单矩阵，其中两个矩阵元素取值为正负1和0，从而间接完成量化的功能。</p>
@@ -470,7 +483,8 @@
 <p>本文中低bit权重需要一个符号位，至少从2bit开始，b是比特数，取值范围是$P_l={\pm 2^{n_1},…,\pm 2^{n_2},0}$，由两个整数n1n2定义$n_2 = n_1+1-\frac{2^{b-1}}{2}$，通过经验公式可以计算出n1n2。量化公式9中的$\alpha$和$\beta$就是$P_l$中相邻的两项。</p>
 <p>$$<br>\hat{W_l}(i,j)=\beta sgn(W_l(i,j)) :::: \text{if}(\alpha+\beta)/2\leq abs(W_l(i,j))&lt; 3\beta/2 \<br>0, otherwise   \tag{9}<br>$$</p>
 <p>网络训练过程中，将权重分割到两个不相交的组中，第一个组$A_l^{(1)}$中的权重基于公式4进行组内量化，另一个组$A_l^{(2)}中权重保持浮点精度，自适应的弥补量化模型造成的loss，且在反向re-training更新权重时，通过一个mask来判断属于哪个组，属于第一个组的量化权重就不更新，只更新第二个组的浮点权重。然后针对第二个组的浮点权重做重复的三步操作，直到所有权重被量化完成。</p>
-<center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwtyasj20md0caq4e.jpg">图7 INQ算法</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwtyasj20md0caq4e.jpg">图7 INQ算法</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwtyasj20md0caq4e.jpg">图7 INQ算法</center>
 
 <p>INQ算法对权重进行了量化，通过逐步增量式的将权重量化，通过保留一部分浮点权重来恢复模型的性能，精度损失得到了一定的遏止。</p>
 <h3 id="8">SQ-B(T)WN</h3>
@@ -478,7 +492,8 @@
 <p>SQ-B(T)WN[6]也是一种增量式量化算法，它从不同权重会导致不同量化误差角度，在近似实数权重时，可能只是针对部分filter量化error大，部分filter量化error小，文章提出了随机选择部分filter量化STOCHASTIC QUANTIZATION，逐渐增加量化比例最终完成全部权重量化。</p>
 <p>一层的权重按照输出channel作为一组数据$W={W_1,…,W_m}$，其中m等于输出channel数量，第i个filter权重是$W_i$。也是将这一层的权重划分成两个不相交的集合$G_q$和$G_r$，将$G_q$中权重量化到低bit，而$G_r$权重还是浮点，$G_q$有$N_q=r*m$个filter，而$G_q$有$N_q=(1-r)*m$个。其中r就是随机量化SQ比例，r在逐渐增加，最终增加到1。</p>
 <p>针对每一个filter$W_i$都有自己的一个量化概率$p_i$，表明第i个filter被量化的概率，量化概率的取值由量化误差决定。当量化误差小时，量化当前的这个channel就会造成较少不同的信息损失，那么就能给这个channel赋予较大的量化概率。首先定义浮点权重和量化权重的L1距离$e_i=\frac{||W_i-Q_i||_1}{||W_i||_1}$，将它作为量化误差，并定义一个中间变量$f_i=\frac{1}{e_i+\epsilon }$，从而量化概率可以有不同的求解方法，例如$p_i=1/m$或者$p_i=\frac{1}{1+exp(-f_i)}$。</p>
-<center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwxqd2j20t3075tae.jpg">图8 随机channel量化</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwxqd2j20t3075tae.jpg">图8 随机channel量化</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwxqd2j20t3075tae.jpg">图8 随机channel量化</center>
 
 <p>在图8中，先计算出4个channel的量化error，假设当前r=50%，根据每个channel计算出来的量化概率挑选2个channel量化。</p>
 <p>SQ-B(T)WN算法通过逐步量化权重，比直接全部量化产生的更加合适梯度方向，但是从算法结果上来说，看起来并不是特别好。</p>
@@ -533,7 +548,8 @@
 <p>本文[20]为了提升量化网络训练性能，提出了三个方法，一是两步优化策略，先量化权重再量化激活值，其次在训练过程中逐步减少量化位宽，第三联合训练浮点网络和低精度网络。</p>
 <p>量化采用的是Q函数均匀量化，$z_q=Q(z_r)=\frac{1}{2^k-1}round((2^k-1)z_r)$，在量化权重时，先对w做归一化，其中tanh可以减少大值的影响，再用Q函数去量化，求解形式与DoReFa-Net是一样的。针对激活值，先将激活值通过clip函数限制在0~1的范围内，然后用Q量化。反向传播更新梯度也是基于STE算法。</p>
 <p>为了增加量化的准确性，本文首先提出了两步优化two-stage optimization(TS)，先量化权重再量化激活值，如果从K-bit的网络量化得到k-bit的网络，首先训练在K-bit激活值下的k-bit权重，在k-bit权重训练好后训练k-bit的激活值。而由于训练过程中近似的梯度不一定是准确的，所以会导致陷入局部最优值的情况，所以本文提出了分阶段量化progressive quantization(PQ)的想法，逐步减少量化位宽的方法，例如32bit-&gt;16bit-&gt;4bit-&gt;2bit，量化n次就得完整训练n次。第三个提升方法是基于教师-学生网络(Guided)，联合训练浮点网络和低精度网络，互相适应，因为直接用固定的预训练好的浮点模型来指导量化网络不一定最好，且在特征图层面上进行迁移，为了保持浮点网络和低精度网络一致，在相互适应时，将浮点网络也做同样的量化，然后再相互迁移。</p>
-<center><img src="https://ww1.sinaimg.cn/large/e50cb7acgy1fw00kwsvggj20q5082my5.jpg">图9 Guided训练</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwsvggj20q5082my5.jpg">图9 Guided训练</center>
+<center><img src="/blog/2018/10/02/networkquantization/e50cb7acgy1fw00kwsvggj20q5082my5.jpg">图9 Guided训练</center>
 
 <p>这个方法主要是提出一些有效的trick来辅助训练量化网络，且表现非常不错。</p>
 <h3 id="16">SYQ</h3>

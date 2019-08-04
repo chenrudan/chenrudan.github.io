@@ -86,16 +86,16 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/reduction.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/manifold_learning.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lda.jpg">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder2.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.142Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction/reduction.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction/manifold_learning.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction/lda.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction/autoencoder.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction/autoencoder2.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.951Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【机器学习算法系列之三】简述多种降维算法">
 <meta name="twitter:description" content="最近看了一些关于降维算法的东西，本文首先给出了七种算法的一个信息表，归纳了关于每个算法可以调节的(超)参数、算法主要目的等等，然后介绍了降维的一些基本概念，包括降维是什么、为什么要降维、降维可以解决维数灾难等，然后分析可以从什么样的角度来降维，接着整理了这些算法的具体流程。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/reduction.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction/reduction.png">
 
 
 
@@ -413,7 +413,7 @@
 <li><a href="#4">4. 小结</a></li>
 </ul>
 <p>老规矩，先上一个各个算法信息表，$X$表示高维输入矩阵大小是高维数D乘以样本个数N，$C=XX^T$，$Z$表示降维输出矩阵大小低维数d乘以N，$E=ZZ^T$，线性映射是$Z=W^TX$，高维空间中两两之间的距离矩阵为A，$S_w, S_b$分别是LDA的类内散度矩阵和类间散度矩阵，k表示流形学习中一个点与k个点是邻近关系，$F$表示高维空间中一个点由周围几个点的线性组合矩阵，$M=(I-F)(I-F)^T$。$-$表示不确定。$P$是高维空间中两点距离占所有距离比重的概率矩阵，$Q$低维空间中两点距离占所有距离比重的概率矩阵。$l$表示全连接神经网络的层数，$D_l$表示每一层的节点个数。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/reduction.png" alt="1" height="100%" width="100%" hspace="0">
+<img src="/blog/2016/04/01/dimensionalityreduction/reduction.png" alt="1" height="100%" width="100%" hspace="0">
 
 <p><font size="2"><center>图1 不同降维算法对比</center></font></p>
 <p>这里autoencoder是否去中心化个人觉得还是有点疑问，在处理图像数据的时候，会对输入图片做一个变到0均值的预处理，但是这个操作是针对一张样本内减均值[1]，这里的去中心化指的是针对某一维数据减均值，并不是一个概念。下面开始具体谈谈降维相关的内容。</p>
@@ -424,7 +424,7 @@
 <h3 id="2">2. 从什么角度出发来降维</h3>
 
 <p>一般来说可以从两个角度来考虑做数据降维，一种是直接提取特征子集做特征抽取，例如从512*512图中只取中心部分，一种是通过线性/非线性的方式将原来高维空间变换到一个新的空间，这里主要讨论后面一种。后面一种的角度一般有两种思路来实现[2]，一种是基于从高维空间映射到低维空间的projection方法，其中代表算法就是PCA，而其他的LDA、Autoencoder也算是这种，主要目的就是学习或者算出一个矩阵变换W，用这个矩阵与高维数据相乘得到低维数据。另一种是基于流形学习的方法，流形学习的目的是找到高维空间样本的低维描述，它假设在高维空间中数据会呈现一种有规律的低维流形排列，但是这种规律排列不能直接通过高维空间的欧式距离来衡量，如下左图所示，某两点实际上的距离应该是下右图展开后的距离。如果能够有方法将高维空间中流形描述出来，那么在降维的过程中就能够保留这种空间关系，为了解决这个问题，流形学习假设高维空间的局部区域仍然具有欧式空间的性质，即它们的距离可以通过欧式距离算出(Isomap)，或者某点坐标能够由临近的节点线性组合算出(LLE)，从而可以获得高维空间的一种关系，而这种关系能够在低维空间中保留下来，从而基于这种关系表示来进行降维，因此流形学习可以用来压缩数据、可视化、获取有效的距离矩阵等。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/manifold_learning.png" alt="1" height="30%" width="30%" hspace="370">
+<img src="/blog/2016/04/01/dimensionalityreduction/manifold_learning.png" alt="1" height="30%" width="30%" hspace="370">
 
 <p><font size="2"><center>图2 流形学习</center></font></p>
 <h3 id="3">3. 几种降维方法流程</h3>
@@ -463,7 +463,7 @@
 <h4 id="3.3">3.3 线性判别分析(LDA)</h4>
 
 <p>LDA最开始是作为解决二分类问题由Fisher在1936年提出，由于计算过程实际上对数据做了降维处理，因此也可用作监督线性降维。它通过将高维空间数据投影到低维空间，在低维空间中确定每个样本所属的类，这里考虑K个类的情况。它的目标是将样本能尽可能正确的分成K类，体现为同类样本投影点尽可能近，不同类样本点尽可能远，这点跟PCA就不一样，PCA是希望所有样本在某一个维数上尽可能分开，LDA的低维投影可能会重叠，但是PCA就不希望投影点重叠。它采用的降维思路跟PCA是一样的，都是通过矩阵乘法来进行线性降维，投影点是$\mathbf{z_i}=W^T*\mathbf{x_i}$。假设按下图中的方向来投影，投影中心对应的原来高维点分别是$\mu1，\mu2$。由于希望属于不同类的样本尽可能离的远，那么就希望投影过后的投影中心点离的尽可能远，即目标是$\underset{W}{max}; || W^T\mathbf{\mu_1}-W^T\mathbf{\mu_2} | |^2$，但是仅仅有中心离的远还不够，例如下图中垂直于x1轴投影，两个中心离的足够远，但是却有样本在投影空间重叠，因此还需要额外的优化目标，即同类样本投影点尽可能近。那么同类样本的类间协方差就应该尽可能小，同类样本的协方差矩阵如下。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lda.jpg" alt="1" height="30%" width="30%" hspace="370">
+<img src="/blog/2016/04/01/dimensionalityreduction/lda.jpg" alt="1" height="30%" width="30%" hspace="370">
 
 <p><font size="2"><center>图3 LDA进行投影(图来源[4])</center></font></p>
 <p>$$<br>\underset{w}{min};<br>= \underset{X\in X_1}{\sum}(W^TX-W^T\mu_1)(W^TX-W^T\mu_1)^T = W^T(\underset{X\in X_1}{\sum}(X-\mu_1)(X-\mu_1))W = W^T\sum_{X_1} W<br>$$</p>
@@ -533,11 +533,11 @@
 <h4 id="3.7">3.7 Deep Autoencoder Networks</h4>
 
 <p>Autoencoder是神经网络的一种，它是一种无监督算法，可以用来降维也能用来从数据中自动学习某种特征，这个神经网络的原理是输入一组值，经过网络之后能够获得一组输出，这组输出的值尽可能的跟输入的值大小一致。网络由全连接层组成，每层每个节点都跟上一层的所有节点连接。Autoencoder的结构如下图4所示，encoder网络是正常的神经网络前向传播$\mathbf{z} = W\mathbf{x}+\mathbf{b}$，decoder网络的传播参数是跟它成对称结构的层参数的转置，经过这个网络的值为$\mathbf{\mathbf{x}’ = W^T\mathbf{z}+\mathbf{b}^T}$，最后传播到跟网络的输入层个数相等的层时，得到一组值$\mathbf{x}’$，网络希望这两个值相等$\mathbf{x}’=\mathbf{x}$，这个值与真实输入$x$值通过交叉熵或者均方误差得到重构误差的cost function，再通过最小化这个cost和梯度下降的方法使网络学到正确的参数。因此可以通过这个网络先经过”encoder”网络将高维数据投影到低维空间，再经过”decoder”网络反向将低维数据还原到高维空间。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder.png" alt="1" height="15%" width="15%" hspace="490">
+<img src="/blog/2016/04/01/dimensionalityreduction/autoencoder.png" alt="1" height="15%" width="15%" hspace="490">
 
 <p><font size="2"><center>图4 Autoencoder网络结构图</center></font></p>
 <p>然而在实际的实现网络过程中，整个网络实际上层数只是图4中的一半，即4层网络，2000-1000-500-30的全连接结构。因为权重参数实际上在encoder和decoder中是相同的，enocoder过程是上一层的节点值乘以权重得到这一层的节点值，而decoder是这一层节点值与权重矩阵的转置相乘得到上一层的节点值。下图[7]更加清晰的展示了每一层实际的结构，包括一次前向传播和后向传播，因此可以拿最顶层的值作为网络的降维输出来进行其他的分析，例如可视化，或者作为压缩特征使用。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/autoencoder2.png" alt="1" height="30%" width="30%" hspace="370">
+<img src="/blog/2016/04/01/dimensionalityreduction/autoencoder2.png" alt="1" height="30%" width="30%" hspace="370">
 
 <p><font size="2"><center>图5 Autoencoder层间结构</center></font></p>
 <p>06年的时候Hinton在science上发了一篇文章讲如何用深度学习中的autoencoder网络来做降维[8]，主要是提出了先通过多层RBM来预训练权重参数，用来解决autoencoder降维后的质量依赖初始化网络权重的问题，即主要目的是提出一种有效的初始化权重的方式。上面的表达式中没有加入非线性变换，真实网络中每一层跟权重做矩阵乘法之后还需要加上非线性变换。此外，autoencoder的模型中可以加入sparsity的性质[9]，即针对N个D维输入，某一层的某一个节点输出值之和$\widehat{\rho_j}^{(l)}$趋近于0，即$\widehat{\rho_j}^{(l)} = \frac{1}{N}\sum_{i=1}^N[a_j^{(l)}(\mathbf{x^{(i)}})]$，其中l代表是哪一层，i代表是第几个输入。也能加对权重有要求的正则项。</p>

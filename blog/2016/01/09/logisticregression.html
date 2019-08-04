@@ -86,19 +86,19 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是受rickjin老师的启发，谈谈关于logistic regression的一些内容，虽然已经有珠玉在前，但还是做一下自己的总结。在查找资料的过程中，越看越觉得lr实在是博大精深，囊括的内容太多太多了，本文只能浅显的提到某些方面。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr1.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr3.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr2.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr4.jpg">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr5.jpg">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr6.jpg">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr7.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr8.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.156Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr1.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr3.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr2.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr4.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr5.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr6.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr7.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr8.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.971Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【机器学习算法系列之二】浅析Logistic Regression">
 <meta name="twitter:description" content="本文是受rickjin老师的启发，谈谈关于logistic regression的一些内容，虽然已经有珠玉在前，但还是做一下自己的总结。在查找资料的过程中，越看越觉得lr实在是博大精深，囊括的内容太多太多了，本文只能浅显的提到某些方面。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/lr1.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/01/09/logisticregression/lr1.png">
 
 
 
@@ -438,7 +438,7 @@
 <p>其中$K$就是他认为人口数量稳定的值，当$P(t)$远小于$K$时，求导公式后一项约等于0，那么就变成了$\frac{\partial P}{\partial t} \simeq  rP$，这个阶段人口增长速度与人口数量和一个常数的乘积成正比，并且在渐渐变大。然后对这个式子求解一阶线性微分方程得到$P(t)\simeq P(0)e^{rt}$。当$P(t)$接近$K$时，人口增长速度开始渐渐变小，同样求解二阶微分方程(论文中是将二阶转化成一阶求解)，然后将二者整合在一起得到最初的形式。</p>
 <p>$$<br>P(t) = \frac{P(0)e^{rt}}{1+P(0)(e^{rt}-1)/K}<br>$$</p>
 <p>他将法国英国等过十几年的人口实际数据拿来跟这个公式对比之后发现确实拟合的很不错。但他当时并没有那么多年的数据，下图1是在他过世以后人们总结的300年来的人口增长分布，可以看到非常漂亮的拟合了logisitc分布的累积分布函数走势。但是当时这个公式并没有名字，直到1845年他发表了另外一篇重要文章[2]，他给这个公式起了一个名字——“logistic”，此外在这篇文章中，他发现在$P(t)&lt;K/2$的时候，$P(t)$呈凸增长趋势，在$P(t)&gt;K/2$时$P(t)$呈凹增长(通过求二阶导来分析，这里略)。这个增长的趋势类似logistic分布的概率密度函数。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr1.png" alt="1" height="30%" width="30%" hspace="310">
+<img src="/blog/2016/01/09/logisticregression/lr1.png" alt="1" height="30%" width="30%" hspace="310">
 
 <p><font size="2"><center>图1 比利时的人口增长数量图(图来源[2])</center></font></p>
 <p>然而在后来的几十年内人们都没有意识到这个工作的重要性，很多人都独立的研究出了这个增长现象，直到1922年一个叫做Raymond Pearl的人口学家注意到Verhulst在1838年就已经提出了这个现象和公式，并在他的文章中也使用了logistic function来称呼它，并且沿用至今。在1920年Pearl[3]在研究美国人口增长规律时提出了另外一种表示logistic function的方法。</p>
@@ -455,13 +455,13 @@
 <p>随机变量X服从逻辑斯蒂分布，即X的累积分布函数为上文提到过的logistic function。对分布函数求导得到了概率密度函数。公式如下，参数影响参考图2(图来自维基百科，它的参数s就是统计学习方法上的$\gamma$)</p>
 <p>$$<br>F(x) = P(X \leqslant x) = \frac{1}{1+e^{-(x-\mu)/\gamma}}<br>$$</p>
 <p>$$<br>f(x) = F’(x) = \frac{e^{-(x-\mu)/\gamma}} { \gamma (1+e^{-(x-\mu)/\gamma})^2 }<br>$$</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr3.png" alt="1" height="30%" width="30%" hspace="310">
+<img src="/blog/2016/01/09/logisticregression/lr3.png" alt="1" height="30%" width="30%" hspace="310">
 
 <p><font size="2"><center>图2 不同参数对logistic分布的影响(图片来源维基百科)</center></font></p>
 <p>可以看到$\mu$影响的是中心对称点的位置，$\gamma$越小中心点附近增长的速度越快。而常常在深度学习中用到的非线性变换sigmoid函数是逻辑斯蒂分布的$\gamma=1,\mu=0$的特殊形式。</p>
 <h4 id="2.2">2.2 Binomial logistic regression model</h4>
 
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr2.png" alt="1" height="30%" width="30%" hspace="310">
+<img src="/blog/2016/01/09/logisticregression/lr2.png" alt="1" height="30%" width="30%" hspace="310">
 
 <p><font size="2"><center>图3 数据示例</center></font></p>
 <p>逻辑回归是为了解决分类问题，根据一些已知的训练集训练好模型，再对新的数据进行预测属于哪个类。如图3所示，有一些属于两个类的数据，目标是判断圆圈属于哪一类。也就是说逻辑回归的目标是找到一个有足够好区分度的决策边界，从而能够将两类很好的分开。假设已经存在这样一个边界，针对于图中这种线性可分的情况，这条边界是<br>输入特征向量的线性组合，假设输入的特征向量为$x\in R^n$(图中输入向量为二维)，$Y$取值为0，1。那么决策边界可以表示为$w_1x_1+w_2x_2+b=0$，假如存在一个例子使得$h_w(x) = w_1x_1+w_2x_2+b &gt; 0$，那么可以判断它类别为1，这个过程实际上是感知机，即只通过决策函数的符号来判断属于哪一类。而逻辑回归需要再进一步，它要找到分类概率$P(Y=1)$与输入向量$x$的直接关系，然后通过比较概率值来判断类别，而刚好上文中的logit function能满足这样的要求，它令决策函数的输出值$w^Tx+b$等于概率值比值取对数$log{\frac{P(Y=1|x)}{1-P(Y=1|x)}}$，求解这个式子得到了输入向量$x$下导致产生两类的概率为:</p>
@@ -511,7 +511,7 @@
 <h4 id="4.1">4.1 过拟合</h4>
 
 <p>之前的模型介绍和算法求解可以通过训练数据集(图2中的三角形和星形)将分类模型训练好，从而可以预测一个新数据(例如图2中的粉色圆圈)的分类，这种对新数据进行预测的能力称为泛化能力。而对新数据预测的结果不好就是泛化能力差，一般来说泛化能力差都是由于发生了过拟合现象。过拟合现象是指对训练数据预测很好但是对未知数据预测不行的现象，通常都是因为模型过于复杂，或者训练数据太少。即当$\frac{complexity\: of \:the \:model}{training \:set \:size}$比值太大的情况下会发生过拟合。模型复杂体现在两个方面，一是参数过多，二是参数值过大。参数值过大会导致导数非常大，那么拟合的函数波动就会非常大，即下图所示，从左到右分别是欠拟合、拟合和过拟合。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr4.jpg" alt="1" height="50%" width="50%" hspace="230">
+<img src="/blog/2016/01/09/logisticregression/lr4.jpg" alt="1" height="50%" width="50%" hspace="230">
 
 <p><font size="2"><center>图4 同样数据下欠拟合，拟合和过拟合(图片来源[12])</center></font></p>
 <p>在模型过于复杂的情况下，模型会学习到很多特征，从而导致可能把所有训练样本都拟合到，就像上图中一样，拟合的曲线将每一个点都正确的分类了。举个例子，假如要预测一个房子是贵还是便宜，房子的面积和所属的地区是有用的特征，但假如训练集中刚好所有贵的房子都是开发商A开发，便宜的都是开发商B开发，那么当模型变复杂能学习到的特征变多之后，房子是哪个开发商的会被模型认为是个有用特征，但是实际上这点不能成为判断的标准，这个现象就是过拟合。因此在这个例子中可以看到，解决的方法有两个，一个是减少学习的特征不让模型学到开发商的特征，一是增加训练集，让训练集有贵房子是B开发的样本。</p>
@@ -531,7 +531,7 @@
 <h4 id="5.1">5.1 逻辑回归与线性回归</h4>
 
 <p>在谈两者关系之前，需要讨论的是，逻辑回归中使用到的sigmoid函数到底起到了什么作用。下图的例子中，需要判断肿瘤是恶性还是良性，其中横轴是肿瘤大小，纵轴是线性函数$h_w(x)=w^Tx+b$的取值，因此在左图中可以根据训练集(图中的红叉)找到一条决策边界，并且以0.5作为阈值，将$h_w(x) \geqslant 0.5$情况预测为恶性肿瘤，这种方式在这种数据比较集中的情况下好用，但是一旦出现如右图中的离群点，它会导致学习到的线性函数偏离(它产生的权重改变量会比较大)，从而原先设定的0.5阈值就不好用了，此时要么调整阈值要么调整线性函数。如果我们调节阈值，在这个图里线性函数取值看起来是0～1，但是在其他情况下可能就是从$-\infty$到$\infty$，所以阈值的大小很难确定，假如能够把$w^Tx+b$的值变换到一个能控制的范围那么阈值就好确定了，所以找到了sigmoid函数，将$w^Tx+b$值映射到了(0,1)，并且解释成概率。而如果调节线性函数，那么最需要的是减少离群点的影响，离群点往往会导致比较大的$|w^Tx+b|$值，通过sigmoid函数刚好能够削弱这种类型值的影响，这种值经过sigmoid之后接近0或者1，从而对$w_j$的偏导数为$h_w(x^{(i)})(1-h_w(x^{(i)}))x_j^{(i)}$，无论接近0还是1这个导数都是非常小的。因此可以说sigmoid在逻辑回归中起到了两个作用，一是将线性函数的结果映射到了(0,1)，一是减少了离群点的影响。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr5.jpg" alt="1" height="55%" width="55%" hspace="200">
+<img src="/blog/2016/01/09/logisticregression/lr5.jpg" alt="1" height="55%" width="55%" hspace="200">
 
 <p><font size="2"><center>图5 良性恶性肿瘤分类(图来源[12])</center></font></p>
 <p>有了上面的分析基础，再来看看逻辑回归和线性回归的关系(线性回归我这里就不展开说了，不清楚的可以看看[11])，有的人觉得逻辑回归本质上就是线性回归，它们俩都要学习一个线性函数，逻辑回归无非是多加了一层函数映射，但是我对线性回归的理解是在拟合输入向量x的分布，而逻辑回归中的线性函数是在拟合决策边界，它们的目标是不一样的。所以我不觉得逻辑回归比线性回归好，它们俩要解决的问题不一样。但它们都可以用一个东西来概括，那就是广义线性模型GLM(Generalized linear models)[12]。先介绍何为指数簇(exponential family)，当某个随机变量的概率分布可以表示为$p(y;\eta )=b(y)exp(\eta^TT(y)-a(\eta))$时就可以说它属于指数簇，通过调整$\eta$可以获得不同的分布。对应于线性回归与逻辑回归的高斯分布与伯努利分布就是属于指数簇的，例如取$T(y)=y$、$a(\eta)=-log(1-\phi) = log(1+e^\eta)$以及$b(y)=1$代入上式得到$p(y;\eta) =exp(ylog(\frac{\phi}{1-\phi}) + log(1-\phi)) =exp(ylog{\phi}+log(1-\phi)) = \phi^{y}(1-\phi)^{1-y}$。</p>
@@ -594,7 +594,7 @@
 <h3 id="6">6. 并行化</h3>
 
 <p>由于找不到特别多的并行化资料，这里就分析一下博主冯扬给出的实现[20]。实际上逻辑回归的并行化最主要的目标就是计算梯度。将目标的label变为-1和1，那么梯度公式可以整合在一起变成$\sum_{i=1}^M(\frac{1}{1+exp(y^{(i)}w^Tx^{(i)})}-1)y^{(i)}x^{(i)}$，梯度计算里面最主要的就是矩阵乘法，一般的做法都是想办法将矩阵切割成大小合适的块。针对二分类，现在有M个样本，N个特征，假如有m*n个计算节点，并且将计算节点排列成m行n列，那么每个节点分配M/m个样本，N/n个特征，如下图所示。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr6.jpg" alt="1" height="55%" width="55%" hspace="200">
+<img src="/blog/2016/01/09/logisticregression/lr6.jpg" alt="1" height="55%" width="55%" hspace="200">
 
 <p><font size="2"><center>图6 并行LR的数据分割(图片来源[20])</center></font></p>
 <p>原文的标示我不太习惯，下面都改成了ij，并画出了矩阵运算的过程图。其中$X_{(i,j)}, i\in[1, m],j\in[1,n]$表示输入数据被分块后的第i行第j列的块。</p>
@@ -603,14 +603,14 @@
 <p>$$d_{(i,j),k}=W^T_jX_{(i,j),k}$$</p>
 <p>第二步计算</p>
 <p>$$d_{i,k} = \sum_{j=1}{n}d_{(i,j),k}$$</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr7.png" alt="1" height="50%" width="50%" hspace="200">
+<img src="/blog/2016/01/09/logisticregression/lr7.png" alt="1" height="50%" width="50%" hspace="200">
 
 <p><font size="2"><center>图7 并行LR的求梯度12步</center></font></p>
 <p>第三步计算</p>
 <p>$$G_{(i,j)} = \sum_{k=1}^{M/m}(\frac {1}{1+exp(y_{i,k} d_{i,k})} - 1) y_{i,k}X_{(i,j),k}$$</p>
 <p>第四步计算</p>
 <p>$$G_{j} = \sum_{i=1}^mG_{(i,j)}$$</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/lr8.png" alt="1" height="65%" width="65%" hspace="150">
+<img src="/blog/2016/01/09/logisticregression/lr8.png" alt="1" height="65%" width="65%" hspace="150">
 
 <p><font size="2"><center>图6 并行LR的求梯度34步</center></font></p>
 <p>从而，经过上面的分解步骤可以将逻辑回归来做并行化计算。</p>

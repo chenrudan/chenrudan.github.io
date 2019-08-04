@@ -86,15 +86,15 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_1.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_2.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_3.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.133Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3/rl.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3/rl3_1.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3/rl3_2.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3/rl3_3.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.941Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【David Silver强化学习公开课之三】动态规划解决MDP的Planning问题">
 <meta name="twitter:description" content="本文是David Silver强化学习公开课第三课的总结笔记。主要谈到了动态规划能够解决MDP的什么问题，能通过Policy Iteration和Value Iteration来解决，这两者指的是什么，出于什么样的考虑提出这两种思路，具体解决步骤是什么。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/06/17/reinforcementlearninglesssion3/rl.png">
 
 
 
@@ -400,7 +400,7 @@
 <p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/DP.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/DP.pdf</a>。</p>
 <p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/06/17/reinforcementlearninglesssion3/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>前两节课我忽略了一些内容，这节课用到了，所以先回顾一下。首先是Planning的概念，在第一节课提到过强化学习是一种Sequential Decision Making问题，它是一种试错(trial-and-error)的学习方式，一开始不清楚environment的工作方式，不清楚执行什么样的行为是对的，什么样是错的，因而agent需要从不断尝试的经验中发现一个好的policy。而Planning也属于Sequential Decision Making问题，不同的是它的environment是已知的，例如游戏的规则是已知的，所以agent不需要通过与environment的交互来获取下一个状态，而是知道自己执行某个action之后状态是什么，再优化自己的policy。因此这两者之间是有联系的，假如强化学习学习出来environment的模型，知道了environment是如何work的，强化学习要解决的问题就是Planning了。</p>
 <p>在第二课中，推导出了几个Bellman方程，回顾一下。</p>
@@ -436,18 +436,18 @@
 <li>Policy Evaluation:基于当前的Policy计算出每个状态的value function</li>
 <li>Policy Improvment:基于当前的value function，采用贪心算法来找到当前最优的Policy</li>
 </ul>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_1.png" alt="1" height="15%" width="15%" hspace="370">
+<img src="/blog/2016/06/17/reinforcementlearninglesssion3/rl3_1.png" alt="1" height="15%" width="15%" hspace="370">
 
 <p><font size="2"><center>图1 Policy Iteration过程图(图片来源[2])</center></font></p>
 <p>这里的Policy Evaluation要求的$v(s)$是通过计算第一个Bellman Expectation Equation得到的。下图是一个叫Small Gridworld的例子，左上角和右下角是终点，$\gamma = 1$，移动一步reward减少1，起始的random policy是朝每个能走的方向概率相同，先单独看左边一列，它表示在第k次迭代每个state上value function的值，这一列始终采用了random policy，这里的value function就是通过Bellman Expectation Equation得到的，考虑k=2的情况，-1.7 = -1.0 + 2*(1/3.0)*(-1)，-2.0 = -1.0 + 4*(1/4.0)*(-1)。而右边一列就是在当前的value function情况下通过greedy算法找到当前朝哪个方向走更好。</p>
 <p>Policy Iteration会一直迭代到收敛，具体证明过程可以去看视频(46:09起)。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_2.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/17/reinforcementlearninglesssion3/rl3_2.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图2 Policy Iteration实例(图片来源[2])</center></font></p>
 <h4 id="3-Value-Iteration"><a href="#3-Value-Iteration" class="headerlink" title="3. Value Iteration"></a>3. Value Iteration</h4><p>最优化原理:当且仅当任何从s能达到的$s’$能在当前policy下获取最优的value即$v_{\pi}(s’) = v_{*}(s’)$，那么状态s也能在当前policy下获得最优value$v_{\pi}(s) = v_{*}(s)$。</p>
 <p>从上面原理出发，如果已知子问题的最优值$v_{*}s’$，那么就能通过第一个Bellman Optimality Equation将$v_{*}(s)$也推出来。因此从终点开始向起点推就能把全部状态最优值推出来。Value Iteration通过迭代的方法，通过这一步的$v_k(s’)$更新下一步的$v_{k+1}(s)$不断迭代，最终收敛到最优的$v_{*}$，需要注意的是中间生成的value function的值不对应着任何policy。</p>
 <p>考虑下面这个Shortest Path例子，左上角是终点，要求的是剩下每一个格子距离终点的最短距离，每走一步，reward减少1，根据Value Iteration计算Bellman Optimality Equation就能得到后面的每一个正方形格子取值。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl3_3.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/06/17/reinforcementlearninglesssion3/rl3_3.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图3 Value Iteration实例(图片来源[2])</center></font></p>
 <p>因此，针对MDP要解决的两个问题，有如下几种方式来解决。针对prediction，因为它的目标是在已知的Policy下得到收敛的value function，因此针对问题不断迭代计算Bellman Expectation Equation就够了，但是control则需要同时获得最优的policy，那么在Iterative Policy Evaluation的基础上加入一个选择Policy的过程就行了，也就是上面的Policy Iteration，另外Value Iteration虽然在迭代的过程中没有显式计算出policy，但是在得到最优的value function之后就能推导出最优的policy，因此也能用做解决control问题。</p>

@@ -86,12 +86,12 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文主要为了解释清楚python的内存管理机制，首先介绍了一下python关于内存使用的一些基本概念，然后介绍了引用计数和垃圾回收gc模块，并且解释了分代回收和“标记-清除”法，然后分析了一下各种操作会导致python变量和对象的变化，最后做了一下小结。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/gc_graph.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.135Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/04/23/pythonmemorycontrol/gc_graph.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[Python]内存管理">
 <meta name="twitter:description" content="本文主要为了解释清楚python的内存管理机制，首先介绍了一下python关于内存使用的一些基本概念，然后介绍了引用计数和垃圾回收gc模块，并且解释了分代回收和“标记-清除”法，然后分析了一下各种操作会导致python变量和对象的变化，最后做了一下小结。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/gc_graph.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/04/23/pythonmemorycontrol/gc_graph.png">
 
 
 
@@ -496,7 +496,7 @@
 &gt;&gt;&gt; del b
 &gt;&gt;&gt; unreachable = gc.collect()
 &gt;&gt;&gt; unreachable
-1</code></pre><img src="http://7xkmdr.com1.z0.glb.clouddn.com/gc_graph.png" alt="1" height="40%" width="40%" hspace="280">
+1</code></pre><img src="/blog/2016/04/23/pythonmemorycontrol/gc_graph.png" alt="1" height="40%" width="40%" hspace="280">
 
 <p><font size="2"><center>图1 变量形成的有向图</center></font></p>
 <h5 id="2.2">2.2 各种操作对变量地址的改变</h5>

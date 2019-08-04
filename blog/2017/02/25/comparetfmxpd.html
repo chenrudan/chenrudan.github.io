@@ -86,17 +86,17 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文从定位、框架使用、分布式构成三个方面比较了TensorFlow、MXNet、PaddlePaddle三个框架。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_1.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_2.jpg">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_3.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_8.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_5.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_6.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.139Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_1.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_2.jpg">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_3.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_8.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_5.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_6.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.949Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TensorFlow、MXNet、PaddlePaddle三个开源库对比">
 <meta name="twitter:description" content="本文从定位、框架使用、分布式构成三个方面比较了TensorFlow、MXNet、PaddlePaddle三个框架。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_1.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2017/02/25/comparetfmxpd/tfmxpd_1.png">
 
 
 
@@ -418,31 +418,31 @@
 
 <p>这个部分简单谈谈从我们用户角度来看各个框架是怎么设计和使用的。</p>
 <p>tensorflow出发点是将一个算法表示成一张有向计算图，并提供了TensorBoard这样一个工具用于可视化算法[16]，如下图的节点和连线，包括了计算、数据以及控制关系。算法中涉及到的任何计算都抽象成符号operation，例如图中的conv、concat、add等椭圆形的计算节点，而算法涉及到的数据则是tensor，它在节点之间流动，连线上还展示了这个tensor的shape，有向图中还有一种数据节点variable，它表示的是某个变量(权重或者输入输出)，可以通过它来控制tensor的读写，它能像tensor一样作为计算节点的输入。tensor的流动通过连接有向图的实线表示，控制依赖control dependencies通过虚线箭头表示，箭头的起始节点执行完毕才执行结束节点，session控制tensor流动到何处停止。因此使用TensorFlow需要先定义计算图，然后再把数据往里传得到输出。它没有一个严格的前向传输后向传输的概念，求解梯度通过optimizer来控制，如果数据flow到了optimizer的位置，会对前面需要求导的变量自动求导并更新。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_1.png" height="60%" width="60%" hspace="310">
+<img src="/blog/2017/02/25/comparetfmxpd/tfmxpd_1.png" height="60%" width="60%" hspace="310">
 
 <p><font size="2"><center>图1 TensorFlow计算图(图片来源[17])</center></font></p>
 <p>MXNet也是将算法表达成了有向计算图，将数据和计算表达成有向图中的节点，与TensorFlow不同的是，MXNet将计算图中每一个节点，包括数据节点variable、基本计算floor、神经网络操作pooling都封装在symbol里面，而TensorFlow将数据节点、基本计算、神经网络操作封装成了不同的类，所以它们之间流通需要通过tensor，而MXNet计算图的节点输出类型统一是symbol，通过outputs访问symbol中的NDarray数据。当构建好计算图的节点、连接方式，就通过executor来启动计算，包括计算图的前向计算输出和反向计算导数。MXNet为训练深度学习实现了Model/Module两个类，Model在executor上又封装了一层，实现了feedforward功能，将forward和backward整合在了一起，用户直接调用feedforward.fit即可完成训练、更新参数。而Module的接口好像也差不多，官网说Model只是为了提供一个接口方便训练，Module是为了更高一层的封装。</p>
 <p>paddle的架构挺像caffe的，基于神经网络中的功能层来开发的，一个层包括了许多复杂的操作，例如图1中右边展开的所有操作合起来可以作为这里的一个卷积层。它将数据读取DataProvider、功能层Layers、优化方式Optimizer、训练Evaluators这几个分别实现成类，组合层构成整个网络，但是只能一层一层的累加还不够实用，为了提高灵活性，额外设置了mixed_layer用来组合不同的输入，如下图2所示。但是这种比较粗粒度的划分就算能组合不同输入也不会像上面的灵活，比如add和conv这种操作在上面两种框架中是属于同一层面的，而在pd中则会是conv里面包含add。看得出paddle在尽可能简化构造神经网络的过程，它甚至帮用户封装好了networks类，里面是一些可能需要的组合，例如卷积+batchNorm+pooling。它希望提供更简便的使用方式，用户不需要更改什么主体文件，直接换数据用命令行跑。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_2.jpg" height="30%" width="30%" hspace="310">
+<img src="/blog/2017/02/25/comparetfmxpd/tfmxpd_2.jpg" height="30%" width="30%" hspace="310">
 
 <p><font size="2"><center>图2 PaddlePaddle功能层(图片来源[18])</center></font></p>
 <h3 id="3">3. 分布式实现</h3>
 
 <p>首先说说深度学习算法实现分布式需要干什么，分布式就是将一个参数巨多、数据居多的神经网络分成一些小任务放在多个机器多个显卡上面执行，针对这两个特性有两种解决方案，参数多就把网络切分放在不同设备上，数据量大就多台机器同时执行相同代码处理不同数据，前者称为模型并行后者称为数据并行[19]。神经网络相对其他分布式问题的特殊之处在于，不同机器上的网络参数在训练时都会独立的求导更新，然而这些参数在新的迭代开始之前要保证相对一致(由于可以异步更新，不同机器之间可以不完全一样，但肯定不能差别过大)，因此就出现了Parameter Server[20]，它保存了神经网络的权重等参数，决定了何时接收对这些数据的修改，决定了何时将修改后的数据发放到不同机器的计算节点上。假设需要训练图3中的神经网络，其中节点b和e是网络参数，machine 0和machine 1构成了模型并行，machine01和machine23构成了数据并行，中间的是参数服务器，用于收发参数。目前三个框架都说支持模型并行和数据并行，从用户实现上来看还是各有不同。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_3.png" height="50%" width="50%" hspace="310">
+<img src="/blog/2017/02/25/comparetfmxpd/tfmxpd_3.png" height="50%" width="50%" hspace="310">
 
 <p><font size="2"><center>图3 分布式神经网络</center></font></p>
 <p>tf不同的功能以job划分，例如运行整个computation graph是一个功能，作为parameter server存储更新交换参数是一个功能。job由一系列task组成，每个task是一个进程，它完成指定的工作，计算、传输、读写等等。在tf的分布式实现中，用户要实现的分布式程序主要是两个部分，分别是graph的配置和集群的配置，client需要定义computation graph的结构，节点放在哪个job/task上，并且创建session，通过session请求graph计算到什么地方，一个client对应一个computation graph，如果采用了数据并行，那么就会产生多个graph。集群配置确定了有多少台机器，哪台机器执行哪个task。具体的代码实现参考[21]。</p>
 <p>tf没有专门实现paramter server，而是实现了server，server对象负责交换数据，但不是只交换网络的参数，只要涉及到不同设备间要交换的数据都是由server管理，例如下图中machine0的device 0和device 1之间交换网络的输入输出，因此，在实现神经网络时一般需要将网络参数放在称为ps的job中，从而在网络运行时自动的更新参数。一个task会实例化一个server对象，不同机器之间交换数据的协议有多种，例如gRPC、RDMA等。然后手动在不同的机器上分别执行程序，如下图所示。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_8.png" height="50%" width="50%" hspace="310">
+<img src="/blog/2017/02/25/comparetfmxpd/tfmxpd_8.png" height="50%" width="50%" hspace="310">
 
 <p><font size="2"><center>图4 TensorFlow各台机器涉及到的内容</center></font></p>
 <p>MXNet通过kvstore实现parameter server从而实现多机运行程序，设备之间传输是通过确定数据所在的context后相互交换NDArray。从15年推出的时候就已经支持分布式了，它将网络分布式训练的过程已经封装好，用户只需要确定网络的配置，哪些操作放在哪个GPU之上，开放给用户的接口是Module类的fit函数，这个函数内部会自动创建kvstore对象，在训练的时候梯度和权重会自己push/pull。启动分布式程序也不需要自己手动在多台机器上执行命令，MXNet封装好了launch.py，传入机器个数、主机ip等就能在一台机器上启动多台机器运行程序。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_5.png" height="50%" width="50%" hspace="310">
+<img src="/blog/2017/02/25/comparetfmxpd/tfmxpd_5.png" height="50%" width="50%" hspace="310">
 
 <p><font size="2"><center>图5 MXNet各台机器涉及到的内容</center></font></p>
 <p>PaddlePaddle的分布式结构主要有两个部分，trainer和parameter server。前者是配置网络，功能层、优化算法的python接口封装在了trainer_config_helpers类中，用户可以使用这些接口配置自己的网络，后者没有将接口放出来给用户使用，而是在c++程序中实现的，再通过python来调用c++程序。pd给的例子中通过fabric库来启动分布式程序，可以做到在一台机器上启动多台机器。在parameter server的使用上，pd针对一个网络可以拥有多个参数服务器ps，每个ps负责一部分的网络参数，与所有的trainers进行交换数据，如下图所示。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/tfmxpd_6.png" height="50%" width="50%" hspace="310">
+<img src="/blog/2017/02/25/comparetfmxpd/tfmxpd_6.png" height="50%" width="50%" hspace="310">
 
 <p><font size="2"><center>图5 PaddlePaddle分布式结构(图片来源[22])</center></font></p>
 <h3 id="4">4. 小结</h3>

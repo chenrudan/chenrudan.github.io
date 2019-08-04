@@ -86,12 +86,12 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.146Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/08/05/reinforcementlearninglesssion9/rl.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.956Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【David Silver强化学习公开课之九】探索与利用">
 <meta name="twitter:description" content="本文是David Silver强化学习公开课第九课的总结笔记。这一课主要讲了因为存在Exploration和Exploitation矛盾的问题，从而需要考虑如何达到exploration的目的，提出了三种思路。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/08/05/reinforcementlearninglesssion9/rl.png">
 
 
 
@@ -397,7 +397,7 @@
 <p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/dyna.pdf</a></p>
 <p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/08/05/reinforcementlearninglesssion9/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>第一课中讲过Exploration和Exploitation即探索和利用，简单来说就是前者会尝试新的选择而后者会从已有的信息中选择最好的。例如在线投放的广告，前者会投放一些新的广告，而后者会投放最受欢迎的广告。</p>
 <p>有三种方式可以达到exploration的目的，第一种就是类似$\epsilon-$greedy算法在一定概率基础下随机选择一些action，第二种是更加倾向选择更加具有不确定性的状态/动作，这种方法就需要一种方法来衡量这种不确定性，第三种就是收集一些状态信息来确定是否值得到达这个状态。</p>

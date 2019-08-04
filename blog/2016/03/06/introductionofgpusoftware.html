@@ -86,13 +86,13 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是gpu编程系列第二篇，主要谈谈CUDA软件层面的一些内容，这里的软件层面是指用户写程序涉及到的一些内容，包括介绍CUDA、区分Runtime API与Driver API以及介绍一些常用的库，最后谈一谈NVCC的编译流程。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/install_ubuntu_3.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cuda_software.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.147Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/03/06/introductionofgpusoftware/install_ubuntu_3.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/03/06/introductionofgpusoftware/cuda_software.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.958Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【GPU编程系列之二】CUDA的软件层面和NVCC编译流程">
 <meta name="twitter:description" content="本文是gpu编程系列第二篇，主要谈谈CUDA软件层面的一些内容，这里的软件层面是指用户写程序涉及到的一些内容，包括介绍CUDA、区分Runtime API与Driver API以及介绍一些常用的库，最后谈一谈NVCC的编译流程。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/install_ubuntu_3.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/03/06/introductionofgpusoftware/install_ubuntu_3.png">
 
 
 
@@ -396,11 +396,11 @@
 <p>本文是gpu编程系列第二篇，主要谈谈CUDA软件层面的一些内容，这里的软件层面是指用户写程序涉及到的一些内容，包括介绍CUDA、区分Runtime API与Driver API以及介绍一些常用的库，最后谈一谈NVCC的编译流程。</p>
 <h4 id="1-CUDA是什么？"><a href="#1-CUDA是什么？" class="headerlink" title="1. CUDA是什么？"></a>1. CUDA是什么？</h4><p>接触过gpu编程的人肯定都会看到过一个词CUDA，全称是Compute Unified Device Architecture，英伟达在2007年推出这个统一计算架构，为了让gpu有可用的编程环境，从而能通过程序控制底层的硬件进行计算。CUDA提供host-device的编程模式以及非常多的接口函数和科学计算库，通过同时执行大量的线程而达到并行的目的。在上一篇讲gpu硬件的文章中提到过流处理器(SM)的概念，并且说过SM是gpu的计算单元，而线程是执行在SM上的并行代码。CUDA也有不同的版本，从1.0开始到现在的7.5，每个版本都会有一些新特性。CUDA是基于C语言的扩展，例如扩展了一些限定符<strong>device</strong>、<strong>shared</strong>等，从3.0开始也支持c++编程，从7.0开始支持c++11。</p>
 <p>在安装CUDA的时候，会安装三个大的组件[1]，分别是NVIDIA驱动、toolkit和samples。驱动用来控制gpu硬件，toolkit里面包括nvcc编译器、Nsight调试工具(支持Eclipse和VS，linux用cuda-gdb)、分析和调试工具和函数库。samples或者说SDK，里面包括很多样例程序包括查询设备、带宽测试等等。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/install_ubuntu_3.png" alt="1" height="20%" width="20%" hspace="350">
+<img src="/blog/2016/03/06/introductionofgpusoftware/install_ubuntu_3.png" alt="1" height="20%" width="20%" hspace="350">
 
 <p><font size="2"><center>图1 CUDA安装完成截面(点击查看大图)</center></font></p>
 <h4 id="2-Runtime-API-vs-Driver-API"><a href="#2-Runtime-API-vs-Driver-API" class="headerlink" title="2. Runtime API vs Driver API"></a>2. Runtime API vs Driver API</h4><p>在写cuda程序时，除了自己写的kernel函数，常常会调用cuda接口函数，最常见的就是全局内存分配函数cudaMalloc()，这里分配的内存暂且理解为gpu硬件参数上的显存。然而在某种情况下可能会看到另外一个函数cuMemAlloc()，这两个函数本质上完成的功能是一样的，都是在分配全局内存，但却属于两套接口，分别为Runtime API和Driver API。下图是cuda软件层的一些组件，实际上在cuda的软件层面，Runtime比Driver API更高级，封装的更好，在Runtime之上就是封装的更好的cuFFT等库。这两个库的函数都是能直接调用的，但Driver API相对于Runtime对底层硬件驱动的控制会更直接更方便，比如对context的控制[2]，Driver API调用硬件速度实际上比Runtime也快不了多少。不过Driver API向后兼容支持老版本的，这点Runtime就做不到，7.0的版本代码可能在6.5上就跑不了。大部分的功能两组API都有对应的实现，一般基于Driver API的开头会是cu，而基于Runtime API的开头是cuda，但基于Driver API来写程序会比Runtime API要复杂，虽然功能上差别不大，但是使用Runtime API和更高级的库函数就已经足够了。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/cuda_software.png" alt="1" height="20%" width="20%" hspace="350">
+<img src="/blog/2016/03/06/introductionofgpusoftware/cuda_software.png" alt="1" height="20%" width="20%" hspace="350">
 
 <p><font size="2"><center>图1 CUDA软件层(图片来源《The cuda handbook》，点击查看大图)</center></font></p>
 <h4 id="3-常用函数库"><a href="#3-常用函数库" class="headerlink" title="3. 常用函数库"></a>3. 常用函数库</h4><p>NVIDIA针对cuda的使用开发了很多好用的库，包括实现c++ STL的thrust、实现gpu版本blas的cublas、实现快速傅里叶变换的cuFFT、实现稀疏矩阵运算操作的cuSparse以及实现深度学习网络加速的cuDNN等等[3]。在操作这些库时有一个通用的规范，即调用者进行设备内存的分配与释放，内存分配好后将指针传递给这些库接口，就可以进行计算了。</p>

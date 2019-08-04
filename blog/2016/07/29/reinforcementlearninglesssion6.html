@@ -86,13 +86,13 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl_6_1.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.149Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/07/29/reinforcementlearninglesssion6/rl.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/07/29/reinforcementlearninglesssion6/rl_6_1.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.961Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【David Silver强化学习公开课之六】求解近似值函数">
 <meta name="twitter:description" content="本文是David Silver强化学习公开课第六课的总结笔记。这一课主要讲了由于现实问题中状态数过多导致无法直接求解出值函数，从而通过梯度下降的方式来求解真实值函数的近似函数形式。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/07/29/reinforcementlearninglesssion6/rl.png">
 
 
 
@@ -398,7 +398,7 @@
 <p>本课ppt地址:<a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/FA.pdf" target="_blank" rel="noopener">http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/FA.pdf</a></p>
 <p>文章的内容是课程的一个总结和讨论，会按照自己的理解来组织。个人知识不足再加上英语听力不是那么好可能会有一些理解不准的地方，欢迎一起讨论。</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/07/29/reinforcementlearninglesssion6/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-内容回顾"><a href="#1-内容回顾" class="headerlink" title="1.内容回顾"></a>1.内容回顾</h4><p>前面的课大致上讲解了解决各种情况下的MDP问题，目的就是为了从某个状态开始选择最好的执行方法一直运行到终止状态，要么是求在某个状态$S$下的value function，要么是求在某个状态下$S$执行某个动作$A$的action-value function，但现实中有不少问题的状态$S$的取值和动作$A$非常多，例如围棋的361个点位，每个点位会出现黑白空三种情况，那么就有$3^{361} \approx 10^{170}$种状态，如果算出每种状态下的真实value function既没有足够的内存也没有足够的计算能力，此外比较接近的状态它们的值函数取值应该是很相似的，这是一种泛化能力。</p>
 <p>也就是说需要算法来求解近似的$V(S)$和$Q(S,A)$，并且针对未知的状态有比较强的泛化能力。这种近似算法称之为function approximation，用$\hat{v}(s,w)$来近似真实值函数，用$\hat{q}(s,a,w)$来近似真实动作值函数，其中$w$是近似函数的更新参数，例如神经网络的权重。近似的方法有特征线性组合、神经网络、决策树、最近邻等等。以神经网络为例，输入是状态$S$，那么输出就是$\hat{v}(s,w)$，即把近似值函数用神经网络实现出来。</p>
@@ -408,7 +408,7 @@
 <p>Temporal Difference Learning中针对某个状态估计下一个时刻可能获得的return，由immdiate reward和上一次更新的值函数构成，也称为TD target，从而更新当前时刻的值函数，因此用$R_{t+1} + \gamma \hat{v}(S_{t+1},w)$来替换$v_{\pi}(S)$。替换后发现括号内的这一项就是TD error。同样的TD($\lambda$)也是替换成第四课的公式即可。</p>
 <p>而动作值函数也是差不多的，就是替换，这里就不提了，参考[1]。</p>
 <p>在强化学习中，有个比较经典的例子就是汽车爬山[2]，车会在凹的山谷中来回启动，不同的高度上汽车需要学会利用势能来到达对面的山顶，这个问题中的状态就是汽车所处的位置和当前的速度(个人觉得当前的速度应该是action，在不同的位置人控制不同的速度，但是David课中说action是选择加速还是不加速)，曲面的起伏代表了value function。通过图中多执行多个episode得到了值函数的表达形式。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl_6_1.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2016/07/29/reinforcementlearninglesssion6/rl_6_1.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图1 Mountain Car Example(图片来源[1])</center></font></p>
 <h4 id="3-DQN"><a href="#3-DQN" class="headerlink" title="3. DQN"></a>3. DQN</h4><p>此处讲batch methods说”梯度下降的方法针对一个sample，只利用一次，更新一次梯度之后就不再使用了，并没有挖掘出这个sample所有信息，因此需要用batch methods来重复的利用sample并找到最佳拟合值函数，拟合所有看到过的sample” ，这个意思我觉得并不重要，如果用神经网络来学习参数必然会多次迭代sample，所以直接介绍DQN。</p>

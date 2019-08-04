@@ -86,14 +86,14 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法，并且提供了不少可以解决的问题来练手。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cp_1.gif">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cp_2.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.153Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/09/04/cartpole/rl.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/09/04/cartpole/cp_1.gif">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2016/09/04/cartpole/cp_2.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.967Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于Policy Gradient实现CartPole">
 <meta name="twitter:description" content="8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法，并且提供了不少可以解决的问题来练手。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2016/09/04/cartpole/rl.png">
 
 
 
@@ -396,7 +396,7 @@
         <p>【转载请注明出处】<a href="http://chenrudan.github.io/">chenrudan.github.io</a></p>
 <p>8月的时候把David silver的强化学习课上了，但是一直对其中概念如何映射到现实问题中不理解，半个月前突然发现OpenAI提供了一个python库Gym，它创造了强化学习的environment，可以很方便的启动一个强化学习任务来自己实现算法(<a href="http://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2651982287&idx=1&sn=b06a85cb8a0a3ba026fa51f739f827ab&scene=0#wechat_redirect" target="_blank" rel="noopener">新智元OpenAI简介</a>[1])，并且提供了不少可以解决的问题来练手<a href="https://openai.com/requests-for-research/" target="_blank" rel="noopener">https://openai.com/requests-for-research/</a>。本文针对如何解决入门问题CartPole，来解释一下怎么将之前课上的算法转化成实现代码。这里强烈推荐一下官网的教程<a href="http://kvfrans.com/simple-algoritms-for-solving-cartpole/" target="_blank" rel="noopener">http://kvfrans.com/simple-algoritms-for-solving-cartpole/</a>，因为这个作者只是个高中生T^T…</p>
 <p>建了一个强化学习讨论qq群，有兴趣的可以加一下群号595176373或者扫描下面的二维码。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/rl.png" alt="1" height="20%" width="20%" hspace="300">
+<img src="/blog/2016/09/04/cartpole/rl.png" alt="1" height="20%" width="20%" hspace="300">
 
 <h4 id="1-Gym库"><a href="#1-Gym库" class="headerlink" title="1. Gym库"></a>1. Gym库</h4><p>它提供了一些函数接口，模拟了强化学习问题中environment，当向它传递一个动作，它相应会返回执行这个动作后的状态、奖赏等。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#启动某种环境</span></span><br><span class="line">env = gym.make(<span class="string">'CartPole-v0'</span>) </span><br><span class="line"><span class="comment">#针对传进来的动作返回状态observation等</span></span><br><span class="line">observation, reward, done, info = env.step(action)</span><br></pre></td></tr></table></figure>
@@ -406,7 +406,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#从动作空间中采样一个动作</span></span><br><span class="line">action = env.action_space.sample()</span><br><span class="line">observation, reward, done, info = env.step(action)</span><br><span class="line"><span class="keyword">print</span> observation</span><br></pre></td></tr></table></figure>
 
 <p>结果是[-0.061586   -0.75893141  0.05793238  1.15547541]。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/cp_1.gif" alt="1" height="30%" width="30%" hspace="200">
+<img src="/blog/2016/09/04/cartpole/cp_1.gif" alt="1" height="30%" width="30%" hspace="200">
 
 <p><font size="2"><center>图1 CartPole示意图</center></font></p>
 <h4 id="3-三种解法"><a href="#3-三种解法" class="headerlink" title="3. 三种解法"></a>3. 三种解法</h4><p>目的是在不同状态下执行出合适的action，代码中要做的就是替换掉采样这一行，用policy来决定执行什么动作。也就是说此处需要决定policy的形式，官网给出了两种思路，已知policy的输入是当前所处的状态observation，输出是action的取值即0 or 1，observation是一个四维向量，如果对这个向量求它的加权和，就可以得到一个值，那么就可以根据加权和的符号来决定action，同样可以用sigmoid函数当成二分类问题。基于这两种policy可以得到下面三种解法，核心就在于通过改变加权的权重值就能改变policy。</p>
@@ -437,7 +437,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gym.upload(<span class="string">'cartpole-hill'</span>)</span><br></pre></td></tr></table></figure>
 
 <p>最后在网站上就能看到如下的结果。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/cp_2.png" alt="1" height="60%" width="60%" hspace="200">
+<img src="/blog/2016/09/04/cartpole/cp_2.png" alt="1" height="60%" width="60%" hspace="200">
 
 <p><font size="2"><center>图2 结果提交成功图</center></font></p>
 <h4 id="5-小结"><a href="#5-小结" class="headerlink" title="5.小结"></a>5.小结</h4><p>我的policy gradient是完全按照第七课的内容实现的，但是实际上效果还不够好，并且非常依赖初始值，初始值好就很快收敛，不好就会一直恶性循环。总之感觉这个网站还是很有意思的，值得去玩一玩，文中的代码在<a href="https://github.com/chenrudan/deep-learning/tree/master/rl/cartpole" target="_blank" rel="noopener">这里</a>。 </p>

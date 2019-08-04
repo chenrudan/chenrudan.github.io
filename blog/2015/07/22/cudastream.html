@@ -86,12 +86,12 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="从cuda的软件结构入手，理解cuda流和事件的概念，并总结了一下常见的一些同步函数。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cuda-stream.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.140Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/07/22/cudastream/cuda-stream.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.950Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【GPU编程系列之三】cuda stream和event相关内容">
 <meta name="twitter:description" content="从cuda的软件结构入手，理解cuda流和事件的概念，并总结了一下常见的一些同步函数。">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/cuda-stream.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2015/07/22/cudastream/cuda-stream.png">
 
 
 
@@ -427,7 +427,7 @@ kernel3 &lt;&lt;&lt; grid, block, 0, stream3 &gt;&gt;&gt; ( …, dev3, … ) ;
 cudaMemcpyAsync ( host4, dev4, size, D2H, stream4 ) ;
 ...</code></pre><p>同步异步的过程可以参考下图，其中的数字就代表了流编号。在第一张示例中，在一个stream 0上三个操作按序执行，第二张图中，第二个时间段，stream 1的kernel执行操作就和stream 2的内存复制操作时间重叠（overlap）了，从而做到了并发。</p>
 <p>摘自<a href="http://devblogs.nvidia.com/parallelforall/how-overlap-data-transfers-cuda-cc/" target="_blank" rel="noopener">http://devblogs.nvidia.com/parallelforall/how-overlap-data-transfers-cuda-cc/</a></p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/cuda-stream.png" alt="1" height="60%" width="60%" hspace="200">
+<img src="/blog/2015/07/22/cudastream/cuda-stream.png" alt="1" height="60%" width="60%" hspace="200">
 
 <p>GPU上的一些操作是异步进行的，异步的意思就是gpu在它执行完任务之前就将控制全返回给主机线程，那么就能保证后面的cpu程序在执行的时候gpu的函数也在执行。也就是说在GPU上执行的一些操作和CPU上执行的函数能够异步进行。这些操作大致如下：</p>
 <pre><code>启动核函数

@@ -86,19 +86,19 @@
 <meta property="og:site_name" content="听见下雨的声音">
 <meta property="og:description" content="阅读caffe的源代码的一些总结。Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe7.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe8.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe9.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe10.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe11.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe12.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe1.png">
-<meta property="og:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe6.png">
-<meta property="og:updated_time" content="2019-08-04T12:46:52.145Z">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe7.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe8.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe9.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe10.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe11.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe12.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe1.png">
+<meta property="og:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe6.png">
+<meta property="og:updated_time" content="2019-08-04T13:43:33.955Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[caffe]的项目架构和源码解析">
 <meta name="twitter:description" content="阅读caffe的源代码的一些总结。Caffe是一个基于c++/cuda语言的深度学习框架，开发者能够利用它自由的组成自己想要的网络。目前支持卷积神经网络和全连接神经网络（人工神经网络）。Linux上，c++可以通过命令行来操作接口，matlab、python有专门的接口，运算支持gpu也支持cpu，目前版本能够支持多gpu，但是分布式多机版本仍在开发中。大量的研究者都在采用caffe的架构，并且也">
-<meta name="twitter:image" content="http://7xkmdr.com1.z0.glb.clouddn.com/caffe7.png">
+<meta name="twitter:image" content="https://chenrudan.github.io/blog/2015/05/07/cafferead/caffe7.png">
 
 
 
@@ -411,27 +411,27 @@
 <p><strong><center>Protobuf</center></strong></p>
 <p>Google Protocol Buffer(简称Protobuf)是Google公司内部的混合语言数据标准，目前已经正在使用的有超过48,162种报文格式定义和超过12,183个.proto文件。它是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化、序列化结构数据，自己定义一次数据如何结构化，目前提供了c++、java、python三种语言的API。相对于xml优点在于简单、体积小、读取处理时间快、更少产生歧义、更容易产生易于编程的类。</p>
 <p>就caffe而言，这个工具的用处体现在生成caffe所需的<strong>参数类</strong>，这些类能从以.prototxt结尾的文件中解析参数，然后对应生成Net、Layer的参数。自己定义序列化文件a.proto，文件内容如图1，以关键词message来定义一个类，本图中它是卷积层的参数类，这个类的成员类型有bool和uint32等，也可用自己定义的类型。等号后面的数字是一个唯一的编号tag，来区分这些不同参数，在官方文档中这些称为field。可以在一个.proto中定义多个message，注释风格与c/c++一致。定义好的proto进行编译后生成.h和.cc对应c++的头文件和源文件。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe7.png" alt="1" height="60%" width="60%" hspace="180">
+<img src="/blog/2015/05/07/cafferead/caffe7.png" alt="1" height="60%" width="60%" hspace="180">
 
 <p><font size="2"><center>图1 自定义proto</center></font></p>
 <p>图2是编译后自动生成的文件，可以看到生成了ConvolutionalParameter类。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe8.png" alt="1" height="60%" width="60%" hspace="180">
+<img src="/blog/2015/05/07/cafferead/caffe8.png" alt="1" height="60%" width="60%" hspace="180">
 
 <p><font size="2"><center>图2 自动生成的c++类</center></font></p>
 <p><strong><center>Glob</center></strong></p>
 <p>这个工具也是谷歌出品，用来打印初始化、运行时的信息，记录意外中断等。使用先要初始化google的logging库。一般在caffe中常见的LOG(INFO)…和CHECK(XXX)…都是它执行的。相关的内容可以参考下面的图片，图3是标出颜色的是代码中用到了的打印，图4是对应打印到屏幕上的信息。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe9.png" alt="1" height="60%" width="60%" hspace="180">
+<img src="/blog/2015/05/07/cafferead/caffe9.png" alt="1" height="60%" width="60%" hspace="180">
 
 <p><font size="2"><center>图3 c++代码</center></font></p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe10.png" alt="1" height="60%" width="60%" hspace="180">
+<img src="/blog/2015/05/07/cafferead/caffe10.png" alt="1" height="60%" width="60%" hspace="180">
 
 <p><font size="2"><center>图4 打印信息</center></font></p>
 <p><strong><center>LMDB</center></strong></p>
 <p>lmdb是一个读取速度快、轻量级的数据库，支持多线程、多进程并发，数据由key-value对存储。caffe还提供leveldb的接口，本文只讨论python实现的lmdb。在这个数据库中存放的是序列化生成的字符串。caffe提供脚本文件先生成lmdb格式的数据，这个脚本文件会生成一个文件夹，文件夹下包括两个文件，一个数据文件，一个lock文件。然后调用训练网络的DataLayer层来读取lmdb格式的数据。图5是定义ldmb数据库类型，图6是将数据序列化再存入数据库中。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe11.png" alt="1" height="40%" width="40%" hspace="260">
+<img src="/blog/2015/05/07/cafferead/caffe11.png" alt="1" height="40%" width="40%" hspace="260">
 
 <p><font size="2"><center>图5 定义db</center></font></p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe12.png" alt="1" height="30%" width="30%" hspace="300">
+<img src="/blog/2015/05/07/cafferead/caffe12.png" alt="1" height="30%" width="30%" hspace="300">
 
 <p><font size="2"><center>图6 存入db</center></font></p>
 <h4 id="3-caffe基本结构"><a href="#3-caffe基本结构" class="headerlink" title="3.caffe基本结构"></a>3.caffe基本结构</h4><p><strong><center>Blob</center></strong></p>
@@ -442,7 +442,7 @@
 <li>两种访问方式，一种是不能改变数据，一种能改变数据</li>
 </ul>
 <p>其中让人眼前一亮的是data和diff的设计，其实在卷积网络中，很多情况下一个变量不仅有它自身的值，另外还有cost function对它的导数，采用过多的变量来保存这两个信息还不如将它们放在一起直观，下图是源码blob.hpp中的定义。</p>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe1.png" alt="1" height="40%" width="40%" hspace="260">
+<img src="/blog/2015/05/07/cafferead/caffe1.png" alt="1" height="40%" width="40%" hspace="260">
 
 <p><font size="2"><center>图7 定义blob</center></font></p>
 <p><strong><center>Layer</center></strong></p>
@@ -452,7 +452,7 @@
 <li>forward，由bottom求top</li>
 <li>backward，由top的梯度求bottom的梯度，有参数的求参数梯度</li>
 </ul>
-<img src="http://7xkmdr.com1.z0.glb.clouddn.com/caffe6.png" alt="1" height="60%" width="60%" hspace="180">
+<img src="/blog/2015/05/07/cafferead/caffe6.png" alt="1" height="60%" width="60%" hspace="180">
 
 <p><font size="2"><center>图8 caffe的layer实现方式</center></font></p>
 <p>而前向传播、后向传播的函数也分别有两种实现方式，一种基于gpu一种基于cpu。Forward函数，参数分别是两个存放blob指针的vector，分别是bottom、top。通过指针数组的方式能够实现多个输入多个输出。值得一提的是，caffe的卷积部分采用了将数据进行变换，变成矩阵之后再用矩阵乘法来实现卷积，cudnn也是采用这样的方式，经过我的实验，确实这种方式比直接实现cuda kernel要快一些。caffe大部分底层实现都是用blas或者cublas处理的。</p>
